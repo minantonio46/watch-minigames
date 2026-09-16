@@ -109,9 +109,11 @@ p,h1 { margin:0; }
    rather than to the raw edges of the browser window. */
 @media (min-aspect-ratio:1/1) {
   #carousel.embla {
-    --carousel-inset:clamp(24px,8vw,160px);
-    --carousel-fade:clamp(72px,10vw,180px);
-    width:calc(100vw - (var(--carousel-inset) * 2));
+    /* Keep a bounded stage in the center even on ultrawide displays.  The
+       blank area outside it is intentional; only this stage owns card fades. */
+    --carousel-stage:max(0px, calc(var(--square) * 2.2));
+    --carousel-fade:calc(var(--square) * .18);
+    width:min(calc(100vw - 24px), var(--carousel-stage));
     margin-left:50%;
     transform:translateX(-50%);
     overflow:hidden;
