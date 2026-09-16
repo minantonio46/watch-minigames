@@ -29,12 +29,13 @@ let runnerScore = 0;
 let runnerLastFrame = 0;
 const runnerObstacleGlyphs = ['▣', '✚', '✖', '⌘', '※'];
 const RUNNER_MAX_DIFFICULTY_SCORE = 500;
-// Long, repeated glyphs can render beyond their measured box on watch browsers.
-// Keep a fixed overscan that exceeds the largest possible rendered glyph run.
-const RUNNER_GLYPH_OVERSCAN = 280;
+const RUNNER_REFERENCE_STAGE_HEIGHT = 155;
+const RUNNER_MAX_EMPTY_SECONDS = 0.72;
 let runnerObstacles = [];
 let runnerAirObstacleCount = 0;
 let runnerGroundObstacleCount = 0;
+let runnerStageWidth = 0;
+let runnerStageHeight = 0;
 
 // Blackjack state
 let bjPlayer = [];
@@ -64,6 +65,9 @@ function resetRunnerPreview() {
   $('#runner-obstacle').style.left = '0px';
   $('#runner-obstacle-next').style.left = '0px';
   $('#runner-obstacle-tail').style.left = '0px';
+  runnerObstacles = [];
+  runnerStageWidth = 0;
+  runnerStageHeight = 0;
 }
 function hasActiveBlackjackRound() { return bjState === 'player' || bjState === 'dealer'; }
 function cancelBlackjackRound() {
@@ -193,6 +197,10 @@ function calcBjHand(hand) {
     aces--;
   }
   return total;
+}
+
+function isNaturalBlackjack(hand) {
+  return hand.length === 2 && calcBjHand(hand) === 21;
 }
 
 function renderBjCards(container, hand, hideSecond = false) {
@@ -353,17 +361,11 @@ function startBlackjack() {
 
   updateBjUI(true);
 
-  // Check initial natural Blackjack
-  const pScore = calcBjHand(bjPlayer);
-  const dScore = calcBjHand(bjDealer);
-
-  if (pScore === 21) {
-    if (dScore === 21) {
-      endBlackjack('push');
-    } else {
-      endBlackjack('blackjack');
-    }
-  }
+  const playerNatural = isNaturalBlackjack(bjPlayer);
+  const dealerNatural = isNaturalBlackjack(bjDealer);
+  if (playerNatural && dealerNatural) endBlackjack('push');
+  else if (playerNatural) endBlackjack('blackjack');
+  else if (dealerNatural) endBlackjack('dealer_blackjack');
 }
 
 function bjHit() {
@@ -387,30 +389,25 @@ function bjStand() {
   $('#bj-stand').hidden = true;
   updateBjUI(false); // Reveal dealer's hidden card first
 
-  function drawNext() {
-    const dealerTarget = calcBjHand(bjPlayer);
-    if (calcBjHand(bjDealer) < dealerTarget) {
-      bjDealer.push(drawBjCard());
-      updateBjUI(false);
-      timer = setTimeout(drawNext, 800);
-    } else {
-      const pScore = calcBjHand(bjPlayer);
-      const dScore = calcBjHand(bjDealer);
+  timer = setTimeout(continueBjDealerTurn, 650);
+}
 
-      if (dScore > 21) {
-        endBlackjack('dealer_bust');
-      } else if (pScore > dScore) {
-        endBlackjack('win');
-      } else if (pScore < dScore) {
-        endBlackjack('lose');
-      } else {
-        endBlackjack('push');
-      }
-    }
+function continueBjDealerTurn() {
+  if (current !== 'blackjack' || bjState !== 'dealer') return;
+  const dealerScore = calcBjHand(bjDealer);
+  if (dealerScore < 17) {
+    bjDealer.push(drawBjCard());
+    updateBjUI(false);
+    timer = setTimeout(continueBjDealerTurn, 650);
+    return;
   }
 
-  // Add a slight delay before dealer starts drawing for better effect
-  timer = setTimeout(drawNext, 800);
+  const playerScore = calcBjHand(bjPlayer);
+  const finalDealerScore = calcBjHand(bjDealer);
+  if (finalDealerScore > 21) endBlackjack('dealer_bust');
+  else if (playerScore > finalDealerScore) endBlackjack('win');
+  else if (playerScore < finalDealerScore) endBlackjack('lose');
+  else endBlackjack('push');
 }
 
 function endBlackjack(outcome) {
@@ -448,6 +445,9 @@ function endBlackjack(outcome) {
   } else if (outcome === 'lose') {
     document.body.dataset.state = 'waiting';
     msg = tr(`패배 (${pScore} vs ${dScore})`, `Dealer won (${pScore} vs ${dScore})`);
+  } else if (outcome === 'dealer_blackjack') {
+    document.body.dataset.state = 'waiting';
+    msg = tr('딜러 블랙잭! 패배', 'Dealer blackjack! Loss');
   } else if (outcome === 'push') {
     bjMoney += bjBet;
     document.body.dataset.state = 'idle';
@@ -481,11 +481,46 @@ function finishTaps() {
 }
 function runnerJump() {
   const stage = $('#runner-stage');
-  const stageHeight = stage?.clientHeight || 155;
-  const physicsScale = stageHeight / 155;
+  const stageHeight = stage?.clientHeight || RUNNER_REFERENCE_STAGE_HEIGHT;
+  const physicsScale = stageHeight / RUNNER_REFERENCE_STAGE_HEIGHT;
   if (!runnerRunning || runnerY > stageHeight * 0.006) return;
   runnerVelocity = 285 * physicsScale;
   runnerHoldMs = 0;
+}
+function runnerOverscan(stageHeight) {
+  return stageHeight * 1.35;
+}
+function runnerSafeGap(previous, obstacle, stageWidth, speed) {
+  const idealGap = speed * Math.max(previous.recoverySeconds, obstacle.entrySeconds);
+  const maxGap = stageWidth + speed * RUNNER_MAX_EMPTY_SECONDS;
+  return Math.min(idealGap, maxGap);
+}
+function syncRunnerStageSize(width, height) {
+  if (!width || !height) return;
+  if (!runnerStageWidth || !runnerStageHeight) {
+    runnerStageWidth = width;
+    runnerStageHeight = height;
+    return;
+  }
+  if (Math.abs(width - runnerStageWidth) < 0.5 && Math.abs(height - runnerStageHeight) < 0.5) return;
+
+  const horizontalScale = width / runnerStageWidth;
+  const verticalScale = height / runnerStageHeight;
+  runnerY *= verticalScale;
+  runnerVelocity *= verticalScale;
+  runnerObstacles.forEach(obstacle => {
+    obstacle.x *= horizontalScale;
+    obstacle.width *= verticalScale;
+    obstacle.height *= verticalScale;
+    obstacle.bottom *= verticalScale;
+    obstacle.fontSize *= verticalScale;
+    obstacle.node.style.left = `${obstacle.x}px`;
+    obstacle.node.style.width = `${obstacle.width}px`;
+    obstacle.node.style.bottom = `${obstacle.bottom}px`;
+    obstacle.node.style.fontSize = `${obstacle.fontSize}px`;
+  });
+  runnerStageWidth = width;
+  runnerStageHeight = height;
 }
 function renderRunner() {
   $('#runner-player').style.transform = `translateY(${-runnerY}px)`;
@@ -493,6 +528,15 @@ function renderRunner() {
     obstacle.node.style.left = `${obstacle.x}px`;
   });
   $('#runner-score').textContent = tr(`${Math.floor(runnerScore)}점`, `${Math.floor(runnerScore)} pts`);
+}
+function measureRunnerObstacle(obstacle) {
+  const range = document.createRange();
+  range.selectNodeContents(obstacle.node);
+  const rect = range.getBoundingClientRect();
+  range.detach?.();
+  if (rect.width > 0) obstacle.width = rect.width;
+  if (rect.height > 0) obstacle.height = rect.height;
+  obstacle.node.style.width = `${obstacle.width}px`;
 }
 function buildRunnerObstacle(obstacle, stageWidth, stageHeight, x) {
   // Move off-screen before changing any visual property.  This avoids a frame
@@ -526,15 +570,29 @@ function buildRunnerObstacle(obstacle, stageWidth, stageHeight, x) {
     specs.recovery = airRepeats === 4 ? 1.20 : specs.recovery;
   }
   obstacle.kind = kind;
-  obstacle.height = Math.max(22, stageHeight * specs.height);
-  obstacle.width = Math.max(24, stageWidth * specs.width);
+  obstacle.height = stageHeight * specs.height;
+  obstacle.width = stageWidth * specs.width;
   obstacle.bottom = stageHeight * (specs.bottom ?? 0);
   obstacle.entrySeconds = specs.entry;
   obstacle.recoverySeconds = specs.recovery;
   obstacle.repeatCount = airRepeats;
   if (kind === 'air') runnerAirObstacleCount++;
   else runnerGroundObstacleCount++;
-  const fontSize = Math.max(26, obstacle.height * 1.25);
+  const fontSize = obstacle.height * 1.25;
+  let groundRepeats = 1;
+  if (kind === 'wide') {
+    groundRepeats = 4;
+  } else if (kind === 'tall') {
+    groundRepeats = Math.random() < 0.7 ? 1 : 2;
+  } else {
+    // Keep the opening readable with deliberate single/two-glyph variation.
+    groundRepeats = Math.random() < (kind === 'quick' ? 0.75 : 0.50) ? 1 : 2;
+  }
+  // The rendered glyph uses a 1em line box. Keep the collision rectangle on
+  // that same visual box rather than the smaller, pre-font design estimate.
+  obstacle.height = fontSize;
+  obstacle.fontSize = fontSize;
+  if (kind !== 'air') obstacle.width = fontSize * 0.68 * groundRepeats;
   // 1) move right, 2) collapse to one glyph, 3) size, 4) glyph,
   // 5) vertical position, 6) repeat count.
   obstacle.node.style.width = `${obstacle.width}px`;
@@ -552,10 +610,12 @@ function buildRunnerObstacle(obstacle, stageWidth, stageHeight, x) {
     obstacle.node.textContent = glyph.repeat(airRepeats);
   } else {
     obstacle.node.classList.remove('air-bundle');
-    const repeatCount = Math.max(1, Math.round(obstacle.width / (fontSize * 0.68)));
     obstacle.node.style.letterSpacing = '';
-    obstacle.node.textContent = glyph.repeat(repeatCount);
+    obstacle.node.textContent = glyph.repeat(groundRepeats);
   }
+  // Symbol fallback fonts have different advance widths. Measure the final
+  // rendered run so the collision rectangle follows what is actually drawn.
+  measureRunnerObstacle(obstacle);
 }
 function endRunner() {
   stopRunner(false);
@@ -572,10 +632,11 @@ function runRunner(frameTime) {
   const width = stage.clientWidth;
   const height = stage.clientHeight;
   if (!width || !height) { runnerFrame = requestAnimationFrame(runRunner); return; }
+  syncRunnerStageSize(width, height);
   // Physics uses the same stage-height basis as the rendered runner. Without
   // this, a larger watch frame enlarged the cursor and obstacles but left the
   // jump arc at its old pixel height.
-  const physicsScale = height / 155;
+  const physicsScale = height / RUNNER_REFERENCE_STAGE_HEIGHT;
   if (runnerHolding && runnerVelocity > 0 && runnerHoldMs < 220) {
     runnerVelocity += 680 * physicsScale * elapsed;
     runnerHoldMs += elapsed * 1000;
@@ -615,13 +676,14 @@ function runRunner(frameTime) {
     return;
   }
   runnerObstacles.forEach(obstacle => {
-    if (obstacle.x + obstacle.width >= -RUNNER_GLYPH_OVERSCAN) return;
+    const overscan = runnerOverscan(height);
+    if (obstacle.x + obstacle.width >= -overscan) return;
     const previous = runnerObstacles.filter(item => item !== obstacle).reduce((furthest, item) => (
       item.x + item.width > furthest.x + furthest.width ? item : furthest
     ));
-    const stagingX = width + RUNNER_GLYPH_OVERSCAN;
+    const stagingX = width + overscan;
     buildRunnerObstacle(obstacle, width, height, stagingX);
-    const safeGap = runnerSpeed * Math.max(previous.recoverySeconds, obstacle.entrySeconds);
+    const safeGap = runnerSafeGap(previous, obstacle, width, runnerSpeed);
     obstacle.x = Math.max(stagingX, previous.x + previous.width + safeGap);
     obstacle.node.style.left = `${obstacle.x}px`;
   });
@@ -631,7 +693,8 @@ function runRunner(frameTime) {
 function startRunner() {
   const stage = $('#runner-stage');
   const width = stage.clientWidth;
-  if (!width) return;
+  const height = stage.clientHeight;
+  if (!width || !height) return;
   stage.dataset.running = 'true';
   runnerRunning = true;
   runnerRestartArmed = false;
@@ -644,6 +707,8 @@ function startRunner() {
   runnerAirObstacleCount = 0;
   runnerGroundObstacleCount = 0;
   runnerLastFrame = performance.now();
+  runnerStageWidth = width;
+  runnerStageHeight = height;
   runnerObstacles = [
     { node: $('#runner-obstacle') },
     { node: $('#runner-obstacle-next') },
@@ -651,14 +716,14 @@ function startRunner() {
   ];
   // The first obstacle enters within 0.75 seconds; two further obstacles stay
   // queued so no empty stage is exposed while a recycled node is off-screen.
-  const entryX = width + Math.min(96, runnerSpeed * 0.7);
-  const stagingX = width + RUNNER_GLYPH_OVERSCAN;
-  buildRunnerObstacle(runnerObstacles[0], width, stage.clientHeight, entryX);
-  buildRunnerObstacle(runnerObstacles[1], width, stage.clientHeight, stagingX);
-  runnerObstacles[1].x = runnerObstacles[0].x + runnerObstacles[0].width + runnerSpeed * Math.max(runnerObstacles[0].recoverySeconds, runnerObstacles[1].entrySeconds);
+  const entryX = width + runnerSpeed * 0.7;
+  const stagingX = width + runnerOverscan(height);
+  buildRunnerObstacle(runnerObstacles[0], width, height, entryX);
+  buildRunnerObstacle(runnerObstacles[1], width, height, stagingX);
+  runnerObstacles[1].x = runnerObstacles[0].x + runnerObstacles[0].width + runnerSafeGap(runnerObstacles[0], runnerObstacles[1], width, runnerSpeed);
   runnerObstacles[1].node.style.left = `${runnerObstacles[1].x}px`;
-  buildRunnerObstacle(runnerObstacles[2], width, stage.clientHeight, stagingX);
-  runnerObstacles[2].x = runnerObstacles[1].x + runnerObstacles[1].width + runnerSpeed * Math.max(runnerObstacles[1].recoverySeconds, runnerObstacles[2].entrySeconds);
+  buildRunnerObstacle(runnerObstacles[2], width, height, stagingX);
+  runnerObstacles[2].x = runnerObstacles[1].x + runnerObstacles[1].width + runnerSafeGap(runnerObstacles[1], runnerObstacles[2], width, runnerSpeed);
   runnerObstacles[2].node.style.left = `${runnerObstacles[2].x}px`;
   $('#message').textContent = tr('짧게: 낮은 점프 · 꾹: 최고 점프 연속', 'Tap: low jump · Hold: repeat high jumps');
   state = 'playing';
@@ -751,15 +816,38 @@ play.addEventListener('keyup', event => {
   event.preventDefault();
   runnerHolding = false;
 });
+play.addEventListener('contextmenu', event => {
+  if (current === 'runner') event.preventDefault();
+});
 $('#back').addEventListener('click', () => {
   location.hash = '';
 });
 window.addEventListener('hashchange', route);
+window.addEventListener('resize', () => {
+  if (current !== 'runner' || !runnerObstacles.length) return;
+  requestAnimationFrame(() => {
+    const stage = $('#runner-stage');
+    syncRunnerStageSize(stage.clientWidth, stage.clientHeight);
+    renderRunner();
+  });
+});
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && current === 'blackjack' && hasActiveBlackjackRound()) {
     clearTimers();
-    cancelBlackjackRound();
-    showBjSetup();
+    return;
+  }
+  if (!document.hidden && current === 'blackjack' && bjState === 'dealer') {
+    clearTimers();
+    timer = setTimeout(continueBjDealerTurn, 350);
+    return;
+  }
+  if (document.hidden && current === 'runner' && runnerRunning) {
+    clearTimers();
+    stopRunner();
+    runnerPointerDown = false;
+    runnerRestartArmed = true;
+    runnerIgnoreNextClick = false;
+    setState('idle', tr('다시 시작', 'Try again'), tr('잠시 멈췄어요', 'Round paused'));
     return;
   }
   if (document.hidden && current && state !== 'idle') {
