@@ -271,7 +271,7 @@ function bjStand() {
   updateBjUI(false); // Reveal dealer's hidden card first
 
   function drawNext() {
-    const dealerTarget = Math.max(17, calcBjHand(bjPlayer));
+    const dealerTarget = calcBjHand(bjPlayer);
     if (calcBjHand(bjDealer) < dealerTarget) {
       bjDealer.push(drawBjCard());
       updateBjUI(false);
