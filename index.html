@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
-  <link rel="stylesheet" href="./style.css?v=signal-footer-transparent-v1">
+  <link rel="stylesheet" href="./style.css?v=blackjack-session-controls-v1">
   <script src="./vendor/embla-carousel.umd.js"></script>
-  <script src="./menu.js?v=signal-footer-transparent-v1" defer></script>
-  <script src="./game.js?v=signal-footer-transparent-v1" defer></script>
+  <script src="./menu.js?v=blackjack-session-controls-v1" defer></script>
+  <script src="./game.js?v=blackjack-session-controls-v1" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu" aria-busy="true">
@@ -101,9 +101,19 @@
           <span class="bj-score" id="bj-player-score"></span>
         </div>
         <div id="bj-controls" class="bj-controls">
+          <div id="bj-bet-controls" class="bj-bet-controls">
+            <span id="bj-bankroll" class="bj-bankroll"></span>
+            <div class="bj-bet-picker">
+              <button id="bj-bet-down" class="bj-btn bj-bet-step" type="button" aria-label="판돈 줄이기">−</button>
+              <span id="bj-bet" class="bj-bet" aria-live="polite"></span>
+              <button id="bj-bet-up" class="bj-btn bj-bet-step" type="button" aria-label="판돈 늘리기">+</button>
+            </div>
+          </div>
           <button id="bj-hit" class="bj-btn" type="button">+ 히트</button>
           <button id="bj-stand" class="bj-btn" type="button">스탠드</button>
-          <button id="bj-deal" class="bj-btn bj-btn-primary" type="button" hidden>새 게임</button>
+          <button id="bj-deal" class="bj-btn bj-btn-primary" type="button" hidden>게임 시작</button>
+          <button id="bj-continue" class="bj-btn bj-btn-primary" type="button" hidden>이어하기</button>
+          <button id="bj-new" class="bj-btn" type="button" hidden>기록 후 새로하기</button>
         </div>
       </div>
       <p id="action"></p>

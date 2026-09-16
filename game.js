@@ -21,7 +21,8 @@ let bjDealer = [];
 let bjDeck = [];
 let bjMoney = 1000;
 let maxBjMoney = 1000;
-const BET_AMOUNT = 100;
+const BET_OPTIONS = [50, 100, 200, 500];
+let bjBet = 100;
 let bjState = 'idle';
 
 function clearTimers() { clearTimeout(timer); clearInterval(ticker); }
@@ -80,16 +81,13 @@ function route() {
       $('#bj-player-label').textContent = tr('나', 'You');
       $('#bj-hit').textContent = tr('+ 히트', '+ Hit');
       $('#bj-stand').textContent = tr('스탠드', 'Stand');
-      $('#bj-deal').textContent = tr('새 게임', 'Deal');
+      $('#bj-deal').textContent = tr('게임 시작', 'Start game');
+      $('#bj-continue').textContent = tr('이어하기', 'Continue');
+      $('#bj-new').textContent = tr('기록 후 새로하기', 'Record & restart');
+      $('#bj-bet-down').setAttribute('aria-label', tr('판돈 줄이기', 'Lower bet'));
+      $('#bj-bet-up').setAttribute('aria-label', tr('판돈 늘리기', 'Raise bet'));
       if (bjState === 'idle') {
-        $('#bj-dealer-cards').innerHTML = '';
-        $('#bj-dealer-score').textContent = '';
-        $('#bj-player-cards').innerHTML = '';
-        $('#bj-player-score').textContent = '';
-        $('#bj-hit').hidden = true;
-        $('#bj-stand').hidden = true;
-        $('#bj-deal').hidden = false;
-        $('#message').textContent = tr('카드를 받아 21을 노려보세요!', 'Get close to 21!');
+        showBjSetup();
       }
     } else {
       setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!' }[current]));
@@ -170,15 +168,54 @@ function updateBjUI(hideDealer = true) {
   }
 }
 
-function startBlackjack() {
-  clearTimers();
-  if (bjMoney <= 0) {
+function syncBjBet() {
+  const affordable = BET_OPTIONS.filter(value => value <= bjMoney);
+  if (affordable.length && !affordable.includes(bjBet)) bjBet = affordable[affordable.length - 1];
+  $('#bj-bankroll').textContent = tr(`보유 $${bjMoney}`, `Bank $${bjMoney}`);
+  $('#bj-bet').textContent = tr(`판돈 $${bjBet}`, `Bet $${bjBet}`);
+  $('#bj-bet-down').disabled = !affordable.length || bjBet === affordable[0];
+  $('#bj-bet-up').disabled = !affordable.length || bjBet === affordable[affordable.length - 1];
+  $('#bj-deal').disabled = !affordable.length;
+}
+
+function showBjSetup(resetBankroll = false) {
+  if (resetBankroll) {
     saveBest(maxBjMoney);
     bjMoney = 1000;
     maxBjMoney = 1000;
+    bjBet = 100;
   }
+  bjState = 'idle';
+  document.body.dataset.state = 'idle';
+  $('#bj-dealer-cards').innerHTML = '';
+  $('#bj-dealer-score').textContent = '';
+  $('#bj-player-cards').innerHTML = '';
+  $('#bj-player-score').textContent = '';
+  $('#bj-hit').hidden = true;
+  $('#bj-stand').hidden = true;
+  $('#bj-bet-controls').hidden = false;
+  $('#bj-deal').hidden = false;
+  $('#bj-continue').hidden = true;
+  $('#bj-new').hidden = true;
+  syncBjBet();
+  $('#message').textContent = bjMoney > 0
+    ? tr('판돈을 고른 뒤 게임을 시작하세요.', 'Choose a bet, then start.')
+    : tr('보유금이 없습니다. 새로 시작하세요.', 'No money left. Start fresh.');
+}
 
-  bjMoney -= BET_AMOUNT;
+function adjustBjBet(direction) {
+  const affordable = BET_OPTIONS.filter(value => value <= bjMoney);
+  const index = affordable.indexOf(bjBet);
+  if (index < 0) return;
+  bjBet = affordable[Math.max(0, Math.min(affordable.length - 1, index + direction))];
+  syncBjBet();
+}
+
+function startBlackjack() {
+  clearTimers();
+  if (bjMoney < bjBet) return;
+
+  bjMoney -= bjBet;
   bjDeck = createBjDeck();
   bjPlayer = [drawBjCard(), drawBjCard()];
   bjDealer = [drawBjCard(), drawBjCard()];
@@ -187,7 +224,10 @@ function startBlackjack() {
 
   $('#bj-hit').hidden = false;
   $('#bj-stand').hidden = false;
+  $('#bj-bet-controls').hidden = true;
   $('#bj-deal').hidden = true;
+  $('#bj-continue').hidden = true;
+  $('#bj-new').hidden = true;
   $('#message').textContent = tr(`히트 또는 스탠드 ($${bjMoney})`, `Hit or Stand ($${bjMoney})`);
 
   updateBjUI(true);
@@ -257,8 +297,10 @@ function endBlackjack(outcome) {
 
   $('#bj-hit').hidden = true;
   $('#bj-stand').hidden = true;
-  $('#bj-deal').hidden = false;
-  $('#bj-deal').textContent = tr('다시 시작', 'Deal Again');
+  $('#bj-bet-controls').hidden = true;
+  $('#bj-deal').hidden = true;
+  $('#bj-continue').hidden = false;
+  $('#bj-new').hidden = false;
 
   const pScore = calcBjHand(bjPlayer);
   const dScore = calcBjHand(bjDealer);
@@ -266,15 +308,15 @@ function endBlackjack(outcome) {
   let msg = '';
 
   if (outcome === 'blackjack') {
-    bjMoney += Math.floor(BET_AMOUNT * 2.5);
+    bjMoney += Math.floor(bjBet * 2.5);
     document.body.dataset.state = 'ready';
     msg = tr(`블랙잭! 👑 승리`, `Blackjack! 👑 Win`);
   } else if (outcome === 'dealer_bust') {
-    bjMoney += BET_AMOUNT * 2;
+    bjMoney += bjBet * 2;
     document.body.dataset.state = 'ready';
     msg = tr(`딜러 버스트(${dScore})! 🎉`, `Dealer bust(${dScore})! 🎉`);
   } else if (outcome === 'win') {
-    bjMoney += BET_AMOUNT * 2;
+    bjMoney += bjBet * 2;
     document.body.dataset.state = 'ready';
     msg = tr(`승리! (${pScore} vs ${dScore})`, `Won! (${pScore} vs ${dScore})`);
   } else if (outcome === 'bust') {
@@ -284,7 +326,7 @@ function endBlackjack(outcome) {
     document.body.dataset.state = 'waiting';
     msg = tr(`패배 (${pScore} vs ${dScore})`, `Dealer won (${pScore} vs ${dScore})`);
   } else if (outcome === 'push') {
-    bjMoney += BET_AMOUNT;
+    bjMoney += bjBet;
     document.body.dataset.state = 'idle';
     msg = tr(`비겼어요 (${pScore} = ${dScore})`, `Push (${pScore} = ${dScore})`);
   }
@@ -294,6 +336,7 @@ function endBlackjack(outcome) {
 
   if (bjMoney <= 0) {
     $('#message').textContent = msg + ' - ' + tr('파산! 💸', 'Bankrupt! 💸');
+    $('#bj-continue').hidden = true;
   } else {
     $('#message').textContent = msg + ` ($${bjMoney})`;
   }
@@ -369,4 +412,8 @@ document.addEventListener('visibilitychange', () => {
 $('#bj-hit').addEventListener('click', bjHit);
 $('#bj-stand').addEventListener('click', bjStand);
 $('#bj-deal').addEventListener('click', startBlackjack);
+$('#bj-continue').addEventListener('click', () => showBjSetup());
+$('#bj-new').addEventListener('click', () => showBjSetup(true));
+$('#bj-bet-down').addEventListener('click', () => adjustBjBet(-1));
+$('#bj-bet-up').addEventListener('click', () => adjustBjBet(1));
 route();
