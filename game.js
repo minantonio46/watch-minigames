@@ -1,5 +1,6 @@
 'use strict';
 const play = document.querySelector('#play');
+const action = document.querySelector('#action');
 const message = document.querySelector('#message');
 const bestLabel = document.querySelector('#best');
 let state = 'idle';
@@ -15,8 +16,9 @@ function showBest() {
 }
 function setState(next, label, text) {
   state = next;
-  play.dataset.state = next;
-  play.textContent = label;
+  document.body.dataset.state = next;
+  action.textContent = label;
+  play.setAttribute('aria-label', `${text} ${label}`);
   message.textContent = text;
 }
 play.addEventListener('click', () => {

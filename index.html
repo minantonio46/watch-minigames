@@ -8,14 +8,15 @@
   <link rel="stylesheet" href="./style.css">
   <script src="./game.js" defer></script>
 </head>
-<body>
+<body data-state="idle">
+  <button id="play" type="button" aria-label="화면 어디나 눌러 시작"></button>
   <main class="watch">
     <p class="eyebrow">WATCH MINIGAMES</p>
     <h1>반응속도</h1>
     <p id="message" role="status" aria-live="polite">초록색이 되면 터치!</p>
-    <button id="play" type="button">시작</button>
+    <p id="action">화면을 눌러 시작</p>
     <p id="best">최고 기록 —</p>
-    <p class="hint">한 손가락으로 가볍게</p>
+    <p class="hint">화면 어디나 터치</p>
   </main>
 </body>
 </html>
