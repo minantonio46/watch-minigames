@@ -137,12 +137,12 @@ p,h1 { margin:0; }
 }
 /* Full-screen game signals use theme-specific palettes.  Footer variables are
    updated together so the game chrome belongs to the active signal screen. */
-body[data-state="waiting"] { background:#4a3511; color:#ffe6a3; --footer-surface:#211807; --footer-fg:#ffe6a3; --footer-border:#8c6928; }
-body[data-state="ready"] { background:#104325; color:#d1ffe1; --footer-surface:#081f11; --footer-fg:#d1ffe1; --footer-border:#3e9c63; }
-:root[data-theme="light"] body[data-state="waiting"] { background:#fff0cf; color:#5b3c00; --footer-surface:#fff9eb; --footer-fg:#5b3c00; --footer-border:#c58f24; }
-:root[data-theme="light"] body[data-state="ready"] { background:#dff8e8; color:#0b4b25; --footer-surface:#f4fff7; --footer-fg:#0b4b25; --footer-border:#4b9c67; }
-:root[data-theme="contrast"] body[data-state="waiting"] { background:#000; color:#ffea00; --footer-surface:#000; --footer-fg:#ffea00; --footer-border:#ffea00; }
-:root[data-theme="contrast"] body[data-state="ready"] { background:#000; color:#7dffad; --footer-surface:#000; --footer-fg:#7dffad; --footer-border:#7dffad; }
+body[data-state="waiting"] { background:#4a3511; color:#ffe6a3; --footer-surface:transparent; --footer-fg:#ffe6a3; --footer-border:#8c6928; }
+body[data-state="ready"] { background:#104325; color:#d1ffe1; --footer-surface:transparent; --footer-fg:#d1ffe1; --footer-border:#3e9c63; }
+:root[data-theme="light"] body[data-state="waiting"] { background:#fff0cf; color:#5b3c00; --footer-surface:transparent; --footer-fg:#5b3c00; --footer-border:#c58f24; }
+:root[data-theme="light"] body[data-state="ready"] { background:#dff8e8; color:#0b4b25; --footer-surface:transparent; --footer-fg:#0b4b25; --footer-border:#4b9c67; }
+:root[data-theme="contrast"] body[data-state="waiting"] { background:#000; color:#ffea00; --footer-surface:transparent; --footer-fg:#ffea00; --footer-border:#ffea00; }
+:root[data-theme="contrast"] body[data-state="ready"] { background:#000; color:#7dffad; --footer-surface:transparent; --footer-fg:#7dffad; --footer-border:#7dffad; }
 body[data-state="waiting"] #action,body[data-state="ready"] #action,
 body[data-state="waiting"] .bj-label,body[data-state="ready"] .bj-label,
 body[data-state="waiting"] .bj-score,body[data-state="ready"] .bj-score { color:inherit; }
