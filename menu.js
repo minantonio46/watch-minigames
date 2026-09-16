@@ -199,6 +199,10 @@ function initEmbla() {
     emblaApi.on('reInit', updateStates);
   }
   updateStates();
+  requestAnimationFrame(() => {
+    document.querySelector('#menu').classList.add('is-ready');
+    document.querySelector('#menu').setAttribute('aria-busy', 'false');
+  });
 }
 
 function reInitEmbla(maintainSelected = true) {
