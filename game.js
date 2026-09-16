@@ -21,7 +21,7 @@ let bjDealer = [];
 let bjDeck = [];
 let bjMoney = 1000;
 let maxBjMoney = 1000;
-const BET_OPTIONS = [50, 100, 200, 500];
+const MIN_BJ_BET = 50;
 let bjBet = 100;
 let bjState = 'idle';
 
@@ -86,8 +86,8 @@ function route() {
       $('#bj-deal').textContent = tr('게임 시작', 'Start game');
       $('#bj-continue').textContent = tr('이어하기', 'Continue');
       $('#bj-new').textContent = tr('기록 후 새로하기', 'Record & restart');
-      $('#bj-bet-down').setAttribute('aria-label', tr('판돈 줄이기', 'Lower bet'));
-      $('#bj-bet-up').setAttribute('aria-label', tr('판돈 늘리기', 'Raise bet'));
+      $('#bj-bet-down').setAttribute('aria-label', tr('판돈 줄이기, 길게 눌러 최소 판돈', 'Lower bet; hold for minimum'));
+      $('#bj-bet-up').setAttribute('aria-label', tr('판돈 늘리기, 길게 눌러 최대 판돈', 'Raise bet; hold for maximum'));
       if (bjState === 'idle') {
         showBjSetup();
       }
@@ -171,13 +171,19 @@ function updateBjUI(hideDealer = true) {
 }
 
 function syncBjBet() {
-  const affordable = BET_OPTIONS.filter(value => value <= bjMoney);
-  if (affordable.length && !affordable.includes(bjBet)) bjBet = affordable[affordable.length - 1];
+  const maxBet = maxBjBet();
+  if (maxBet && bjBet > maxBet) bjBet = maxBet;
   $('#bj-bankroll').textContent = tr(`보유 $${bjMoney}`, `Bank $${bjMoney}`);
   $('#bj-bet').textContent = tr(`판돈 $${bjBet}`, `Bet $${bjBet}`);
-  $('#bj-bet-down').disabled = !affordable.length || bjBet === affordable[0];
-  $('#bj-bet-up').disabled = !affordable.length || bjBet === affordable[affordable.length - 1];
-  $('#bj-deal').disabled = !affordable.length;
+  $('#bj-bet-down').disabled = !maxBet || bjBet === MIN_BJ_BET;
+  $('#bj-bet-up').disabled = !maxBet || bjBet === maxBet;
+  $('#bj-deal').disabled = !maxBet;
+}
+
+function maxBjBet() {
+  if (bjMoney < MIN_BJ_BET) return 0;
+  if (bjMoney < 100) return MIN_BJ_BET;
+  return Math.floor(bjMoney / 100) * 100;
 }
 
 function updateBjRoundMeta() {
@@ -219,11 +225,50 @@ function showBjSetup(resetBankroll = false) {
 }
 
 function adjustBjBet(direction) {
-  const affordable = BET_OPTIONS.filter(value => value <= bjMoney);
-  const index = affordable.indexOf(bjBet);
-  if (index < 0) return;
-  bjBet = affordable[Math.max(0, Math.min(affordable.length - 1, index + direction))];
+  const maxBet = maxBjBet();
+  if (!maxBet) return;
+  if (direction < 0) {
+    bjBet = bjBet <= 100 ? MIN_BJ_BET : bjBet - 100;
+  } else {
+    bjBet = bjBet === MIN_BJ_BET ? 100 : Math.min(maxBet, bjBet + 100);
+  }
   syncBjBet();
+}
+
+function setBjBetExtreme(direction) {
+  const maxBet = maxBjBet();
+  if (!maxBet) return;
+  bjBet = direction < 0 ? MIN_BJ_BET : maxBet;
+  syncBjBet();
+}
+
+function bindBjBetStep(selector, direction) {
+  const button = $(selector);
+  let holdTimer;
+  let longPressed = false;
+
+  button.addEventListener('pointerdown', () => {
+    longPressed = false;
+    holdTimer = setTimeout(() => {
+      longPressed = true;
+      setBjBetExtreme(direction);
+      navigator.vibrate?.(15);
+    }, 450);
+  });
+  button.addEventListener('pointerup', () => clearTimeout(holdTimer));
+  button.addEventListener('pointerleave', () => clearTimeout(holdTimer));
+  button.addEventListener('pointercancel', () => {
+    clearTimeout(holdTimer);
+    longPressed = false;
+  });
+  button.addEventListener('click', () => {
+    if (longPressed) {
+      longPressed = false;
+      return;
+    }
+    adjustBjBet(direction);
+  });
+  button.addEventListener('contextmenu', event => event.preventDefault());
 }
 
 function startBlackjack() {
@@ -438,6 +483,6 @@ $('#bj-stand').addEventListener('click', bjStand);
 $('#bj-deal').addEventListener('click', startBlackjack);
 $('#bj-continue').addEventListener('click', () => showBjSetup());
 $('#bj-new').addEventListener('click', () => showBjSetup(true));
-$('#bj-bet-down').addEventListener('click', () => adjustBjBet(-1));
-$('#bj-bet-up').addEventListener('click', () => adjustBjBet(1));
+bindBjBetStep('#bj-bet-down', -1);
+bindBjBetStep('#bj-bet-up', 1);
 route();
