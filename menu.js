@@ -25,60 +25,81 @@ function orderedCards() {
   return [...ids.filter(id => favorites.includes(id)), ...ids.filter(id => !favorites.includes(id)), 'settings'];
 }
 selected = selected || orderedCards()[0];
-let isAnimating = false;
 
-function renderMenu() {
+const carouselNode = document.querySelector('#carousel');
+const container = document.querySelector('#carousel-track');
+let emblaApi = null;
+let slides = [];
+
+function buildSlides() {
   const ids = orderedCards();
-  const index = ids.indexOf(selected);
-  const slotOffsets = [-2, -1, 0, 1, 2];
-  const slotCards = slotOffsets.map(offset => ids[(index + offset + ids.length * 2) % ids.length]);
+  container.innerHTML = '';
+  ids.forEach(id => {
+    const slide = document.createElement('div');
+    slide.className = 'embla__slide';
+    slide.dataset.game = id;
+    slide.innerHTML = `
+      <button class="carousel-card" type="button">
+        <div class="card-inner">
+          <span class="card-icon" aria-hidden="true">${cards[id].icon}</span>
+          <strong class="card-title">${cards[id].title()}</strong>
+          <span class="card-help">${cards[id].help()}</span>
+        </div>
+      </button>
+    `;
+    container.appendChild(slide);
+  });
+}
 
-  const s0 = document.querySelector('.slot-0');
-  if (s0) {
-    s0.querySelector('.card-icon').textContent = cards[slotCards[0]].icon;
-    s0.querySelector('.card-title').textContent = cards[slotCards[0]].title();
-    const s0Help = s0.querySelector('.card-help');
-    if (s0Help) s0Help.textContent = cards[slotCards[0]].help();
-  }
+function updateStates() {
+  if (!emblaApi) return;
+  slides = emblaApi.slideNodes();
+  const selectedIndex = emblaApi.selectedScrollSnap();
+  const length = slides.length;
+  const prevIndex = (selectedIndex - 1 + length) % length;
+  const nextIndex = (selectedIndex + 1) % length;
 
-  const prevButton = document.querySelector('#previous');
-  if (prevButton) {
-    prevButton.disabled = false;
-    document.querySelector('#prev-icon').textContent = cards[slotCards[1]].icon;
-    document.querySelector('#prev-title').textContent = cards[slotCards[1]].title();
-    const prevHelp = document.querySelector('#prev-help');
-    if (prevHelp) prevHelp.textContent = cards[slotCards[1]].help();
-    prevButton.setAttribute('aria-label', tr('이전: ', 'Previous: ') + cards[slotCards[1]].title());
-  }
+  slides.forEach((slide, index) => {
+    slide.classList.remove('is-selected', 'is-prev', 'is-next');
+    const btn = slide.querySelector('.carousel-card');
+    const icon = slide.querySelector('.card-icon');
+    const title = slide.querySelector('.card-title');
+    const help = slide.querySelector('.card-help');
 
-  const card = document.querySelector('#selected-card');
-  if (card) {
-    document.querySelector('#card-icon').textContent = cards[slotCards[2]].icon;
-    document.querySelector('#card-title').textContent = cards[slotCards[2]].title();
-    const cardHelp = document.querySelector('#card-help');
-    if (cardHelp) cardHelp.textContent = cards[slotCards[2]].help();
-    card.setAttribute('aria-label', tr('열기: ', 'Open: ') + cards[slotCards[2]].title());
-  }
+    btn.removeAttribute('id');
+    icon.removeAttribute('id');
+    title.removeAttribute('id');
+    help.removeAttribute('id');
 
-  const nextButton = document.querySelector('#next');
-  if (nextButton) {
-    nextButton.disabled = false;
-    document.querySelector('#next-icon').textContent = cards[slotCards[3]].icon;
-    document.querySelector('#next-title').textContent = cards[slotCards[3]].title();
-    const nextHelp = document.querySelector('#next-help');
-    if (nextHelp) nextHelp.textContent = cards[slotCards[3]].help();
-    nextButton.setAttribute('aria-label', tr('다음: ', 'Next: ') + cards[slotCards[3]].title());
-  }
+    const gameId = slide.dataset.game;
+    const gameData = cards[gameId];
+    title.textContent = gameData.title();
+    help.textContent = gameData.help();
 
-  const s4 = document.querySelector('.slot-4');
-  if (s4) {
-    s4.querySelector('.card-icon').textContent = cards[slotCards[4]].icon;
-    s4.querySelector('.card-title').textContent = cards[slotCards[4]].title();
-    const s4Help = s4.querySelector('.card-help');
-    if (s4Help) s4Help.textContent = cards[slotCards[4]].help();
-  }
+    if (index === selectedIndex) {
+      slide.classList.add('is-selected');
+      btn.id = 'selected-card';
+      icon.id = 'card-icon';
+      title.id = 'card-title';
+      help.id = 'card-help';
+      btn.setAttribute('aria-label', tr('열기: ', 'Open: ') + gameData.title());
+    } else if (index === prevIndex) {
+      slide.classList.add('is-prev');
+      btn.id = 'previous';
+      icon.id = 'prev-icon';
+      title.id = 'prev-title';
+      btn.setAttribute('aria-label', tr('이전: ', 'Previous: ') + gameData.title());
+    } else if (index === nextIndex) {
+      slide.classList.add('is-next');
+      btn.id = 'next';
+      icon.id = 'next-icon';
+      title.id = 'next-title';
+      btn.setAttribute('aria-label', tr('다음: ', 'Next: ') + gameData.title());
+    }
+  });
 
-  document.querySelector('#position').textContent = `${index + 1} / ${ids.length}`;
+  selected = slides[selectedIndex].dataset.game;
+  document.querySelector('#position').textContent = `${selectedIndex + 1} / ${length}`;
   const favorite = document.querySelector('#favorite');
   const active = favorites.includes(selected);
   favorite.disabled = selected === 'settings';
@@ -88,34 +109,61 @@ function renderMenu() {
   favorite.setAttribute('aria-label', active ? tr('즐겨찾기 해제', 'Remove favorite') : tr('즐겨찾기 추가', 'Add favorite'));
 }
 
-function moveCard(step) {
-  if (isAnimating || !step) return;
-  isAnimating = true;
-
-  const ids = orderedCards();
-  const currentIndex = ids.indexOf(selected);
-  const nextIndex = (currentIndex + step + ids.length) % ids.length;
-  const nextSelected = ids[nextIndex];
-
-  const shiftClass = step > 0 ? 'sliding-next' : 'sliding-prev';
-  track.classList.remove('sliding-next', 'sliding-prev');
-  track.style.transition = '';
-  track.style.transform = '';
-  void track.offsetWidth;
-  track.classList.add(shiftClass);
-
-  setTimeout(() => {
-    selected = nextSelected;
-    renderMenu();
-    track.classList.remove(shiftClass);
-    track.style.transition = 'none';
-    track.style.transform = 'translateX(0)';
-    void track.offsetWidth;
-    track.style.transition = '';
-    track.style.transform = '';
-    isAnimating = false;
-  }, 280);
+function renderMenu() {
+  updateStates();
 }
+
+function moveCard(step) {
+  if (!emblaApi) return;
+  if (step > 0) emblaApi.scrollNext();
+  else emblaApi.scrollPrev();
+}
+
+function attachListeners() {
+  slides.forEach((slide, index) => {
+    const btn = slide.querySelector('.carousel-card');
+    btn.onclick = () => {
+      const selectedIndex = emblaApi.selectedScrollSnap();
+      if (index === selectedIndex) {
+        location.hash = slide.dataset.game;
+      } else {
+        emblaApi.scrollTo(index);
+      }
+    };
+  });
+}
+
+function initEmbla() {
+  buildSlides();
+  if (typeof EmblaCarousel === 'function') {
+    emblaApi = EmblaCarousel(carouselNode, {
+      loop: true,
+      align: 'center',
+      containScroll: false
+    });
+    slides = emblaApi.slideNodes();
+    attachListeners();
+    emblaApi.on('select', updateStates);
+    emblaApi.on('init', updateStates);
+  }
+  updateStates();
+}
+
+function reInitEmbla(maintainSelected = true) {
+  if (!emblaApi) return;
+  const prevSelected = selected;
+  buildSlides();
+  emblaApi.reInit();
+  slides = emblaApi.slideNodes();
+  attachListeners();
+  if (maintainSelected) {
+    const ids = orderedCards();
+    const newIndex = ids.indexOf(prevSelected);
+    if (newIndex >= 0) emblaApi.scrollTo(newIndex, true);
+  }
+  updateStates();
+}
+
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
   const resolved = theme === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme;
@@ -123,6 +171,7 @@ function applyTheme() {
   document.querySelector('meta[name="theme-color"]').content = resolved === 'dark' ? '#080c12' : '#f3f6fb';
 }
 if (systemTheme.addEventListener) systemTheme.addEventListener('change', applyTheme);
+
 function applyLanguage() {
   document.documentElement.lang = language;
   document.title = tr('워치 미니게임', 'Watch Minigames');
@@ -137,11 +186,9 @@ function applyLanguage() {
   document.querySelector('#settings-back').textContent = tr('‹ 메뉴', '‹ Menu');
   document.querySelector('#game').setAttribute('aria-label', tr('게임', 'Game'));
   document.querySelector('#carousel').setAttribute('aria-label', tr('게임 선택', 'Choose a game'));
-  renderMenu();
+  updateStates();
 }
-document.querySelector('#previous').addEventListener('click', () => moveCard(-1));
-document.querySelector('#next').addEventListener('click', () => moveCard(1));
-document.querySelector('#selected-card').addEventListener('click', () => { location.hash = selected; });
+
 document.querySelector('#favorite').addEventListener('click', () => {
   if (selected === 'settings') return;
   const favBtn = document.querySelector('#favorite');
@@ -150,102 +197,9 @@ document.querySelector('#favorite').addEventListener('click', () => {
   favBtn.classList.add('pop');
   favorites = favorites.includes(selected) ? favorites.filter(id => id !== selected) : [...favorites, selected];
   writePreference('watch-favorites', favorites);
-  renderMenu();
+  reInitEmbla(true);
 });
-const carousel = document.querySelector('#carousel');
-const track = document.querySelector('#carousel-track');
-let gesture = null;
-let isDragging = false;
-let suppressClick = false;
-carousel.addEventListener('pointerdown', event => {
-  if (!event.isPrimary || event.button !== 0 || isAnimating) return;
-  suppressClick = false;
-  isDragging = false;
-  gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, startTime: performance.now() };
-  if (track) {
-    track.style.transition = 'none';
-  }
-});
-window.addEventListener('pointermove', event => {
-  if (!gesture || gesture.id !== event.pointerId || isAnimating) return;
-  const dx = event.clientX - gesture.x;
-  const dy = event.clientY - gesture.y;
-  if (!isDragging) {
-    if (Math.abs(dx) >= 8 && Math.abs(dx) > Math.abs(dy) * 1.1) {
-      isDragging = true;
-      suppressClick = true;
-    } else if (Math.abs(dy) >= 8) {
-      gesture = null;
-      return;
-    }
-  }
-  if (isDragging && track) {
-    const maxDrag = carousel.clientWidth * 0.45;
-    const clampedDx = Math.max(-maxDrag, Math.min(maxDrag, dx));
-    track.style.transform = `translateX(${clampedDx}px)`;
-  }
-});
-function endGesture(event) {
-  if (!gesture || (event && gesture.id !== event.pointerId)) return;
-  const dx = (event ? event.clientX : gesture.x) - gesture.x;
-  const dt = performance.now() - gesture.startTime;
-  const wasDragging = isDragging;
-  gesture = null;
-  isDragging = false;
-  if (wasDragging && track) {
-    suppressClick = true;
-    const threshold = 28;
-    const fastSwipe = Math.abs(dx) >= 16 && dt < 280;
-    if ((Math.abs(dx) >= threshold || fastSwipe) && !isAnimating) {
-      const step = dx < 0 ? 1 : -1;
-      isAnimating = true;
 
-      const ids = orderedCards();
-      const currentIndex = ids.indexOf(selected);
-      const nextIndex = (currentIndex + step + ids.length) % ids.length;
-      const nextSelected = ids[nextIndex];
-
-      const shiftClass = step > 0 ? 'sliding-next' : 'sliding-prev';
-      track.classList.add(shiftClass);
-      track.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
-      track.style.transform = step > 0 ? 'translateX(calc(var(--slot-dist) * -1))' : 'translateX(var(--slot-dist))';
-
-      setTimeout(() => {
-        selected = nextSelected;
-        renderMenu();
-        track.classList.remove(shiftClass);
-        track.style.transition = 'none';
-        track.style.transform = 'translateX(0)';
-        void track.offsetWidth;
-        track.style.transition = '';
-        track.style.transform = '';
-        isAnimating = false;
-      }, 220);
-    } else {
-      track.style.transition = 'transform 0.2s cubic-bezier(0.25, 1, 0.5, 1)';
-      track.style.transform = 'translateX(0)';
-      setTimeout(() => {
-        if (track) {
-          track.style.transition = '';
-          track.style.transform = '';
-        }
-      }, 200);
-    }
-  } else if (track) {
-    track.style.transition = '';
-    track.style.transform = '';
-  }
-}
-window.addEventListener('pointerup', endGesture);
-window.addEventListener('pointercancel', endGesture);
-carousel.addEventListener('click', event => {
-  if (suppressClick) { event.preventDefault(); event.stopImmediatePropagation(); suppressClick = false; }
-}, true);
-carousel.addEventListener('keydown', event => {
-  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-    event.preventDefault(); moveCard(event.key === 'ArrowLeft' ? -1 : 1);
-  }
-});
 document.querySelector('#settings-back').addEventListener('click', () => { location.hash = ''; });
 document.querySelector('#language').value = language;
 document.querySelector('#theme').value = theme;
@@ -255,5 +209,17 @@ document.querySelector('#language').addEventListener('change', event => {
 document.querySelector('#theme').addEventListener('change', event => {
   theme = event.target.value; writePreference('watch-theme', theme); applyTheme();
 });
+
+window.addEventListener('keydown', event => {
+  if (location.hash || !emblaApi) return;
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault(); emblaApi.scrollPrev();
+  } else if (event.key === 'ArrowRight') {
+    event.preventDefault(); emblaApi.scrollNext();
+  }
+});
+
 applyTheme();
+initEmbla();
 applyLanguage();
+

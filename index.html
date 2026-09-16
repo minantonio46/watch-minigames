@@ -6,49 +6,51 @@
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
   <link rel="stylesheet" href="./style.css">
+  <script src="./vendor/embla-carousel.umd.js"></script>
   <script src="./menu.js" defer></script>
   <script src="./game.js" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu">
     <h1 id="site-title">워치 미니게임</h1>
-    <div id="carousel" aria-roledescription="carousel">
-      <div id="carousel-track">
-        <button class="carousel-card slot-0" type="button" aria-hidden="true" tabindex="-1">
-          <div class="card-inner">
-            <span class="card-icon" aria-hidden="true"></span>
-            <strong class="card-title"></strong>
-            <span class="card-help"></span>
-          </div>
-        </button>
-        <button id="previous" class="carousel-card slot-1" type="button">
-          <div class="card-inner">
-            <span id="prev-icon" class="card-icon" aria-hidden="true"></span>
-            <strong id="prev-title" class="card-title"></strong>
-            <span id="prev-help" class="card-help"></span>
-          </div>
-        </button>
-        <button id="selected-card" class="carousel-card slot-2" type="button">
-          <div class="card-inner">
-            <span id="card-icon" class="card-icon" aria-hidden="true"></span>
-            <strong id="card-title" class="card-title"></strong>
-            <span id="card-help" class="card-help"></span>
-          </div>
-        </button>
-        <button id="next" class="carousel-card slot-3" type="button">
-          <div class="card-inner">
-            <span id="next-icon" class="card-icon" aria-hidden="true"></span>
-            <strong id="next-title" class="card-title"></strong>
-            <span id="next-help" class="card-help"></span>
-          </div>
-        </button>
-        <button class="carousel-card slot-4" type="button" aria-hidden="true" tabindex="-1">
-          <div class="card-inner">
-            <span class="card-icon" aria-hidden="true"></span>
-            <strong class="card-title"></strong>
-            <span class="card-help"></span>
-          </div>
-        </button>
+    <div id="carousel" class="embla" aria-roledescription="carousel">
+      <div id="carousel-track" class="embla__container">
+        <div class="embla__slide is-selected" data-game="reaction">
+          <button id="selected-card" class="carousel-card" type="button" aria-label="열기: 반응속도">
+            <div class="card-inner">
+              <span id="card-icon" class="card-icon" aria-hidden="true">ϟ</span>
+              <strong id="card-title" class="card-title">반응속도</strong>
+              <span id="card-help" class="card-help">초록색이면 터치</span>
+            </div>
+          </button>
+        </div>
+        <div class="embla__slide is-next" data-game="taps">
+          <button id="next" class="carousel-card" type="button" aria-label="다음: 10초 연타">
+            <div class="card-inner">
+              <span id="next-icon" class="card-icon" aria-hidden="true">◎</span>
+              <strong id="next-title" class="card-title">10초 연타</strong>
+              <span id="next-help" class="card-help">10초 동안 빠르게</span>
+            </div>
+          </button>
+        </div>
+        <div class="embla__slide" data-game="timing">
+          <button class="carousel-card" type="button">
+            <div class="card-inner">
+              <span class="card-icon" aria-hidden="true">◷</span>
+              <strong class="card-title">5초 맞추기</strong>
+              <span class="card-help">나만의 시간 감각</span>
+            </div>
+          </button>
+        </div>
+        <div class="embla__slide is-prev" data-game="settings">
+          <button id="previous" class="carousel-card" type="button" aria-label="이전: 설정">
+            <div class="card-inner">
+              <span id="prev-icon" class="card-icon" aria-hidden="true">⚙</span>
+              <strong id="prev-title" class="card-title">설정</strong>
+              <span id="prev-help" class="card-help">언어 · 화면 테마</span>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
     <div class="menu-footer">
