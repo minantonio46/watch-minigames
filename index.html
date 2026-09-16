@@ -78,6 +78,18 @@
         </div>
         <p id="contrast-note"></p>
       </section>
+      <section class="setting-group records-setting" aria-labelledby="records-label">
+        <h2 id="records-label"></h2>
+        <button id="reset-records" class="reset-records" type="button"></button>
+        <div id="reset-records-confirm" class="reset-records-confirm" hidden role="alert">
+          <p id="reset-records-warning"></p>
+          <div class="reset-records-actions">
+            <button id="reset-records-cancel" class="reset-records-cancel" type="button"></button>
+            <button id="reset-records-confirm-button" class="reset-records-confirm-button" type="button"></button>
+          </div>
+        </div>
+        <p id="reset-records-status" class="reset-records-status" aria-live="polite"></p>
+      </section>
     </div>
     <button id="settings-back" class="menu-return" type="button" aria-label="메뉴로 돌아가기">
       <span class="menu-glyph" aria-hidden="true"></span>

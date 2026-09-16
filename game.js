@@ -147,7 +147,8 @@ function renderBjCards(container, hand, hideSecond = false) {
       return `<span class="bj-card hidden" aria-label="${tr('숨김 카드', 'Hidden card')}">?</span>`;
     }
     const redClass = c.isRed ? 'red' : '';
-    return `<span class="bj-card ${redClass}"><span class="bj-suit">${c.suit}</span><span class="bj-rank">${c.rank}</span></span>`;
+    const rankClass = String(c.rank).length > 1 ? ' two-digit' : '';
+    return `<span class="bj-card ${redClass}"><span class="bj-suit">${c.suit}</span><span class="bj-rank${rankClass}">${c.rank}</span></span>`;
   }).join('');
 }
 
@@ -417,7 +418,7 @@ function finishTaps() {
   saveBest(count);
   const result = tr(`10초 동안 ${count}회!`, `${count} taps in 10s!`);
   tapsRestartLocked = true;
-  setState('idle', tr('잠시만', 'One moment'), result);
+  setState('idle', tr('숨 고르기!', 'Catch your breath!'), result);
   timer = setTimeout(() => {
     if (current !== 'taps' || state !== 'idle') return;
     tapsRestartLocked = false;

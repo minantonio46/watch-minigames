@@ -13,6 +13,7 @@ let favorites = readPreference('watch-favorites', []);
 if (!Array.isArray(favorites)) favorites = [];
 favorites = favorites.filter(id => ['reaction', 'taps', 'timing', 'blackjack'].includes(id));
 const tr = (ko, en) => language === 'ko' ? ko : en;
+const recordKeys = ['watch-reaction-best', 'watch-taps-best', 'watch-timing-best', 'watch-blackjack-best'];
 const cards = {
   reaction: { icon: 'ϟ', title: () => tr('반응속도', 'Reaction'), help: () => tr('초록색이면 터치', 'Tap when green') },
   taps: { icon: '◎', title: () => tr('10초 연타', 'Tap Rush'), help: () => tr('10초 동안 빠르게', 'Tap fast for 10 seconds') },
@@ -257,6 +258,11 @@ function applyLanguage() {
   document.querySelector('#language-label').textContent = tr('언어', 'Language');
   document.querySelector('#theme-label').textContent = tr('화면 테마', 'Theme');
   document.querySelector('#contrast-note').textContent = tr('검정 배경으로 OLED 화면 전력 사용을 줄이는 고대비 모드', 'High contrast with a black OLED-saving background');
+  document.querySelector('#records-label').textContent = tr('기록', 'Records');
+  document.querySelector('#reset-records').textContent = tr('최고 기록 초기화', 'Reset best records');
+  document.querySelector('#reset-records-warning').textContent = tr('모든 최고 기록을 지울까요? 이 작업은 되돌릴 수 없어요.', 'Clear all best records? This cannot be undone.');
+  document.querySelector('#reset-records-cancel').textContent = tr('취소', 'Cancel');
+  document.querySelector('#reset-records-confirm-button').textContent = tr('초기화', 'Reset');
   document.querySelectorAll('.choice-label').forEach(label => {
     label.textContent = label.dataset[language];
   });
@@ -297,6 +303,18 @@ document.querySelectorAll('[data-language-choice]').forEach(button => button.add
 document.querySelectorAll('[data-theme-choice]').forEach(button => button.addEventListener('click', () => {
   theme = button.dataset.themeChoice; writePreference('watch-theme', theme); applyTheme();
 }));
+document.querySelector('#reset-records').addEventListener('click', () => {
+  document.querySelector('#reset-records-confirm').hidden = false;
+  document.querySelector('#reset-records-status').textContent = '';
+});
+document.querySelector('#reset-records-cancel').addEventListener('click', () => {
+  document.querySelector('#reset-records-confirm').hidden = true;
+});
+document.querySelector('#reset-records-confirm-button').addEventListener('click', () => {
+  try { recordKeys.forEach(key => localStorage.removeItem(key)); } catch (_) {}
+  document.querySelector('#reset-records-confirm').hidden = true;
+  document.querySelector('#reset-records-status').textContent = tr('최고 기록을 초기화했어요.', 'Best records have been reset.');
+});
 
 window.addEventListener('keydown', event => {
   if (location.hash || !emblaApi) return;
