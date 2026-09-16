@@ -8,7 +8,7 @@ function writePreference(key, value) {
 let language = readPreference('watch-language', 'ko');
 if (!['ko', 'en'].includes(language)) language = 'ko';
 let theme = readPreference('watch-theme', 'dark');
-if (!['dark', 'light', 'system'].includes(theme)) theme = 'dark';
+if (!['dark', 'light', 'system', 'contrast'].includes(theme)) theme = 'dark';
 let favorites = readPreference('watch-favorites', []);
 if (!Array.isArray(favorites)) favorites = [];
 favorites = favorites.filter(id => ['reaction', 'taps', 'timing'].includes(id));
@@ -227,7 +227,8 @@ const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
   const resolved = theme === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme;
   document.documentElement.dataset.theme = resolved;
-  document.querySelector('meta[name="theme-color"]').content = resolved === 'dark' ? '#080c12' : '#f3f6fb';
+  document.querySelector('meta[name="theme-color"]').content = resolved === 'light' ? '#f3f6fb' : '#000000';
+  syncSettingChoices();
 }
 if (systemTheme.addEventListener) systemTheme.addEventListener('change', applyTheme);
 
@@ -238,15 +239,26 @@ function applyLanguage() {
   document.querySelector('#settings-title').textContent = tr('설정', 'Settings');
   document.querySelector('#language-label').textContent = tr('언어', 'Language');
   document.querySelector('#theme-label').textContent = tr('화면 테마', 'Theme');
-  document.querySelector('#theme option[value="dark"]').textContent = tr('다크 모드', 'Dark');
-  document.querySelector('#theme option[value="light"]').textContent = tr('라이트 모드', 'Light');
-  document.querySelector('#theme option[value="system"]').textContent = tr('기기 설정', 'System');
+  document.querySelector('#contrast-note').textContent = tr('검정 배경으로 OLED 화면 전력 사용을 줄이는 고대비 모드', 'High contrast with a black OLED-saving background');
+  document.querySelectorAll('.choice-label').forEach(label => {
+    label.textContent = label.dataset[language];
+  });
   document.querySelector('#back-label').textContent = tr('메뉴', 'Menu');
   document.querySelector('#back').setAttribute('aria-label', tr('메뉴로 돌아가기', 'Return to menu'));
   document.querySelector('#settings-back').textContent = tr('‹ 메뉴', '‹ Menu');
   document.querySelector('#game').setAttribute('aria-label', tr('게임', 'Game'));
   document.querySelector('#carousel').setAttribute('aria-label', tr('게임 선택', 'Choose a game'));
   updateStates();
+  syncSettingChoices();
+}
+
+function syncSettingChoices() {
+  document.querySelectorAll('[data-language-choice]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.languageChoice === language));
+  });
+  document.querySelectorAll('[data-theme-choice]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+  });
 }
 
 document.querySelector('#favorite').addEventListener('click', () => {
@@ -261,14 +273,12 @@ document.querySelector('#favorite').addEventListener('click', () => {
 });
 
 document.querySelector('#settings-back').addEventListener('click', () => { location.hash = ''; });
-document.querySelector('#language').value = language;
-document.querySelector('#theme').value = theme;
-document.querySelector('#language').addEventListener('change', event => {
-  language = event.target.value; writePreference('watch-language', language); applyLanguage();
-});
-document.querySelector('#theme').addEventListener('change', event => {
-  theme = event.target.value; writePreference('watch-theme', theme); applyTheme();
-});
+document.querySelectorAll('[data-language-choice]').forEach(button => button.addEventListener('click', () => {
+  language = button.dataset.languageChoice; writePreference('watch-language', language); applyLanguage();
+}));
+document.querySelectorAll('[data-theme-choice]').forEach(button => button.addEventListener('click', () => {
+  theme = button.dataset.themeChoice; writePreference('watch-theme', theme); applyTheme();
+}));
 
 window.addEventListener('keydown', event => {
   if (location.hash || !emblaApi) return;
