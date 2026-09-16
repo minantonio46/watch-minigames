@@ -480,8 +480,11 @@ function finishTaps() {
   }, 1000);
 }
 function runnerJump() {
-  if (!runnerRunning || runnerY > 1) return;
-  runnerVelocity = 285;
+  const stage = $('#runner-stage');
+  const stageHeight = stage?.clientHeight || 155;
+  const physicsScale = stageHeight / 155;
+  if (!runnerRunning || runnerY > stageHeight * 0.006) return;
+  runnerVelocity = 285 * physicsScale;
   runnerHoldMs = 0;
 }
 function renderRunner() {
@@ -569,11 +572,15 @@ function runRunner(frameTime) {
   const width = stage.clientWidth;
   const height = stage.clientHeight;
   if (!width || !height) { runnerFrame = requestAnimationFrame(runRunner); return; }
+  // Physics uses the same stage-height basis as the rendered runner. Without
+  // this, a larger watch frame enlarged the cursor and obstacles but left the
+  // jump arc at its old pixel height.
+  const physicsScale = height / 155;
   if (runnerHolding && runnerVelocity > 0 && runnerHoldMs < 220) {
-    runnerVelocity += 680 * elapsed;
+    runnerVelocity += 680 * physicsScale * elapsed;
     runnerHoldMs += elapsed * 1000;
   }
-  runnerVelocity -= 850 * elapsed;
+  runnerVelocity -= 850 * physicsScale * elapsed;
   runnerY += runnerVelocity * elapsed;
   if (runnerY <= 0) {
     runnerY = 0;
@@ -588,11 +595,13 @@ function runRunner(frameTime) {
   runnerScore += elapsed * 10;
   // Obstacles use their full visible box.  Only the cursor gets a forgiving,
   // inset hitbox so near misses feel fair without softening obstacle edges.
-  const playerX = width * 0.12 + 5;
-  const playerWidth = Math.max(14, width * 0.045);
+  const frameSize = Math.min(window.innerWidth, window.innerHeight);
+  const playerVisualSize = frameSize * 0.065;
+  const playerX = width * 0.12 + playerVisualSize * 0.12;
+  const playerWidth = playerVisualSize * 0.62;
   runnerObstacles.forEach(obstacle => { obstacle.x -= runnerSpeed * elapsed; });
-  const playerBottom = runnerY + 7;
-  const playerTop = runnerY + 19;
+  const playerBottom = runnerY + playerVisualSize * 0.20;
+  const playerTop = runnerY + playerVisualSize * 0.58;
   const hit = runnerObstacles.some(obstacle => {
     const hitBoxIntersects = (left, bottom, boxWidth, boxHeight) => {
       const horizontalHit = left < playerX + playerWidth && left + boxWidth > playerX;
