@@ -8,6 +8,7 @@ html { min-height:100%; }
 body { margin:0; min-height:100vh; min-height:100dvh; display:grid; place-items:center; overflow-x:hidden; background:var(--bg); }
 button, select { font:inherit; color:inherit; }
 button { cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+button:disabled { cursor:not-allowed; opacity:.45; }
 button:focus-visible, select:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
 p,h1 { margin:0; }
 .menu { --face:var(--square); width:var(--face); height:var(--face); position:relative; text-align:center; overflow:hidden; padding:calc(var(--face) * .075) 0 calc(var(--face) * .055) 0; }

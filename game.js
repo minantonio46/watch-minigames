@@ -26,6 +26,10 @@ let bjBet = 100;
 let bjState = 'idle';
 
 function clearTimers() { clearTimeout(timer); clearInterval(ticker); }
+function hasActiveBlackjackRound() { return bjState === 'player' || bjState === 'dealer'; }
+function cancelBlackjackRound() {
+  bjState = 'idle';
+}
 function bestValue() {
   try {
     const raw = localStorage.getItem(games[current].key);
@@ -56,9 +60,11 @@ function setState(next, label, text) {
   play.setAttribute('aria-label', `${text} ${label}`);
 }
 function route() {
+  const previous = current;
   clearTimers();
   tapsRestartLocked = false;
   const id = location.hash.slice(1);
+  if (previous === 'blackjack' && id !== 'blackjack') cancelBlackjackRound();
   const settingsOpen = id === 'settings';
   $('#settings').hidden = !settingsOpen;
   current = Object.prototype.hasOwnProperty.call(games, id) ? id : null;
@@ -474,6 +480,12 @@ $('#back').addEventListener('click', () => {
 });
 window.addEventListener('hashchange', route);
 document.addEventListener('visibilitychange', () => {
+  if (document.hidden && current === 'blackjack' && hasActiveBlackjackRound()) {
+    clearTimers();
+    cancelBlackjackRound();
+    showBjSetup();
+    return;
+  }
   if (document.hidden && current && state !== 'idle') {
     clearTimers();
     setState('idle', tr('다시 시작', 'Try again'), tr('잠시 멈췄어요', 'Round paused'));

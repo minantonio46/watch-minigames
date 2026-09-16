@@ -32,6 +32,7 @@ const carouselNode = document.querySelector('#carousel');
 const container = document.querySelector('#carousel-track');
 let emblaApi = null;
 let slides = [];
+let resetRecordsTrigger = null;
 
 function buildSlides() {
   const ids = orderedCards();
@@ -55,6 +56,7 @@ function buildSlides() {
 
 function applyContinuousTween() {
   if (!emblaApi || !carouselNode) return;
+  const isLightTheme = document.documentElement.dataset.theme === 'light';
   const carouselRect = carouselNode.getBoundingClientRect();
   if (!carouselRect.width) return;
   const viewportCenter = carouselRect.left + carouselRect.width / 2;
@@ -81,10 +83,10 @@ function applyContinuousTween() {
       card.style.opacity = opacity.toFixed(4);
       if (dist < 20) {
         card.style.zIndex = '2';
-        card.style.boxShadow = '0 10px 32px #0004';
+        card.style.boxShadow = isLightTheme ? 'none' : '0 10px 32px #0004';
       } else {
         card.style.zIndex = '1';
-        card.style.boxShadow = '0 8px 24px #0002';
+        card.style.boxShadow = isLightTheme ? 'none' : '0 8px 24px #0002';
       }
     }
 
@@ -164,12 +166,6 @@ function renderMenu() {
   updateStates();
 }
 
-function moveCard(step) {
-  if (!emblaApi) return;
-  if (step > 0) emblaApi.scrollNext();
-  else emblaApi.scrollPrev();
-}
-
 function attachListeners() {
   slides.forEach((slide, index) => {
     const btn = slide.querySelector('.carousel-card');
@@ -247,6 +243,7 @@ function applyTheme() {
   document.documentElement.dataset.theme = resolved;
   document.querySelector('meta[name="theme-color"]').content = resolved === 'light' ? '#f3f6fb' : '#000000';
   syncSettingChoices();
+  if (emblaApi) applyContinuousTween();
 }
 if (systemTheme.addEventListener) systemTheme.addEventListener('change', applyTheme);
 
@@ -308,20 +305,39 @@ document.querySelectorAll('[data-theme-choice]').forEach(button => button.addEve
   theme = button.dataset.themeChoice; writePreference('watch-theme', theme); applyTheme();
 }));
 document.querySelector('#reset-records').addEventListener('click', () => {
+  resetRecordsTrigger = document.activeElement;
   document.querySelector('#reset-records-confirm').hidden = false;
   document.querySelector('#reset-records-status').textContent = '';
   document.querySelector('#reset-records-cancel').focus();
 });
-document.querySelector('#reset-records-cancel').addEventListener('click', () => {
+function closeResetRecordsDialog() {
   document.querySelector('#reset-records-confirm').hidden = true;
+  resetRecordsTrigger?.focus();
+  resetRecordsTrigger = null;
+}
+document.querySelector('#reset-records-cancel').addEventListener('click', () => {
+  closeResetRecordsDialog();
 });
 document.querySelector('#reset-records-confirm-button').addEventListener('click', () => {
   try { recordKeys.forEach(key => localStorage.removeItem(key)); } catch (_) {}
-  document.querySelector('#reset-records-confirm').hidden = true;
+  closeResetRecordsDialog();
   document.querySelector('#reset-records-status').textContent = tr('최고 기록을 초기화했어요.', 'Best records have been reset.');
 });
 
 window.addEventListener('keydown', event => {
+  const resetRecordsDialog = document.querySelector('#reset-records-confirm');
+  if (!resetRecordsDialog.hidden && event.key === 'Tab') {
+    event.preventDefault();
+    const cancelButton = document.querySelector('#reset-records-cancel');
+    const confirmButton = document.querySelector('#reset-records-confirm-button');
+    (document.activeElement === cancelButton ? confirmButton : cancelButton).focus();
+    return;
+  }
+  if (event.key === 'Escape' && !resetRecordsDialog.hidden) {
+    event.preventDefault();
+    closeResetRecordsDialog();
+    return;
+  }
   if (location.hash || !emblaApi) return;
   if (event.key === 'ArrowLeft') {
     event.preventDefault(); emblaApi.scrollPrev();
