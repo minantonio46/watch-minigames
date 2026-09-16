@@ -103,20 +103,20 @@ p,h1 { margin:0; }
     pointer-events:none;
   }
 }
-/* On non-watch screens the carousel intentionally extends beyond its own
-   viewport to show whole neighbor cards. Fade only at the physical browser
-   edges, where those cards would otherwise end abruptly. */
+/* Outside watch-sized screens, the carousel gets its own inset viewport.
+   Its fade is therefore anchored after the layout's margins and padding,
+   rather than to the raw edges of the browser window. */
 @media (min-width:481px), (min-height:541px) {
-  body:has(#menu:not([hidden]))::before,
-  body:has(#menu:not([hidden]))::after {
-    content:""; position:fixed; z-index:10; top:0; bottom:0; width:min(11vw,180px);
-    pointer-events:none;
-  }
-  body:has(#menu:not([hidden]))::before {
-    left:0; background:linear-gradient(to right, var(--bg), transparent);
-  }
-  body:has(#menu:not([hidden]))::after {
-    right:0; background:linear-gradient(to left, var(--bg), transparent);
+  .menu { overflow:visible; }
+  #carousel.embla {
+    --carousel-inset:clamp(24px,8vw,160px);
+    --carousel-fade:clamp(72px,10vw,180px);
+    width:calc(100vw - (var(--carousel-inset) * 2));
+    margin-left:50%;
+    transform:translateX(-50%);
+    overflow:hidden;
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 var(--carousel-fade), #000 calc(100% - var(--carousel-fade)), transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0, #000 var(--carousel-fade), #000 calc(100% - var(--carousel-fade)), transparent 100%);
   }
 }
 /* Signal colors stay identical in either theme, without a delayed transition. */
