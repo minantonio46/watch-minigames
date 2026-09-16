@@ -55,7 +55,7 @@ p,h1 { margin:0; }
 .menu-footer { --footer-content-top:calc(var(--bottom-bar-height) * .18); width:var(--footer-width); height:var(--bottom-bar-height); margin:0; border-top:1px solid var(--footer-border); background:var(--footer-surface); color:var(--footer-fg); position:absolute; left:50%; bottom:var(--frame-footer-gap); transform:translateX(-50%); }
 #position { position:absolute; left:12%; top:calc(var(--footer-content-top) - 1px); margin:0; font-size:min(calc(var(--face) * .043), calc(var(--bottom-bar-height) * .40)); line-height:1; color:var(--muted); font-variant-numeric:tabular-nums; }
 #favorite {
-  position:absolute; z-index:1; left:50%; top:calc(var(--footer-content-top) + 1px); translate:-50% 0;
+  position:absolute; z-index:1; left:50%; top:calc(var(--footer-content-top) - 8px); translate:-50% 0;
   padding:0; border:0; background:none; color:var(--accent);
   line-height:1;
   font-size:min(calc(var(--face) * .12), calc(var(--bottom-bar-height) * .72));
