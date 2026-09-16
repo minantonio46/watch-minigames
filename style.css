@@ -115,9 +115,12 @@ body[data-state="waiting"] #action,body[data-state="ready"] #action { color:inhe
   #best { font-size:6vmin; line-height:1.3; }
   #back { bottom:4vmin; width:72vmin; gap:3vmin; font-size:8vmin; }
   .menu-glyph { width:11vmin; height:8vmin; margin-bottom:1vmin; background-size:100% 2.5px; }
-  #carousel.embla::before, #carousel.embla::after { content:""; position:absolute; z-index:4; top:0; bottom:0; width:16vmin; pointer-events:none; }
-  #carousel.embla::before { left:0; background:linear-gradient(to right, var(--bg), transparent); }
-  #carousel.embla::after { right:0; background:linear-gradient(to left, var(--bg), transparent); }
+  /* Mask the cards themselves instead of relying on an overlay.  This stays
+     reliable in watch browsers that compose carousel transforms above pseudo-elements. */
+  #carousel.embla {
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 18vmin, #000 calc(100% - 18vmin), transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0, #000 18vmin, #000 calc(100% - 18vmin), transparent 100%);
+  }
   body[data-state="ready"] #action { font-size:20vmin; }
   .settings { position:fixed; inset:0; z-index:3; width:100%; min-height:100dvh; padding:6vmin 0 0; gap:2vmin; overflow:hidden; background:var(--bg); }
   .settings-header { height:12vmin; }
