@@ -5,7 +5,7 @@ const games = {
   reaction: { title: '반응속도', help: '초록색이 되면 터치!', key: 'watch-reaction-best', unit: 'ms' },
   taps: { title: '10초 연타', help: '10초 동안 많이 터치!', key: 'watch-taps-best', unit: '회' },
   timing: { title: '5초 맞추기', help: '시작 후 5초에 터치!', key: 'watch-timing-best', unit: 'ms 오차' },
-  blackjack: { title: '블랙잭', help: '21에 가깝게 맞춰보세요!', key: 'watch-blackjack-best', unit: '연승' }
+  blackjack: { title: '블랙잭', help: '21에 가깝게 맞춰보세요!', key: 'watch-blackjack-best', unit: '$' }
 };
 let current = null;
 let state = 'idle';
@@ -19,7 +19,9 @@ let tapsRestartLocked = false;
 let bjPlayer = [];
 let bjDealer = [];
 let bjDeck = [];
-let bjStreak = 0;
+let bjMoney = 1000;
+let maxBjMoney = 1000;
+const BET_AMOUNT = 100;
 let bjState = 'idle';
 
 function clearTimers() { clearTimeout(timer); clearInterval(ticker); }
@@ -32,8 +34,10 @@ function bestValue() {
 }
 function showBest() {
   const best = bestValue();
-  const unit = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off', blackjack: 'wins' }[current]);
-  $('#best').textContent = best === null ? tr('최고 기록 —', 'Best —') : `${tr('최고', 'Best')} ${best} ${unit}`;
+  const unitStr = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off', blackjack: '$' }[current]);
+  const displayUnit = current === 'blackjack' ? '' : ` ${unitStr}`;
+  const prefix = current === 'blackjack' ? '$' : '';
+  $('#best').textContent = best === null ? tr('최고 기록 —', 'Best —') : `${tr('최고', 'Best')} ${prefix}${best}${displayUnit}`;
 }
 function saveBest(value) {
   const old = bestValue();
@@ -168,6 +172,13 @@ function updateBjUI(hideDealer = true) {
 
 function startBlackjack() {
   clearTimers();
+  if (bjMoney <= 0) {
+    saveBest(maxBjMoney);
+    bjMoney = 1000;
+    maxBjMoney = 1000;
+  }
+
+  bjMoney -= BET_AMOUNT;
   bjDeck = createBjDeck();
   bjPlayer = [drawBjCard(), drawBjCard()];
   bjDealer = [drawBjCard(), drawBjCard()];
@@ -177,7 +188,7 @@ function startBlackjack() {
   $('#bj-hit').hidden = false;
   $('#bj-stand').hidden = false;
   $('#bj-deal').hidden = true;
-  $('#message').textContent = tr('히트 또는 스탠드', 'Hit or Stand');
+  $('#message').textContent = tr(`히트 또는 스탠드 ($${bjMoney})`, `Hit or Stand ($${bjMoney})`);
 
   updateBjUI(true);
 
@@ -211,24 +222,33 @@ function bjStand() {
   if (bjState !== 'player') return;
   bjState = 'dealer';
 
-  while (calcBjHand(bjDealer) < 17) {
-    bjDealer.push(drawBjCard());
+  $('#bj-hit').hidden = true;
+  $('#bj-stand').hidden = true;
+  updateBjUI(false); // Reveal dealer's hidden card first
+
+  function drawNext() {
+    if (calcBjHand(bjDealer) < 17) {
+      bjDealer.push(drawBjCard());
+      updateBjUI(false);
+      setTimeout(drawNext, 800);
+    } else {
+      const pScore = calcBjHand(bjPlayer);
+      const dScore = calcBjHand(bjDealer);
+
+      if (dScore > 21) {
+        endBlackjack('dealer_bust');
+      } else if (pScore > dScore) {
+        endBlackjack('win');
+      } else if (pScore < dScore) {
+        endBlackjack('lose');
+      } else {
+        endBlackjack('push');
+      }
+    }
   }
 
-  updateBjUI(false);
-
-  const pScore = calcBjHand(bjPlayer);
-  const dScore = calcBjHand(bjDealer);
-
-  if (dScore > 21) {
-    endBlackjack('dealer_bust');
-  } else if (pScore > dScore) {
-    endBlackjack('win');
-  } else if (pScore < dScore) {
-    endBlackjack('lose');
-  } else {
-    endBlackjack('push');
-  }
+  // Add a slight delay before dealer starts drawing for better effect
+  setTimeout(drawNext, 800);
 }
 
 function endBlackjack(outcome) {
@@ -243,32 +263,39 @@ function endBlackjack(outcome) {
   const pScore = calcBjHand(bjPlayer);
   const dScore = calcBjHand(bjDealer);
 
+  let msg = '';
+
   if (outcome === 'blackjack') {
-    bjStreak++;
-    saveBest(bjStreak);
+    bjMoney += Math.floor(BET_AMOUNT * 2.5);
     document.body.dataset.state = 'ready';
-    $('#message').textContent = tr(`블랙잭! 👑 승리 (${bjStreak}연승)`, `Blackjack! 👑 Win (${bjStreak} streak)`);
+    msg = tr(`블랙잭! 👑 승리`, `Blackjack! 👑 Win`);
   } else if (outcome === 'dealer_bust') {
-    bjStreak++;
-    saveBest(bjStreak);
+    bjMoney += BET_AMOUNT * 2;
     document.body.dataset.state = 'ready';
-    $('#message').textContent = tr(`딜러 버스트(${dScore})! 🎉 (${bjStreak}연승)`, `Dealer bust(${dScore})! 🎉 (${bjStreak} streak)`);
+    msg = tr(`딜러 버스트(${dScore})! 🎉`, `Dealer bust(${dScore})! 🎉`);
   } else if (outcome === 'win') {
-    bjStreak++;
-    saveBest(bjStreak);
+    bjMoney += BET_AMOUNT * 2;
     document.body.dataset.state = 'ready';
-    $('#message').textContent = tr(`승리! (${pScore} vs ${dScore}) (${bjStreak}연승)`, `Won! (${pScore} vs ${dScore}) (${bjStreak} streak)`);
+    msg = tr(`승리! (${pScore} vs ${dScore})`, `Won! (${pScore} vs ${dScore})`);
   } else if (outcome === 'bust') {
-    bjStreak = 0;
     document.body.dataset.state = 'waiting';
-    $('#message').textContent = tr(`버스트(${pScore})! 💥 패배`, `Bust(${pScore})! 💥 Loss`);
+    msg = tr(`버스트(${pScore})! 💥 패배`, `Bust(${pScore})! 💥 Loss`);
   } else if (outcome === 'lose') {
-    bjStreak = 0;
     document.body.dataset.state = 'waiting';
-    $('#message').textContent = tr(`패배 (${pScore} vs ${dScore})`, `Dealer won (${pScore} vs ${dScore})`);
+    msg = tr(`패배 (${pScore} vs ${dScore})`, `Dealer won (${pScore} vs ${dScore})`);
   } else if (outcome === 'push') {
+    bjMoney += BET_AMOUNT;
     document.body.dataset.state = 'idle';
-    $('#message').textContent = tr(`비겼어요 (${pScore} = ${dScore})`, `Push (${pScore} = ${dScore})`);
+    msg = tr(`비겼어요 (${pScore} = ${dScore})`, `Push (${pScore} = ${dScore})`);
+  }
+
+  if (bjMoney > maxBjMoney) maxBjMoney = bjMoney;
+  saveBest(maxBjMoney);
+
+  if (bjMoney <= 0) {
+    $('#message').textContent = msg + ' - ' + tr('파산! 💸', 'Bankrupt! 💸');
+  } else {
+    $('#message').textContent = msg + ` ($${bjMoney})`;
   }
 
   showBest();
