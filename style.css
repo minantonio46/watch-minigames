@@ -97,6 +97,7 @@ p,h1 { margin:0; }
 .bj-round-meta { font-size:clamp(10px,3.2vmin,14px); font-weight:700; font-variant-numeric:tabular-nums; color:var(--muted); }
 .watch:has(.bj-table:not([hidden])) .game-meta { width:min(100%, 72vmin); flex-direction:row; justify-content:space-between; align-items:center; gap:8px; }
 .watch:has(.bj-table:not([hidden])) .game-meta #best { text-align:right; white-space:nowrap; }
+.watch:has(.bj-table:not([hidden])) .game-meta { margin-bottom:clamp(12px,4vmin,26px); }
 .bj-table { width:100%; display:flex; flex-direction:column; align-items:center; gap:clamp(5px,1.6vmin,10px); margin:clamp(2px,0.8vmin,6px) 0; }
 .bj-table:has(.bj-hand[hidden]) { gap:clamp(10px,2.6vmin,16px); }
 .bj-hand { display:flex; align-items:center; justify-content:center; gap:clamp(6px,1.5vmin,10px); width:100%; }
@@ -117,6 +118,7 @@ p,h1 { margin:0; }
 .bj-bet { min-width:clamp(58px,15vmin,78px); text-align:center; font-size:clamp(13px,3.7vmin,17px); font-weight:800; font-variant-numeric:tabular-nums; }
 .bj-bet-step { flex:0 0 auto; width:clamp(36px,9vmin,44px); min-width:0; height:clamp(36px,9vmin,44px); padding:0; font-size:clamp(22px,6vmin,28px); }
 .bj-btn { flex:1; max-width:clamp(94px,28vmin,130px); height:clamp(44px,11.5vmin,54px); border-radius:9999px; border:1px solid var(--border); background:var(--card); color:var(--fg); font-size:clamp(14px,4vmin,18px); font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation; transition:transform 0.1s,filter 0.15s; }
+.bj-btn { white-space:pre-line; line-height:1.15; }
 .bj-btn:active { transform:scale(0.93); }
 .bj-btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); max-width:clamp(130px,38vmin,180px); font-weight:800; }
 #play { position:fixed; inset:0; width:100%; height:100%; padding:0; border:0; border-radius:0; background:transparent; }

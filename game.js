@@ -85,7 +85,7 @@ function route() {
       $('#bj-stand').textContent = tr('스탠드', 'Stand');
       $('#bj-deal').textContent = tr('게임 시작', 'Start game');
       $('#bj-continue').textContent = tr('이어하기', 'Continue');
-      $('#bj-new').textContent = tr('기록 후 새로하기', 'Record & restart');
+      $('#bj-new').textContent = tr('기록 후\n새로하기', 'Record & restart');
       $('#bj-bet-down').setAttribute('aria-label', tr('판돈 줄이기, 길게 눌러 최소 판돈', 'Lower bet; hold for minimum'));
       $('#bj-bet-up').setAttribute('aria-label', tr('판돈 늘리기, 길게 눌러 최대 판돈', 'Raise bet; hold for maximum'));
       if (bjState === 'idle') {
