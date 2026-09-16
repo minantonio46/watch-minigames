@@ -1,4 +1,4 @@
-:root { color-scheme: dark; --bg:#080c12; --fg:#f1f5fc; --card:#162232; --border:#344457; --muted:#adc4dc; --accent:#8ac7ff; font-family:system-ui,sans-serif; background:var(--bg); color:var(--fg); }
+:root { color-scheme: dark; --bg:#080c12; --fg:#f1f5fc; --card:#162232; --border:#344457; --muted:#adc4dc; --accent:#8ac7ff; --square:min(100vw,100dvh); font-family:system-ui,sans-serif; background:var(--bg); color:var(--fg); }
 :root { --bottom-bar-height:clamp(54px,12vmin,78px); --bottom-bar-inset:clamp(6px,1.2vmin,10px); }
 :root[data-theme="light"] { color-scheme:light; --bg:#f3f6fb; --fg:#12243a; --card:#fff; --border:#c3d1e2; --muted:#50647d; --accent:#1765b6; }
 :root[data-theme="contrast"] { color-scheme:dark; --bg:#000; --fg:#fff; --card:#000; --border:#fff; --muted:#fff; --accent:#ffff00; }
@@ -10,13 +10,15 @@ button, select { font:inherit; color:inherit; }
 button { cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 button:focus-visible, select:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
 p,h1 { margin:0; }
-.menu { --face:min(100vmin,540px); width:var(--face); text-align:center; overflow:hidden; padding:calc(var(--face) * .075) 0 calc(var(--face) * .055) 0; }
+.menu { --face:var(--square); width:var(--face); text-align:center; overflow:hidden; padding:calc(var(--face) * .075) 0 calc(var(--face) * .055) 0; }
 .menu:not(.is-ready) #carousel,
 .menu:not(.is-ready) .menu-footer { visibility:hidden; }
 .menu h1 { font-size:calc(var(--face) * .068); line-height:1.2; margin-bottom:calc(var(--face) * .035); white-space:nowrap; }
 #carousel.embla {
   position:relative; height:calc(var(--face) * .49); overflow:hidden;
   user-select:none; -webkit-touch-callout:none;
+  -webkit-mask-image:linear-gradient(to right, transparent 0, #000 calc(var(--face) * .18), #000 calc(100% - (var(--face) * .18)), transparent 100%);
+  mask-image:linear-gradient(to right, transparent 0, #000 calc(var(--face) * .18), #000 calc(100% - (var(--face) * .18)), transparent 100%);
 }
 .embla__container {
   display:flex; height:100%; will-change:transform;
@@ -81,7 +83,7 @@ p,h1 { margin:0; }
 #contrast-note { margin:0; font-size:clamp(10px,2.7vmin,13px); line-height:1.35; color:var(--muted); text-align:center; }
 #back, #settings-back { z-index:2; border:0; border-top:1px solid currentColor; background:transparent; display:flex; align-items:flex-end; justify-content:center; gap:clamp(10px,2.5vmin,18px); padding:0 0 var(--bottom-bar-inset); font-size:clamp(20px,4.5vmin,30px); font-weight:700; }
 #settings-back { width:100%; height:var(--bottom-bar-height); }
-.watch { width:min(100vmin,480px); padding:clamp(16px,10vmin,48px); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:clamp(6px,2vmin,16px); pointer-events:none; position:relative; z-index:1; user-select:none; }
+.watch { width:var(--square); padding:clamp(16px,10vmin,48px); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:clamp(6px,2vmin,16px); pointer-events:none; position:relative; z-index:1; user-select:none; }
 .watch h1 { font-size:clamp(22px,8vmin,40px); white-space:nowrap; }
 #message { font-size:clamp(12px,4vmin,20px); min-height:1.5em; }
 #action { font-size:clamp(20px,7vmin,32px); font-weight:700; color:var(--accent); }
@@ -92,10 +94,9 @@ p,h1 { margin:0; }
 .menu-glyph { width:clamp(24px,5.5vmin,38px); height:clamp(18px,4vmin,28px); margin-bottom:clamp(2px,.5vmin,4px); background:linear-gradient(currentColor 0 0) 50% 0 / 100% 3px no-repeat, linear-gradient(currentColor 0 0) 50% 50% / 100% 3px no-repeat, linear-gradient(currentColor 0 0) 50% 100% / 100% 3px no-repeat; }
 #back:active { transform:translateX(-50%) scale(.94); }
 #settings-back:active { transform:scale(.94); }
-/* Wide screens have enough room for whole neighbor cards. Keep the cropped peeks for watch faces. */
-@media (min-width:760px) and (min-height:600px) {
-  .menu { --face:min(54vmin,460px); overflow:visible; }
-  #carousel.embla { overflow:visible; }
+/* The square design expands only along the long horizontal axis. */
+@media (min-aspect-ratio:1/1) {
+  .menu { overflow:visible; }
   /* Keep the focused card and its two complete neighbors on desktop.  The
      fourth card used to spill into view and made the carousel look scattered. */
   .embla__slide:not(.is-selected):not(.is-prev):not(.is-next) {
@@ -103,11 +104,10 @@ p,h1 { margin:0; }
     pointer-events:none;
   }
 }
-/* Outside watch-sized screens, the carousel gets its own inset viewport.
+/* On wide displays, the carousel gets its own inset viewport.
    Its fade is therefore anchored after the layout's margins and padding,
    rather than to the raw edges of the browser window. */
-@media (min-width:481px), (min-height:541px) {
-  .menu { overflow:visible; }
+@media (min-aspect-ratio:1/1) {
   #carousel.embla {
     --carousel-inset:clamp(24px,8vw,160px);
     --carousel-fade:clamp(72px,10vw,180px);
