@@ -44,11 +44,13 @@ function renderMenu(direction = null) {
   const nextNeighbor = ids[nextIndex];
   const prevButton = document.querySelector('#previous');
   prevButton.disabled = false;
-  prevButton.textContent = '‹';
+  document.querySelector('#prev-icon').textContent = cards[prevNeighbor].icon;
+  document.querySelector('#prev-title').textContent = cards[prevNeighbor].title();
   prevButton.setAttribute('aria-label', tr('이전: ', 'Previous: ') + cards[prevNeighbor].title());
   const nextButton = document.querySelector('#next');
   nextButton.disabled = false;
-  nextButton.textContent = '›';
+  document.querySelector('#next-icon').textContent = cards[nextNeighbor].icon;
+  document.querySelector('#next-title').textContent = cards[nextNeighbor].title();
   nextButton.setAttribute('aria-label', tr('다음: ', 'Next: ') + cards[nextNeighbor].title());
   document.querySelector('#position').textContent = `${index + 1} / ${ids.length}`;
   const favorite = document.querySelector('#favorite');

@@ -14,9 +14,21 @@
     <h1 id="site-title">워치 미니게임</h1>
     <div id="carousel" aria-roledescription="carousel">
       <div id="carousel-track">
-        <button id="previous" class="side-card" type="button"></button>
+        <button id="previous" class="side-card" type="button">
+          <span class="side-card-content">
+            <span class="side-arrow" aria-hidden="true">‹</span>
+            <span class="side-icon" id="prev-icon" aria-hidden="true"></span>
+            <span class="side-title" id="prev-title"></span>
+          </span>
+        </button>
         <button id="selected-card" type="button"><span id="card-icon" aria-hidden="true"></span><strong id="card-title"></strong><span id="card-help"></span></button>
-        <button id="next" class="side-card" type="button"></button>
+        <button id="next" class="side-card" type="button">
+          <span class="side-card-content">
+            <span class="side-arrow" aria-hidden="true">›</span>
+            <span class="side-icon" id="next-icon" aria-hidden="true"></span>
+            <span class="side-title" id="next-title"></span>
+          </span>
+        </button>
       </div>
     </div>
     <div class="menu-footer">
