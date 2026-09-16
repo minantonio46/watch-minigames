@@ -25,20 +25,31 @@ function orderedCards() {
   return [...ids.filter(id => favorites.includes(id)), ...ids.filter(id => !favorites.includes(id)), 'settings'];
 }
 selected = selected || orderedCards()[0];
-function renderMenu() {
+function renderMenu(direction = null) {
   const ids = orderedCards();
   const index = ids.indexOf(selected);
+  const card = document.querySelector('#selected-card');
+  if (direction) {
+    card.classList.remove('slide-in-right', 'slide-in-left');
+    void card.offsetWidth;
+    card.classList.add(direction === 'right' ? 'slide-in-right' : 'slide-in-left');
+  }
   document.querySelector('#card-icon').textContent = cards[selected].icon;
   document.querySelector('#card-title').textContent = cards[selected].title();
   document.querySelector('#card-help').textContent = cards[selected].help();
-  document.querySelector('#selected-card').setAttribute('aria-label', tr('열기: ', 'Open: ') + cards[selected].title());
-  for (const [id, offset, arrow] of [['previous', -1, '‹'], ['next', 1, '›']]) {
-    const button = document.querySelector('#' + id);
-    const neighbor = ids[index + offset];
-    button.disabled = !neighbor;
-    button.textContent = neighbor ? arrow : '';
-    button.setAttribute('aria-label', neighbor ? cards[neighbor].title() : tr('끝', 'End'));
-  }
+  card.setAttribute('aria-label', tr('열기: ', 'Open: ') + cards[selected].title());
+  const prevIndex = (index - 1 + ids.length) % ids.length;
+  const nextIndex = (index + 1) % ids.length;
+  const prevNeighbor = ids[prevIndex];
+  const nextNeighbor = ids[nextIndex];
+  const prevButton = document.querySelector('#previous');
+  prevButton.disabled = false;
+  prevButton.textContent = '‹';
+  prevButton.setAttribute('aria-label', tr('이전: ', 'Previous: ') + cards[prevNeighbor].title());
+  const nextButton = document.querySelector('#next');
+  nextButton.disabled = false;
+  nextButton.textContent = '›';
+  nextButton.setAttribute('aria-label', tr('다음: ', 'Next: ') + cards[nextNeighbor].title());
   document.querySelector('#position').textContent = `${index + 1} / ${ids.length}`;
   const favorite = document.querySelector('#favorite');
   const active = favorites.includes(selected);
@@ -48,10 +59,12 @@ function renderMenu() {
   favorite.setAttribute('aria-pressed', String(active));
   favorite.setAttribute('aria-label', active ? tr('즐겨찾기 해제', 'Remove favorite') : tr('즐겨찾기 추가', 'Add favorite'));
 }
-function moveCard(step) {
+function moveCard(step, direction = null) {
   const ids = orderedCards();
-  selected = ids[Math.max(0, Math.min(ids.length - 1, ids.indexOf(selected) + step))];
-  renderMenu();
+  const currentIndex = ids.indexOf(selected);
+  const nextIndex = (currentIndex + step + ids.length) % ids.length;
+  selected = ids[nextIndex];
+  renderMenu(direction || (step > 0 ? 'right' : 'left'));
 }
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
@@ -76,34 +89,82 @@ function applyLanguage() {
   document.querySelector('#carousel').setAttribute('aria-label', tr('게임 선택', 'Choose a game'));
   renderMenu();
 }
-document.querySelector('#previous').addEventListener('click', () => moveCard(-1));
-document.querySelector('#next').addEventListener('click', () => moveCard(1));
+document.querySelector('#previous').addEventListener('click', () => moveCard(-1, 'left'));
+document.querySelector('#next').addEventListener('click', () => moveCard(1, 'right'));
 document.querySelector('#selected-card').addEventListener('click', () => { location.hash = selected; });
 document.querySelector('#favorite').addEventListener('click', () => {
   if (selected === 'settings') return;
+  const favBtn = document.querySelector('#favorite');
+  favBtn.classList.remove('pop');
+  void favBtn.offsetWidth;
+  favBtn.classList.add('pop');
   favorites = favorites.includes(selected) ? favorites.filter(id => id !== selected) : [...favorites, selected];
   writePreference('watch-favorites', favorites);
   renderMenu();
 });
 const carousel = document.querySelector('#carousel');
+const track = document.querySelector('#carousel-track');
 let gesture = null;
+let isDragging = false;
 let suppressClick = false;
 carousel.addEventListener('pointerdown', event => {
   if (!event.isPrimary || event.button !== 0) return;
   suppressClick = false;
-  gesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
+  isDragging = false;
+  gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, startTime: performance.now() };
+  if (track) track.style.transition = 'none';
 });
-window.addEventListener('pointerup', event => {
+window.addEventListener('pointermove', event => {
   if (!gesture || gesture.id !== event.pointerId) return;
   const dx = event.clientX - gesture.x;
   const dy = event.clientY - gesture.y;
-  gesture = null;
-  if (Math.abs(dx) >= 30 && Math.abs(dx) > Math.abs(dy) * 1.2) {
-    suppressClick = true;
-    moveCard(dx < 0 ? 1 : -1);
+  if (!isDragging) {
+    if (Math.abs(dx) >= 8 && Math.abs(dx) > Math.abs(dy) * 1.1) {
+      isDragging = true;
+      suppressClick = true;
+    } else if (Math.abs(dy) >= 8) {
+      gesture = null;
+      return;
+    }
+  }
+  if (isDragging && track) {
+    const maxDrag = carousel.clientWidth * 0.45;
+    const clampedDx = Math.max(-maxDrag, Math.min(maxDrag, dx));
+    track.style.transform = `translateX(${clampedDx}px)`;
   }
 });
-window.addEventListener('pointercancel', () => { gesture = null; });
+function endGesture(event) {
+  if (!gesture || (event && gesture.id !== event.pointerId)) return;
+  const dx = (event ? event.clientX : gesture.x) - gesture.x;
+  const dt = performance.now() - gesture.startTime;
+  const wasDragging = isDragging;
+  gesture = null;
+  isDragging = false;
+  if (wasDragging && track) {
+    suppressClick = true;
+    const threshold = 28;
+    const fastSwipe = Math.abs(dx) >= 16 && dt < 280;
+    if (Math.abs(dx) >= threshold || fastSwipe) {
+      const step = dx < 0 ? 1 : -1;
+      const targetX = dx < 0 ? -carousel.clientWidth * 0.32 : carousel.clientWidth * 0.32;
+      track.style.transition = 'transform 0.15s cubic-bezier(0.2, 0.8, 0.25, 1)';
+      track.style.transform = `translateX(${targetX}px)`;
+      setTimeout(() => {
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+        moveCard(step, dx < 0 ? 'right' : 'left');
+      }, 150);
+    } else {
+      track.style.transition = 'transform 0.18s cubic-bezier(0.2, 0.8, 0.25, 1)';
+      track.style.transform = 'translateX(0)';
+    }
+  } else if (track) {
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0)';
+  }
+}
+window.addEventListener('pointerup', endGesture);
+window.addEventListener('pointercancel', endGesture);
 carousel.addEventListener('click', event => {
   if (suppressClick) { event.preventDefault(); event.stopImmediatePropagation(); suppressClick = false; }
 }, true);
