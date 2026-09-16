@@ -283,6 +283,10 @@ function syncSettingChoices() {
   document.querySelectorAll('[data-theme-choice]').forEach(button => {
     button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
   });
+  const contrastNote = document.querySelector('#contrast-note');
+  const showContrastNote = theme === 'contrast';
+  contrastNote.style.visibility = showContrastNote ? 'visible' : 'hidden';
+  contrastNote.setAttribute('aria-hidden', String(!showContrastNote));
 }
 
 document.querySelector('#favorite').addEventListener('click', () => {
@@ -306,6 +310,7 @@ document.querySelectorAll('[data-theme-choice]').forEach(button => button.addEve
 document.querySelector('#reset-records').addEventListener('click', () => {
   document.querySelector('#reset-records-confirm').hidden = false;
   document.querySelector('#reset-records-status').textContent = '';
+  document.querySelector('#reset-records-cancel').focus();
 });
 document.querySelector('#reset-records-cancel').addEventListener('click', () => {
   document.querySelector('#reset-records-confirm').hidden = true;

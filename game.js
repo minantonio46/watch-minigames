@@ -147,7 +147,7 @@ function renderBjCards(container, hand, hideSecond = false) {
       return `<span class="bj-card hidden" aria-label="${tr('숨김 카드', 'Hidden card')}">?</span>`;
     }
     const redClass = c.isRed ? 'red' : '';
-    const rankClass = String(c.rank).length > 1 ? ' two-digit' : '';
+    const rankClass = String(c.rank).length > 1 && idx < hand.length - 1 ? ' two-digit' : '';
     return `<span class="bj-card ${redClass}"><span class="bj-suit">${c.suit}</span><span class="bj-rank${rankClass}">${c.rank}</span></span>`;
   }).join('');
 }
