@@ -50,6 +50,7 @@ function saveBest(value) {
 function setState(next, label, text) {
   state = next;
   document.body.dataset.state = next;
+  $('#message').hidden = false;
   $('#action').textContent = label;
   $('#message').textContent = text;
   play.setAttribute('aria-label', `${text} ${label}`);
@@ -211,6 +212,7 @@ function showBjSetup(resetBankroll = false) {
   $('#bj-continue').hidden = true;
   $('#bj-new').hidden = true;
   syncBjBet();
+  $('#message').hidden = false;
   $('#message').textContent = bjMoney > 0
     ? tr('판돈을 고른 뒤 게임을 시작하세요.', 'Choose a bet, then start.')
     : tr('보유금이 없습니다. 새로 시작하세요.', 'No money left. Start fresh.');
@@ -247,7 +249,7 @@ function startBlackjack() {
   $('#bj-new').hidden = true;
   $('#bj-round-meta').hidden = false;
   updateBjRoundMeta();
-  $('#message').textContent = tr('히트 또는 스탠드', 'Hit or Stand');
+  $('#message').hidden = true;
 
   updateBjUI(true);
 
@@ -314,6 +316,7 @@ function bjStand() {
 function endBlackjack(outcome) {
   bjState = 'done';
   updateBjUI(false);
+  $('#message').hidden = false;
 
   $('#bj-hit').hidden = true;
   $('#bj-stand').hidden = true;
