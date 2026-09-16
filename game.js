@@ -5,7 +5,7 @@ const games = {
   reaction: { title: '반응속도', help: '초록색이 되면 터치!', key: 'watch-reaction-best', unit: 'ms' },
   taps: { title: '10초 연타', help: '10초 동안 많이 터치!', key: 'watch-taps-best', unit: '회' },
   timing: { title: '5초 맞추기', help: '시작 후 5초에 터치!', key: 'watch-timing-best', unit: 'ms 오차' },
-  runner: { title: '러너', help: '탭해서 점프! 길게 누르면 더 높이!', key: 'watch-runner-best', unit: '점' },
+  runner: { title: '러너', help: '짧게 점프, 꾹 누르면 최고 점프 연속!', key: 'watch-runner-best', unit: '점' },
   blackjack: { title: '블랙잭', help: '21에 가깝게 맞춰보세요!', key: 'watch-blackjack-best', unit: '$' }
 };
 let current = null;
@@ -18,14 +18,23 @@ let tapsRestartLocked = false;
 let runnerFrame = null;
 let runnerRunning = false;
 let runnerHolding = false;
+let runnerPointerDown = false;
+let runnerRestartArmed = true;
+let runnerIgnoreNextClick = false;
 let runnerY = 0;
 let runnerVelocity = 0;
 let runnerHoldMs = 0;
-let runnerObstacleX = 0;
-let runnerObstacleWidth = 0;
 let runnerSpeed = 0;
 let runnerScore = 0;
 let runnerLastFrame = 0;
+const runnerObstacleGlyphs = ['▣', '✚', '✖', '⌘', '※'];
+const RUNNER_MAX_DIFFICULTY_SCORE = 500;
+// Long, repeated glyphs can render beyond their measured box on watch browsers.
+// Keep a fixed overscan that exceeds the largest possible rendered glyph run.
+const RUNNER_GLYPH_OVERSCAN = 280;
+let runnerObstacles = [];
+let runnerAirObstacleCount = 0;
+let runnerGroundObstacleCount = 0;
 
 // Blackjack state
 let bjPlayer = [];
@@ -38,11 +47,23 @@ let bjBet = 100;
 let bjState = 'idle';
 
 function clearTimers() { clearTimeout(timer); clearInterval(ticker); }
-function stopRunner() {
+function stopRunner(hideObstacles = true) {
   if (runnerFrame !== null) cancelAnimationFrame(runnerFrame);
   runnerFrame = null;
   runnerRunning = false;
   runnerHolding = false;
+  if (hideObstacles) $('#runner-stage')?.removeAttribute('data-running');
+}
+function resetRunnerPreview() {
+  runnerScore = 0;
+  runnerPointerDown = false;
+  runnerRestartArmed = true;
+  runnerIgnoreNextClick = false;
+  $('#runner-score').textContent = '';
+  $('#runner-player').style.transform = 'translateY(0)';
+  $('#runner-obstacle').style.left = '0px';
+  $('#runner-obstacle-next').style.left = '0px';
+  $('#runner-obstacle-tail').style.left = '0px';
 }
 function hasActiveBlackjackRound() { return bjState === 'player' || bjState === 'dealer'; }
 function cancelBlackjackRound() {
@@ -60,7 +81,11 @@ function showBest() {
   const unitStr = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off', runner: 'pts', blackjack: '$' }[current]);
   const displayUnit = current === 'blackjack' ? '' : ` ${unitStr}`;
   const prefix = current === 'blackjack' ? '$' : '';
-  $('#best').textContent = best === null ? tr('최고 기록 —', 'Best —') : `${tr('최고', 'Best')} ${prefix}${best}${displayUnit}`;
+  const text = best === null ? tr('최고 기록 —', 'Best —') : `${tr('최고', 'Best')} ${prefix}${best}${displayUnit}`;
+  const isRunner = current === 'runner';
+  $('#best').hidden = isRunner;
+  $('#runner-best').textContent = text;
+  $('#best').textContent = text;
 }
 function saveBest(value) {
   const old = bestValue();
@@ -99,6 +124,8 @@ function route() {
   const isRunner = current === 'runner';
   $('#blackjack-table').hidden = !isBj;
   $('#runner-stage').hidden = !isRunner;
+  if (!isRunner) $('#best').hidden = false;
+  if (isRunner) resetRunnerPreview();
   if (!isBj) $('#bj-round-meta').hidden = true;
   $('#action').style.display = (isBj || isRunner) ? 'none' : '';
   play.style.display = isBj ? 'none' : '';
@@ -119,7 +146,7 @@ function route() {
         showBjSetup();
       }
     } else {
-      setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!', runner: 'Tap to jump! Hold for a higher jump!' }[current]));
+      setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!', runner: 'Tap to jump; hold for continuous high jumps!' }[current]));
     }
     showBest();
   }
@@ -454,19 +481,82 @@ function finishTaps() {
 }
 function runnerJump() {
   if (!runnerRunning || runnerY > 1) return;
-  runnerVelocity = 340;
+  runnerVelocity = 285;
   runnerHoldMs = 0;
 }
 function renderRunner() {
-  const stage = $('#runner-stage');
-  const height = stage.clientHeight;
   $('#runner-player').style.transform = `translateY(${-runnerY}px)`;
-  $('#runner-obstacle').style.transform = `translateX(${runnerObstacleX}px)`;
+  runnerObstacles.forEach(obstacle => {
+    obstacle.node.style.left = `${obstacle.x}px`;
+  });
   $('#runner-score').textContent = tr(`${Math.floor(runnerScore)}점`, `${Math.floor(runnerScore)} pts`);
-  $('#runner-obstacle').style.height = `${Math.max(18, Math.round(height * 0.19))}px`;
+}
+function buildRunnerObstacle(obstacle, stageWidth, stageHeight, x) {
+  // Move off-screen before changing any visual property.  This avoids a frame
+  // where a recycled obstacle briefly shows its new glyph at its old position.
+  obstacle.x = x;
+  obstacle.node.style.left = `${x}px`;
+  obstacle.node.style.transform = 'none';
+  obstacle.node.textContent = obstacle.node.textContent.charAt(0) || '▣';
+
+  const difficulty = Math.min(1, runnerScore / RUNNER_MAX_DIFFICULTY_SCORE);
+  const roll = Math.random();
+  let kind = 'low';
+  const canSpawnAir = runnerAirObstacleCount < runnerGroundObstacleCount * 2;
+  if (difficulty > 0.14 && canSpawnAir && roll < 0.15 + difficulty * 0.08) kind = 'air';
+  else if (difficulty > 0.18 && roll < 0.24 + difficulty * 0.12) kind = 'tall';
+  else if (difficulty > 0.28 && roll < 0.44 + difficulty * 0.18) kind = 'wide';
+  else if (roll > 0.66 - difficulty * 0.15) kind = 'quick';
+
+  const specs = {
+    low: { height: 0.16 + difficulty * 0.05, width: 0.09 + difficulty * 0.03, entry: 0.72, recovery: 0.96 },
+    quick: { height: 0.13 + difficulty * 0.04, width: 0.08, entry: 0.78, recovery: 0.88 },
+    air: { height: 0.13 + difficulty * 0.02, width: 0.12, bottom: 0.23 + difficulty * 0.02, entry: 0.90, recovery: 0.94 },
+    tall: { height: 0.34 + difficulty * 0.12, width: 0.10, entry: 1.04, recovery: 1.26 },
+    wide: { height: 0.18 + difficulty * 0.05, width: 0.30 + difficulty * 0.12, entry: 1.10, recovery: 1.34 }
+  }[kind];
+  const airRepeats = kind === 'air'
+    ? (difficulty > 0.35 && Math.random() < 0.28 ? 4 : (Math.random() < 0.55 ? 2 : 1))
+    : null;
+  if (kind === 'air') {
+    specs.entry = airRepeats === 4 ? 1.12 : specs.entry;
+    specs.recovery = airRepeats === 4 ? 1.20 : specs.recovery;
+  }
+  obstacle.kind = kind;
+  obstacle.height = Math.max(22, stageHeight * specs.height);
+  obstacle.width = Math.max(24, stageWidth * specs.width);
+  obstacle.bottom = stageHeight * (specs.bottom ?? 0);
+  obstacle.entrySeconds = specs.entry;
+  obstacle.recoverySeconds = specs.recovery;
+  obstacle.repeatCount = airRepeats;
+  if (kind === 'air') runnerAirObstacleCount++;
+  else runnerGroundObstacleCount++;
+  const fontSize = Math.max(26, obstacle.height * 1.25);
+  // 1) move right, 2) collapse to one glyph, 3) size, 4) glyph,
+  // 5) vertical position, 6) repeat count.
+  obstacle.node.style.width = `${obstacle.width}px`;
+  obstacle.node.style.height = '';
+  obstacle.node.style.fontSize = `${fontSize}px`;
+  const glyph = runnerObstacleGlyphs[Math.floor(Math.random() * runnerObstacleGlyphs.length)];
+  obstacle.node.textContent = glyph;
+  obstacle.node.style.bottom = `${obstacle.bottom}px`;
+  if (kind === 'air') {
+    // Air obstacles use the same single, horizontal run model as ground
+    // obstacles: one glyph repeated 1, 2, or 4 times as one obstacle.
+    obstacle.width = fontSize * 0.92 * airRepeats;
+    obstacle.node.style.width = `${obstacle.width}px`;
+    obstacle.node.style.letterSpacing = '';
+    obstacle.node.textContent = glyph.repeat(airRepeats);
+  } else {
+    obstacle.node.classList.remove('air-bundle');
+    const repeatCount = Math.max(1, Math.round(obstacle.width / (fontSize * 0.68)));
+    obstacle.node.style.letterSpacing = '';
+    obstacle.node.textContent = glyph.repeat(repeatCount);
+  }
 }
 function endRunner() {
-  stopRunner();
+  stopRunner(false);
+  runnerRestartArmed = !runnerPointerDown;
   const score = Math.floor(runnerScore);
   saveBest(score);
   setState('idle', tr('다시 달리기', 'Run again'), tr(`${score}점! 탭해서 다시 시작`, `${score} pts! Tap to run again`));
@@ -480,28 +570,52 @@ function runRunner(frameTime) {
   const height = stage.clientHeight;
   if (!width || !height) { runnerFrame = requestAnimationFrame(runRunner); return; }
   if (runnerHolding && runnerVelocity > 0 && runnerHoldMs < 220) {
-    runnerVelocity += 760 * elapsed;
+    runnerVelocity += 680 * elapsed;
     runnerHoldMs += elapsed * 1000;
   }
-  runnerVelocity -= 900 * elapsed;
+  runnerVelocity -= 850 * elapsed;
   runnerY += runnerVelocity * elapsed;
-  if (runnerY <= 0) { runnerY = 0; runnerVelocity = 0; }
-  runnerSpeed = Math.min(width * 0.88, runnerSpeed + width * 0.002 * elapsed);
-  runnerObstacleX -= runnerSpeed * elapsed;
+  if (runnerY <= 0) {
+    runnerY = 0;
+    runnerVelocity = 0;
+    if (runnerHolding) runnerJump();
+  }
+  const difficulty = Math.min(1, runnerScore / RUNNER_MAX_DIFFICULTY_SCORE);
+  const endlessSpeedBonus = Math.log1p(Math.max(0, runnerScore - RUNNER_MAX_DIFFICULTY_SCORE) / 500) * 0.05;
+  // Preserve the same acceleration ratio while giving every obstacle more
+  // on-screen reading time. No obstacle-specific slowdowns interrupt the flow.
+  runnerSpeed = width * (0.44 + difficulty * 0.76 + endlessSpeedBonus);
   runnerScore += elapsed * 10;
-  const playerX = width * 0.22;
-  const playerWidth = Math.max(20, width * 0.09);
-  const obstacleHeight = Math.max(18, height * 0.19);
-  const playerHeight = Math.max(20, height * 0.17);
-  if (runnerObstacleX < playerX + playerWidth && runnerObstacleX + runnerObstacleWidth > playerX && runnerY < obstacleHeight && playerHeight > 0) {
+  // Obstacles use their full visible box.  Only the cursor gets a forgiving,
+  // inset hitbox so near misses feel fair without softening obstacle edges.
+  const playerX = width * 0.12 + 5;
+  const playerWidth = Math.max(14, width * 0.045);
+  runnerObstacles.forEach(obstacle => { obstacle.x -= runnerSpeed * elapsed; });
+  const playerBottom = runnerY + 7;
+  const playerTop = runnerY + 19;
+  const hit = runnerObstacles.some(obstacle => {
+    const hitBoxIntersects = (left, bottom, boxWidth, boxHeight) => {
+      const horizontalHit = left < playerX + playerWidth && left + boxWidth > playerX;
+      const verticalHit = playerTop > bottom && playerBottom < bottom + boxHeight;
+      return horizontalHit && verticalHit;
+    };
+    return hitBoxIntersects(obstacle.x, obstacle.bottom, obstacle.width, obstacle.height);
+  });
+  if (hit) {
     endRunner();
     return;
   }
-  if (runnerObstacleX + runnerObstacleWidth < 0) {
-    runnerObstacleX = width + Math.random() * width * 0.35;
-    runnerObstacleWidth = Math.max(13, width * (0.055 + Math.random() * 0.04));
-    $('#runner-obstacle').style.width = `${runnerObstacleWidth}px`;
-  }
+  runnerObstacles.forEach(obstacle => {
+    if (obstacle.x + obstacle.width >= -RUNNER_GLYPH_OVERSCAN) return;
+    const previous = runnerObstacles.filter(item => item !== obstacle).reduce((furthest, item) => (
+      item.x + item.width > furthest.x + furthest.width ? item : furthest
+    ));
+    const stagingX = width + RUNNER_GLYPH_OVERSCAN;
+    buildRunnerObstacle(obstacle, width, height, stagingX);
+    const safeGap = runnerSpeed * Math.max(previous.recoverySeconds, obstacle.entrySeconds);
+    obstacle.x = Math.max(stagingX, previous.x + previous.width + safeGap);
+    obstacle.node.style.left = `${obstacle.x}px`;
+  });
   renderRunner();
   runnerFrame = requestAnimationFrame(runRunner);
 }
@@ -509,18 +623,35 @@ function startRunner() {
   const stage = $('#runner-stage');
   const width = stage.clientWidth;
   if (!width) return;
+  stage.dataset.running = 'true';
   runnerRunning = true;
-  runnerHolding = true;
+  runnerRestartArmed = false;
+  runnerHolding = false;
   runnerY = 0;
-  runnerVelocity = 340;
+  runnerVelocity = 0;
   runnerHoldMs = 0;
-  runnerObstacleX = width + width * 0.25;
-  runnerObstacleWidth = Math.max(13, width * 0.07);
-  runnerSpeed = width * 0.46;
+  runnerSpeed = width * 0.44;
   runnerScore = 0;
+  runnerAirObstacleCount = 0;
+  runnerGroundObstacleCount = 0;
   runnerLastFrame = performance.now();
-  $('#runner-obstacle').style.width = `${runnerObstacleWidth}px`;
-  $('#message').textContent = tr('짧게 탭: 점프 · 길게 누르기: 더 높이', 'Tap: jump · Hold: higher jump');
+  runnerObstacles = [
+    { node: $('#runner-obstacle') },
+    { node: $('#runner-obstacle-next') },
+    { node: $('#runner-obstacle-tail') }
+  ];
+  // The first obstacle enters within 0.75 seconds; two further obstacles stay
+  // queued so no empty stage is exposed while a recycled node is off-screen.
+  const entryX = width + Math.min(96, runnerSpeed * 0.7);
+  const stagingX = width + RUNNER_GLYPH_OVERSCAN;
+  buildRunnerObstacle(runnerObstacles[0], width, stage.clientHeight, entryX);
+  buildRunnerObstacle(runnerObstacles[1], width, stage.clientHeight, stagingX);
+  runnerObstacles[1].x = runnerObstacles[0].x + runnerObstacles[0].width + runnerSpeed * Math.max(runnerObstacles[0].recoverySeconds, runnerObstacles[1].entrySeconds);
+  runnerObstacles[1].node.style.left = `${runnerObstacles[1].x}px`;
+  buildRunnerObstacle(runnerObstacles[2], width, stage.clientHeight, stagingX);
+  runnerObstacles[2].x = runnerObstacles[1].x + runnerObstacles[1].width + runnerSpeed * Math.max(runnerObstacles[1].recoverySeconds, runnerObstacles[2].entrySeconds);
+  runnerObstacles[2].node.style.left = `${runnerObstacles[2].x}px`;
+  $('#message').textContent = tr('짧게: 낮은 점프 · 꾹: 최고 점프 연속', 'Tap: low jump · Hold: repeat high jumps');
   state = 'playing';
   document.body.dataset.state = 'idle';
   renderRunner();
@@ -529,7 +660,11 @@ function startRunner() {
 play.addEventListener('click', () => {
   if (!current) return;
   if (current === 'runner') {
-    if (!runnerRunning) startRunner();
+    if (runnerIgnoreNextClick) {
+      runnerIgnoreNextClick = false;
+      return;
+    }
+    if (!runnerRunning && runnerRestartArmed) startRunner();
     return;
   }
   const now = performance.now();
@@ -577,15 +712,36 @@ play.addEventListener('click', () => {
 play.addEventListener('pointerdown', event => {
   if (current !== 'runner') return;
   event.preventDefault();
-  if (!runnerRunning) startRunner();
+  runnerPointerDown = true;
+  if (!runnerRunning) {
+    if (runnerRestartArmed) startRunner();
+  }
   else {
     runnerHolding = true;
     runnerJump();
   }
 });
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => play.addEventListener(type, () => {
-  if (current === 'runner') runnerHolding = false;
+  if (current !== 'runner') return;
+  runnerPointerDown = false;
+  runnerHolding = false;
+  if (!runnerRunning) {
+    runnerRestartArmed = true;
+    runnerIgnoreNextClick = true;
+  }
 }));
+play.addEventListener('keydown', event => {
+  if (current !== 'runner' || !runnerRunning || ![' ', 'Enter'].includes(event.key)) return;
+  event.preventDefault();
+  if (event.repeat) return;
+  runnerHolding = true;
+  runnerJump();
+});
+play.addEventListener('keyup', event => {
+  if (current !== 'runner' || ![' ', 'Enter'].includes(event.key)) return;
+  event.preventDefault();
+  runnerHolding = false;
+});
 $('#back').addEventListener('click', () => {
   location.hash = '';
 });
