@@ -71,6 +71,7 @@ function route() {
 
   const isBj = current === 'blackjack';
   $('#blackjack-table').hidden = !isBj;
+  if (!isBj) $('#bj-round-meta').hidden = true;
   $('#action').style.display = isBj ? 'none' : '';
   play.style.display = isBj ? 'none' : '';
 
@@ -178,6 +179,13 @@ function syncBjBet() {
   $('#bj-deal').disabled = !affordable.length;
 }
 
+function updateBjRoundMeta() {
+  $('#bj-round-meta').textContent = tr(
+    `보유 $${bjMoney} · 판돈 $${bjBet}`,
+    `Bank $${bjMoney} · Bet $${bjBet}`
+  );
+}
+
 function showBjSetup(resetBankroll = false) {
   if (resetBankroll) {
     saveBest(maxBjMoney);
@@ -191,6 +199,7 @@ function showBjSetup(resetBankroll = false) {
   $('#bj-dealer-score').textContent = '';
   $('#bj-player-cards').innerHTML = '';
   $('#bj-player-score').textContent = '';
+  $('#bj-round-meta').hidden = true;
   $('#bj-dealer-area').hidden = true;
   $('#bj-player-area').hidden = true;
   $('#bj-dealer-label').hidden = true;
@@ -236,7 +245,9 @@ function startBlackjack() {
   $('#bj-deal').hidden = true;
   $('#bj-continue').hidden = true;
   $('#bj-new').hidden = true;
-  $('#message').textContent = tr(`히트 또는 스탠드 ($${bjMoney})`, `Hit or Stand ($${bjMoney})`);
+  $('#bj-round-meta').hidden = false;
+  updateBjRoundMeta();
+  $('#message').textContent = tr('히트 또는 스탠드', 'Hit or Stand');
 
   updateBjUI(true);
 
@@ -347,9 +358,10 @@ function endBlackjack(outcome) {
     $('#message').textContent = msg + ' - ' + tr('파산! 💸', 'Bankrupt! 💸');
     $('#bj-continue').hidden = true;
   } else {
-    $('#message').textContent = msg + ` ($${bjMoney})`;
+    $('#message').textContent = msg;
   }
 
+  updateBjRoundMeta();
   showBest();
 }
 function finishTaps() {

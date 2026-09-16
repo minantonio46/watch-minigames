@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
-  <link rel="stylesheet" href="./style.css?v=blackjack-setup-layout-v1">
+  <link rel="stylesheet" href="./style.css?v=blackjack-meta-row-v1">
   <script src="./vendor/embla-carousel.umd.js"></script>
-  <script src="./menu.js?v=blackjack-setup-layout-v1" defer></script>
-  <script src="./game.js?v=blackjack-setup-layout-v1" defer></script>
+  <script src="./menu.js?v=blackjack-meta-row-v1" defer></script>
+  <script src="./game.js?v=blackjack-meta-row-v1" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu" aria-busy="true">
@@ -117,7 +117,10 @@
         </div>
       </div>
       <p id="action"></p>
-      <p id="best"></p>
+      <div id="game-meta" class="game-meta">
+        <span id="bj-round-meta" class="bj-round-meta" hidden></span>
+        <p id="best"></p>
+      </div>
     </div>
     <button id="back" type="button" aria-label="메뉴로 돌아가기">
       <span class="menu-glyph" aria-hidden="true"></span>
