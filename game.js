@@ -22,7 +22,8 @@ function bestValue() {
 }
 function showBest() {
   const best = bestValue();
-  $('#best').textContent = best === null ? '최고 기록 —' : `최고 ${best} ${games[current].unit}`;
+  const unit = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off' }[current]);
+  $('#best').textContent = best === null ? tr('최고 기록 —', 'Best —') : `${tr('최고', 'Best')} ${best} ${unit}`;
 }
 function saveBest(value) {
   const old = bestValue();
@@ -41,14 +42,18 @@ function setState(next, label, text) {
 function route() {
   clearTimers();
   const id = location.hash.slice(1);
-  current = Object.hasOwn(games, id) ? id : null;
-  $('#menu').hidden = current !== null;
+  const settingsOpen = id === 'settings';
+  $('#settings').hidden = !settingsOpen;
+  current = Object.prototype.hasOwnProperty.call(games, id) ? id : null;
+  $('#menu').hidden = current !== null || settingsOpen;
+  if (current || settingsOpen) selected = id;
+  renderMenu();
   $('#game').hidden = current === null;
   document.body.dataset.state = 'idle';
   state = 'idle';
   if (current) {
-    $('#title').textContent = games[current].title;
-    setState('idle', '눌러서 시작', games[current].help);
+    $('#title').textContent = cards[current].title();
+    setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!' }[current]));
     showBest();
     play.focus({ preventScroll: true });
   }
@@ -56,7 +61,7 @@ function route() {
 function finishTaps() {
   clearTimers();
   saveBest(count);
-  setState('idle', '다시 시작', `10초 동안 ${count}회!`);
+  setState('idle', tr('다시 시작', 'Try again'), tr(`10초 동안 ${count}회!`, `${count} taps in 10s!`));
 }
 play.addEventListener('click', () => {
   if (!current) return;
@@ -64,45 +69,42 @@ play.addEventListener('click', () => {
   if (current === 'reaction') {
     if (state === 'waiting') {
       clearTimers();
-      setState('idle', '다시 시작', '너무 빨랐어요!');
+      setState('idle', tr('다시 시작', 'Try again'), tr('너무 빨랐어요!', 'Too soon!'));
     } else if (state === 'ready') {
       const elapsed = Math.max(1, Math.round(now - started));
       saveBest(elapsed);
-      setState('idle', '다시 시작', `${elapsed} ms`);
+      setState('idle', tr('다시 시작', 'Try again'), `${elapsed} ms`);
     } else {
-      setState('waiting', '기다려요', '초록색이 될 때까지…');
+      setState('waiting', tr('기다려요', 'Wait…'), tr('초록색이 될 때까지…', 'Wait for green…'));
       timer = setTimeout(() => {
         started = performance.now();
-        setState('ready', '지금!', '터치하세요!');
+        setState('ready', tr('지금!', 'NOW!'), tr('터치하세요!', 'Tap anywhere!'));
       }, 1500 + Math.random() * 2500);
     }
   } else if (current === 'taps') {
     if (state === 'playing') {
       if (now - started >= 10000) { finishTaps(); return; }
       count++;
-      $('#action').textContent = `${count}회`;
+      $('#action').textContent = tr(`${count}회`, `${count} taps`);
     } else {
       count = 0;
       started = now;
-      setState('playing', '0회', '남은 시간 10초');
+      setState('playing', tr('0회', '0 taps'), tr('남은 시간 10초', '10 seconds left'));
       ticker = setInterval(() => {
         const remaining = 10000 - (performance.now() - started);
         if (remaining <= 0) finishTaps();
-        else $('#message').textContent = `남은 시간 ${Math.ceil(remaining / 1000)}초`;
+        else $('#message').textContent = tr(`남은 시간 ${Math.ceil(remaining / 1000)}초`, `${Math.ceil(remaining / 1000)} seconds left`);
       }, 100);
     }
   } else if (state === 'playing') {
     const elapsed = Math.round(now - started);
     const error = Math.abs(elapsed - 5000);
     saveBest(error);
-    setState('idle', '다시 시작', `${(elapsed / 1000).toFixed(2)}초 · 오차 ${error}ms`);
+    setState('idle', tr('다시 시작', 'Try again'), tr(`${(elapsed / 1000).toFixed(2)}초 · 오차 ${error}ms`, `${(elapsed / 1000).toFixed(2)}s · ${error}ms off`));
   } else {
     started = now;
-    setState('playing', '지금 몇 초?', '5초가 되면 터치!');
+    setState('playing', tr('지금 몇 초?', 'Five seconds?'), tr('5초가 되면 터치!', 'Tap at 5 seconds!'));
   }
-});
-document.querySelectorAll('[data-game]').forEach(button => {
-  button.addEventListener('click', () => { location.hash = button.dataset.game; });
 });
 $('#back').addEventListener('click', () => {
   location.hash = '';
@@ -111,7 +113,7 @@ window.addEventListener('hashchange', route);
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && current && state !== 'idle') {
     clearTimers();
-    setState('idle', '다시 시작', '잠시 멈췄어요');
+    setState('idle', tr('다시 시작', 'Try again'), tr('잠시 멈췄어요', 'Round paused'));
   }
 });
 route();
