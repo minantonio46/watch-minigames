@@ -47,7 +47,8 @@ p,h1 { margin:0; }
 .embla__slide:not(.is-selected) .card-title,
 .embla__slide:not(.is-selected) .card-help { display:none; }
 .embla__slide:not(.is-selected) .card-inner { padding:0; }
-.embla__slide:not(.is-selected) .card-icon { font-size:calc(var(--face) * .14); }
+.embla__slide:not(.is-selected) .card-icon { font-size:calc(var(--face) * .085); }
+#next .card-icon { transform:translateX(calc(var(--face) * -0.04)); }
 .menu-footer { width:70%; margin:calc(var(--face) * .035) auto 0; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:center; position:relative; padding-top:calc(var(--face) * .012); }
 #position { position:absolute; left:8%; font-size:calc(var(--face) * .043); color:var(--muted); font-variant-numeric:tabular-nums; }
 #favorite {

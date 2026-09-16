@@ -58,7 +58,6 @@ function applyContinuousTween() {
   const viewportCenter = carouselRect.left + carouselRect.width / 2;
   const deadZone = 8;
   const maxDist = carouselRect.width * 0.58;
-  const maxPeekShift = carouselRect.width * 0.16;
 
   slides.forEach(slide => {
     const rect = slide.getBoundingClientRect();
@@ -72,7 +71,7 @@ function applyContinuousTween() {
     const opacity = 1.0 - progress * 0.40;
     const helpOpacity = dist <= deadZone ? 1 : Math.max(0, 1.0 - ((dist - deadZone) / (carouselRect.width * 0.18)));
     const direction = dist <= deadZone ? 0 : (offsetFromCenter < 0 ? 1 : -1);
-    const innerShift = direction * progress * maxPeekShift;
+    const innerShift = direction * progress * carouselRect.width * 0.16;
 
     const card = slide.querySelector('.carousel-card');
     if (card) {
