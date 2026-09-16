@@ -51,6 +51,54 @@ function buildSlides() {
   });
 }
 
+function applyContinuousTween() {
+  if (!emblaApi || !carouselNode) return;
+  const carouselRect = carouselNode.getBoundingClientRect();
+  if (!carouselRect.width) return;
+  const viewportCenter = carouselRect.left + carouselRect.width / 2;
+  const deadZone = 8;
+  const maxDist = carouselRect.width * 0.58;
+  const maxPeekShift = carouselRect.width * 0.16;
+
+  slides.forEach(slide => {
+    const rect = slide.getBoundingClientRect();
+    const slideCenter = rect.left + rect.width / 2;
+    const offsetFromCenter = slideCenter - viewportCenter;
+    const dist = Math.abs(offsetFromCenter);
+
+    const progress = dist <= deadZone ? 0 : Math.min(1, (dist - deadZone) / (maxDist - deadZone));
+
+    const scale = 1.0 - progress * 0.16;
+    const opacity = 1.0 - progress * 0.40;
+    const helpOpacity = dist <= deadZone ? 1 : Math.max(0, 1.0 - ((dist - deadZone) / (carouselRect.width * 0.18)));
+    const direction = dist <= deadZone ? 0 : (offsetFromCenter < 0 ? 1 : -1);
+    const innerShift = direction * progress * maxPeekShift;
+
+    const card = slide.querySelector('.carousel-card');
+    if (card) {
+      card.style.transform = `scale(${scale.toFixed(4)})`;
+      card.style.opacity = opacity.toFixed(4);
+      if (dist < 20) {
+        card.style.zIndex = '2';
+        card.style.boxShadow = '0 10px 32px #0004';
+      } else {
+        card.style.zIndex = '1';
+        card.style.boxShadow = '0 8px 24px #0002';
+      }
+    }
+
+    const inner = slide.querySelector('.card-inner');
+    if (inner) {
+      inner.style.transform = `translateX(${innerShift.toFixed(2)}px)`;
+    }
+
+    const help = slide.querySelector('.card-help');
+    if (help) {
+      help.style.opacity = helpOpacity.toFixed(4);
+    }
+  });
+}
+
 function updateStates() {
   if (!emblaApi) return;
   slides = emblaApi.slideNodes();
@@ -107,6 +155,8 @@ function updateStates() {
   favorite.textContent = active ? '★' : '☆';
   favorite.setAttribute('aria-pressed', String(active));
   favorite.setAttribute('aria-label', active ? tr('즐겨찾기 해제', 'Remove favorite') : tr('즐겨찾기 추가', 'Add favorite'));
+
+  applyContinuousTween();
 }
 
 function renderMenu() {
@@ -143,8 +193,10 @@ function initEmbla() {
     });
     slides = emblaApi.slideNodes();
     attachListeners();
+    emblaApi.on('scroll', applyContinuousTween);
     emblaApi.on('select', updateStates);
     emblaApi.on('init', updateStates);
+    emblaApi.on('reInit', updateStates);
   }
   updateStates();
 }
@@ -163,6 +215,10 @@ function reInitEmbla(maintainSelected = true) {
   }
   updateStates();
 }
+
+window.addEventListener('resize', () => {
+  if (emblaApi) applyContinuousTween();
+});
 
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
