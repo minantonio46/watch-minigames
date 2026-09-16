@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
-  <link rel="stylesheet" href="./style.css?v=desktop-carousel-v1">
+  <link rel="stylesheet" href="./style.css?v=fixed-settings-v1">
   <script src="./vendor/embla-carousel.umd.js"></script>
-  <script src="./menu.js?v=desktop-carousel-v1" defer></script>
-  <script src="./game.js?v=desktop-carousel-v1" defer></script>
+  <script src="./menu.js?v=fixed-settings-v1" defer></script>
+  <script src="./game.js?v=fixed-settings-v1" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu" aria-busy="true">
@@ -59,25 +59,30 @@
     </div>
   </main>
   <section id="settings" class="settings" hidden>
-    <h1 id="settings-title"></h1>
-    <section class="setting-group" aria-labelledby="language-label">
-      <h2 id="language-label"></h2>
-      <div class="setting-options two-columns">
-        <button class="setting-choice" type="button" data-language-choice="ko"><span class="choice-icon" aria-hidden="true">가</span><span class="choice-label" data-ko="한국어" data-en="Korean">한국어</span></button>
-        <button class="setting-choice" type="button" data-language-choice="en"><span class="choice-icon" aria-hidden="true">A</span><span class="choice-label" data-ko="영어" data-en="English">영어</span></button>
-      </div>
-    </section>
-    <section class="setting-group" aria-labelledby="theme-label">
-      <h2 id="theme-label"></h2>
-      <div class="setting-options two-columns">
-        <button class="setting-choice" type="button" data-theme-choice="dark"><span class="choice-icon" aria-hidden="true">◐</span><span class="choice-label" data-ko="다크" data-en="Dark">다크</span></button>
-        <button class="setting-choice" type="button" data-theme-choice="light"><span class="choice-icon" aria-hidden="true">☀</span><span class="choice-label" data-ko="라이트" data-en="Light">라이트</span></button>
-        <button class="setting-choice" type="button" data-theme-choice="system"><span class="choice-icon" aria-hidden="true">⌚</span><span class="choice-label" data-ko="기기 설정" data-en="System">기기 설정</span></button>
-        <button class="setting-choice" type="button" data-theme-choice="contrast"><span class="choice-icon" aria-hidden="true">◼</span><span class="choice-label" data-ko="고대비" data-en="Contrast">고대비</span></button>
-      </div>
-      <p id="contrast-note"></p>
-    </section>
-    <button id="settings-back" type="button"></button>
+    <header class="settings-header"><h1 id="settings-title"></h1></header>
+    <div class="settings-content">
+      <section class="setting-group" aria-labelledby="language-label">
+        <h2 id="language-label"></h2>
+        <div class="setting-options two-columns">
+          <button class="setting-choice" type="button" data-language-choice="ko"><span class="choice-icon" aria-hidden="true">가</span><span class="choice-label" data-ko="한국어" data-en="Korean">한국어</span></button>
+          <button class="setting-choice" type="button" data-language-choice="en"><span class="choice-icon" aria-hidden="true">A</span><span class="choice-label" data-ko="영어" data-en="English">영어</span></button>
+        </div>
+      </section>
+      <section class="setting-group" aria-labelledby="theme-label">
+        <h2 id="theme-label"></h2>
+        <div class="setting-options two-columns">
+          <button class="setting-choice" type="button" data-theme-choice="dark"><span class="choice-icon" aria-hidden="true">◐</span><span class="choice-label" data-ko="다크" data-en="Dark">다크</span></button>
+          <button class="setting-choice" type="button" data-theme-choice="light"><span class="choice-icon" aria-hidden="true">☀</span><span class="choice-label" data-ko="라이트" data-en="Light">라이트</span></button>
+          <button class="setting-choice" type="button" data-theme-choice="system"><span class="choice-icon" aria-hidden="true">⌚</span><span class="choice-label" data-ko="기기 설정" data-en="System">기기 설정</span></button>
+          <button class="setting-choice" type="button" data-theme-choice="contrast"><span class="choice-icon" aria-hidden="true">◼</span><span class="choice-label" data-ko="고대비" data-en="Contrast">고대비</span></button>
+        </div>
+        <p id="contrast-note"></p>
+      </section>
+    </div>
+    <button id="settings-back" class="menu-return" type="button" aria-label="메뉴로 돌아가기">
+      <span class="menu-glyph" aria-hidden="true"></span>
+      <span id="settings-back-label"></span>
+    </button>
   </section>
   <section id="game" hidden aria-label="게임">
     <button id="play" type="button"></button>

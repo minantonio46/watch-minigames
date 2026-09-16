@@ -245,7 +245,8 @@ function applyLanguage() {
   });
   document.querySelector('#back-label').textContent = tr('메뉴', 'Menu');
   document.querySelector('#back').setAttribute('aria-label', tr('메뉴로 돌아가기', 'Return to menu'));
-  document.querySelector('#settings-back').textContent = tr('‹ 메뉴', '‹ Menu');
+  document.querySelector('#settings-back-label').textContent = tr('메뉴', 'Menu');
+  document.querySelector('#settings-back').setAttribute('aria-label', tr('메뉴로 돌아가기', 'Return to menu'));
   document.querySelector('#game').setAttribute('aria-label', tr('게임', 'Game'));
   document.querySelector('#carousel').setAttribute('aria-label', tr('게임 선택', 'Choose a game'));
   updateStates();
