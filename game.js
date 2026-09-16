@@ -191,6 +191,8 @@ function showBjSetup(resetBankroll = false) {
   $('#bj-dealer-score').textContent = '';
   $('#bj-player-cards').innerHTML = '';
   $('#bj-player-score').textContent = '';
+  $('#bj-dealer-label').hidden = true;
+  $('#bj-player-label').hidden = true;
   $('#bj-hit').hidden = true;
   $('#bj-stand').hidden = true;
   $('#bj-bet-controls').hidden = false;
@@ -222,6 +224,8 @@ function startBlackjack() {
   bjState = 'player';
   document.body.dataset.state = 'idle';
 
+  $('#bj-dealer-label').hidden = false;
+  $('#bj-player-label').hidden = false;
   $('#bj-hit').hidden = false;
   $('#bj-stand').hidden = false;
   $('#bj-bet-controls').hidden = true;
