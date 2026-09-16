@@ -12,6 +12,7 @@ let timer;
 let ticker;
 let started = 0;
 let count = 0;
+let tapsRestartLocked = false;
 function clearTimers() { clearTimeout(timer); clearInterval(ticker); }
 function bestValue() {
   try {
@@ -41,6 +42,7 @@ function setState(next, label, text) {
 }
 function route() {
   clearTimers();
+  tapsRestartLocked = false;
   const id = location.hash.slice(1);
   const settingsOpen = id === 'settings';
   $('#settings').hidden = !settingsOpen;
@@ -61,7 +63,14 @@ function route() {
 function finishTaps() {
   clearTimers();
   saveBest(count);
-  setState('idle', tr('다시 시작', 'Try again'), tr(`10초 동안 ${count}회!`, `${count} taps in 10s!`));
+  const result = tr(`10초 동안 ${count}회!`, `${count} taps in 10s!`);
+  tapsRestartLocked = true;
+  setState('idle', tr('잠시만', 'One moment'), result);
+  timer = setTimeout(() => {
+    if (current !== 'taps' || state !== 'idle') return;
+    tapsRestartLocked = false;
+    setState('idle', tr('다시 시작', 'Try again'), result);
+  }, 1000);
 }
 play.addEventListener('click', () => {
   if (!current) return;
@@ -87,6 +96,7 @@ play.addEventListener('click', () => {
       count++;
       $('#action').textContent = tr(`${count}회`, `${count} taps`);
     } else {
+      if (tapsRestartLocked) return;
       count = 0;
       started = now;
       setState('playing', tr('0회', '0 taps'), tr('남은 시간 10초', '10 seconds left'));
