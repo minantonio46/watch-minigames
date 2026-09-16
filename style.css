@@ -51,6 +51,7 @@ p,h1 { margin:0; }
 .embla__slide:not(.is-selected) .card-inner { padding:0; }
 .embla__slide:not(.is-selected) .card-icon { font-size:calc(var(--face) * .085); }
 #next .card-icon { transform:translateX(calc(var(--face) * -0.04)); }
+#previous .card-icon { transform:translateX(calc(var(--face) * -0.04)); }
 .menu-footer { width:var(--footer-width); height:var(--bottom-bar-height); margin:0; border-top:1px solid var(--footer-border); background:var(--footer-surface); color:var(--footer-fg); display:flex; align-items:flex-end; justify-content:center; position:absolute; left:50%; bottom:var(--frame-footer-gap); transform:translateX(-50%); padding-bottom:var(--bottom-bar-inset); }
 #position { position:absolute; left:8%; font-size:calc(var(--face) * .043); color:var(--muted); font-variant-numeric:tabular-nums; }
 #favorite {
