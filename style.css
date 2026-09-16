@@ -17,8 +17,6 @@ p,h1 { margin:0; }
 #carousel.embla {
   position:relative; height:calc(var(--face) * .49); overflow:hidden;
   user-select:none; -webkit-touch-callout:none;
-  -webkit-mask-image:linear-gradient(to right, transparent 0, #000 calc(var(--face) * .18), #000 calc(100% - (var(--face) * .18)), transparent 100%);
-  mask-image:linear-gradient(to right, transparent 0, #000 calc(var(--face) * .18), #000 calc(100% - (var(--face) * .18)), transparent 100%);
 }
 .embla__container {
   display:flex; height:100%; will-change:transform;
@@ -95,7 +93,7 @@ p,h1 { margin:0; }
 #back:active { transform:translateX(-50%) scale(.94); }
 #settings-back:active { transform:scale(.94); }
 /* The square design expands only along the long horizontal axis. */
-@media (min-aspect-ratio:1/1) {
+@media (min-aspect-ratio:1001/1000) {
   .menu { overflow:visible; }
   /* Keep the focused card and its two complete neighbors on desktop.  The
      fourth card used to spill into view and made the carousel look scattered. */
@@ -104,21 +102,20 @@ p,h1 { margin:0; }
     pointer-events:none;
   }
 }
-/* On wide displays, the carousel gets its own inset viewport.
-   Its fade is therefore anchored after the layout's margins and padding,
-   rather than to the raw edges of the browser window. */
-@media (min-aspect-ratio:1/1) {
+/* On wide displays, the carousel gets a bounded centered stage. */
+@media (min-aspect-ratio:1001/1000) {
   #carousel.embla {
     /* Keep a bounded stage in the center even on ultrawide displays.  The
        blank area outside it is intentional; only this stage owns card fades. */
     --carousel-stage:max(0px, calc(var(--square) * 2.2));
-    --carousel-fade:calc(var(--square) * .18);
-    width:min(calc(100vw - 24px), var(--carousel-stage));
+    width:min(100vw, var(--carousel-stage));
     margin-left:50%;
     transform:translateX(-50%);
     overflow:hidden;
-    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 var(--carousel-fade), #000 calc(100% - var(--carousel-fade)), transparent 100%);
-    mask-image:linear-gradient(to right, transparent 0, #000 var(--carousel-fade), #000 calc(100% - var(--carousel-fade)), transparent 100%);
+    /* The square stays fully visible.  Fade begins exactly at each square
+       edge and continues only through the extra landscape width. */
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 calc((100% - var(--square)) / 2), #000 calc((100% + var(--square)) / 2), transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0, #000 calc((100% - var(--square)) / 2), #000 calc((100% + var(--square)) / 2), transparent 100%);
   }
 }
 /* Signal colors stay identical in either theme, without a delayed transition. */
@@ -134,12 +131,6 @@ body[data-state="waiting"] #action,body[data-state="ready"] #action { color:inhe
   #best { font-size:6vmin; line-height:1.3; }
   #back { bottom:4vmin; width:72vmin; gap:3vmin; font-size:8vmin; }
   .menu-glyph { width:11vmin; height:8vmin; margin-bottom:1vmin; background-size:100% 2.5px; }
-  /* Mask the cards themselves instead of relying on an overlay.  This stays
-     reliable in watch browsers that compose carousel transforms above pseudo-elements. */
-  #carousel.embla {
-    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 18vmin, #000 calc(100% - 18vmin), transparent 100%);
-    mask-image:linear-gradient(to right, transparent 0, #000 18vmin, #000 calc(100% - 18vmin), transparent 100%);
-  }
   body[data-state="ready"] #action { font-size:20vmin; }
   .settings { position:fixed; inset:0; z-index:3; width:100%; min-height:100dvh; padding:6vmin 0 0; gap:2vmin; overflow:hidden; background:var(--bg); }
   .settings-header { height:12vmin; }
