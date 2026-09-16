@@ -267,10 +267,11 @@ function bjStand() {
   updateBjUI(false); // Reveal dealer's hidden card first
 
   function drawNext() {
-    if (calcBjHand(bjDealer) < 17) {
+    const dealerTarget = Math.max(17, calcBjHand(bjPlayer));
+    if (calcBjHand(bjDealer) < dealerTarget) {
       bjDealer.push(drawBjCard());
       updateBjUI(false);
-      setTimeout(drawNext, 800);
+      timer = setTimeout(drawNext, 800);
     } else {
       const pScore = calcBjHand(bjPlayer);
       const dScore = calcBjHand(bjDealer);
@@ -288,7 +289,7 @@ function bjStand() {
   }
 
   // Add a slight delay before dealer starts drawing for better effect
-  setTimeout(drawNext, 800);
+  timer = setTimeout(drawNext, 800);
 }
 
 function endBlackjack(outcome) {
