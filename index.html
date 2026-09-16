@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
-  <link rel="stylesheet" href="./style.css?v=blackjack-result-spacing-v1">
+  <link rel="stylesheet" href="./style.css?v=runner-v1">
   <script src="./vendor/embla-carousel.umd.js"></script>
-  <script src="./menu.js?v=blackjack-result-spacing-v1" defer></script>
-  <script src="./game.js?v=blackjack-result-spacing-v1" defer></script>
+  <script src="./menu.js?v=runner-v1" defer></script>
+  <script src="./game.js?v=runner-v1" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu" aria-busy="true">
@@ -103,6 +103,12 @@
     <div class="watch">
       <h1 id="title"></h1>
       <p id="message" role="status" aria-live="polite"></p>
+      <div id="runner-stage" class="runner-stage" hidden aria-label="러너">
+        <div id="runner-score" class="runner-score"></div>
+        <div id="runner-player" class="runner-player" aria-hidden="true">●</div>
+        <div id="runner-obstacle" class="runner-obstacle" aria-hidden="true"></div>
+        <div class="runner-ground" aria-hidden="true"></div>
+      </div>
       <div id="blackjack-table" class="bj-table" hidden>
         <div class="bj-hand" id="bj-dealer-area">
           <span class="bj-label" id="bj-dealer-label">딜러</span>

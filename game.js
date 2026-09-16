@@ -5,6 +5,7 @@ const games = {
   reaction: { title: '반응속도', help: '초록색이 되면 터치!', key: 'watch-reaction-best', unit: 'ms' },
   taps: { title: '10초 연타', help: '10초 동안 많이 터치!', key: 'watch-taps-best', unit: '회' },
   timing: { title: '5초 맞추기', help: '시작 후 5초에 터치!', key: 'watch-timing-best', unit: 'ms 오차' },
+  runner: { title: '러너', help: '탭해서 점프! 길게 누르면 더 높이!', key: 'watch-runner-best', unit: '점' },
   blackjack: { title: '블랙잭', help: '21에 가깝게 맞춰보세요!', key: 'watch-blackjack-best', unit: '$' }
 };
 let current = null;
@@ -14,6 +15,17 @@ let ticker;
 let started = 0;
 let count = 0;
 let tapsRestartLocked = false;
+let runnerFrame = null;
+let runnerRunning = false;
+let runnerHolding = false;
+let runnerY = 0;
+let runnerVelocity = 0;
+let runnerHoldMs = 0;
+let runnerObstacleX = 0;
+let runnerObstacleWidth = 0;
+let runnerSpeed = 0;
+let runnerScore = 0;
+let runnerLastFrame = 0;
 
 // Blackjack state
 let bjPlayer = [];
@@ -26,6 +38,12 @@ let bjBet = 100;
 let bjState = 'idle';
 
 function clearTimers() { clearTimeout(timer); clearInterval(ticker); }
+function stopRunner() {
+  if (runnerFrame !== null) cancelAnimationFrame(runnerFrame);
+  runnerFrame = null;
+  runnerRunning = false;
+  runnerHolding = false;
+}
 function hasActiveBlackjackRound() { return bjState === 'player' || bjState === 'dealer'; }
 function cancelBlackjackRound() {
   bjState = 'idle';
@@ -39,14 +57,14 @@ function bestValue() {
 }
 function showBest() {
   const best = bestValue();
-  const unitStr = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off', blackjack: '$' }[current]);
+  const unitStr = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off', runner: 'pts', blackjack: '$' }[current]);
   const displayUnit = current === 'blackjack' ? '' : ` ${unitStr}`;
   const prefix = current === 'blackjack' ? '$' : '';
   $('#best').textContent = best === null ? tr('최고 기록 —', 'Best —') : `${tr('최고', 'Best')} ${prefix}${best}${displayUnit}`;
 }
 function saveBest(value) {
   const old = bestValue();
-  if (old === null || (['taps', 'blackjack'].includes(current) ? value > old : value < old)) {
+  if (old === null || (['taps', 'runner', 'blackjack'].includes(current) ? value > old : value < old)) {
     try { localStorage.setItem(games[current].key, String(value)); } catch (_) {}
   }
   showBest();
@@ -62,6 +80,7 @@ function setState(next, label, text) {
 function route() {
   const previous = current;
   clearTimers();
+  stopRunner();
   tapsRestartLocked = false;
   const id = location.hash.slice(1);
   if (previous === 'blackjack' && id !== 'blackjack') cancelBlackjackRound();
@@ -77,9 +96,11 @@ function route() {
   state = 'idle';
 
   const isBj = current === 'blackjack';
+  const isRunner = current === 'runner';
   $('#blackjack-table').hidden = !isBj;
+  $('#runner-stage').hidden = !isRunner;
   if (!isBj) $('#bj-round-meta').hidden = true;
-  $('#action').style.display = isBj ? 'none' : '';
+  $('#action').style.display = (isBj || isRunner) ? 'none' : '';
   play.style.display = isBj ? 'none' : '';
 
   if (current) {
@@ -98,7 +119,7 @@ function route() {
         showBjSetup();
       }
     } else {
-      setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!' }[current]));
+      setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!', runner: 'Tap to jump! Hold for a higher jump!' }[current]));
     }
     showBest();
   }
@@ -431,8 +452,86 @@ function finishTaps() {
     setState('idle', tr('다시 시작', 'Try again'), result);
   }, 1000);
 }
+function runnerJump() {
+  if (!runnerRunning || runnerY > 1) return;
+  runnerVelocity = 340;
+  runnerHoldMs = 0;
+}
+function renderRunner() {
+  const stage = $('#runner-stage');
+  const height = stage.clientHeight;
+  $('#runner-player').style.transform = `translateY(${-runnerY}px)`;
+  $('#runner-obstacle').style.transform = `translateX(${runnerObstacleX}px)`;
+  $('#runner-score').textContent = tr(`${Math.floor(runnerScore)}점`, `${Math.floor(runnerScore)} pts`);
+  $('#runner-obstacle').style.height = `${Math.max(18, Math.round(height * 0.19))}px`;
+}
+function endRunner() {
+  stopRunner();
+  const score = Math.floor(runnerScore);
+  saveBest(score);
+  setState('idle', tr('다시 달리기', 'Run again'), tr(`${score}점! 탭해서 다시 시작`, `${score} pts! Tap to run again`));
+}
+function runRunner(frameTime) {
+  if (!runnerRunning || current !== 'runner') return;
+  const elapsed = Math.min(40, frameTime - runnerLastFrame) / 1000;
+  runnerLastFrame = frameTime;
+  const stage = $('#runner-stage');
+  const width = stage.clientWidth;
+  const height = stage.clientHeight;
+  if (!width || !height) { runnerFrame = requestAnimationFrame(runRunner); return; }
+  if (runnerHolding && runnerVelocity > 0 && runnerHoldMs < 220) {
+    runnerVelocity += 760 * elapsed;
+    runnerHoldMs += elapsed * 1000;
+  }
+  runnerVelocity -= 900 * elapsed;
+  runnerY += runnerVelocity * elapsed;
+  if (runnerY <= 0) { runnerY = 0; runnerVelocity = 0; }
+  runnerSpeed = Math.min(width * 0.88, runnerSpeed + width * 0.002 * elapsed);
+  runnerObstacleX -= runnerSpeed * elapsed;
+  runnerScore += elapsed * 10;
+  const playerX = width * 0.22;
+  const playerWidth = Math.max(20, width * 0.09);
+  const obstacleHeight = Math.max(18, height * 0.19);
+  const playerHeight = Math.max(20, height * 0.17);
+  if (runnerObstacleX < playerX + playerWidth && runnerObstacleX + runnerObstacleWidth > playerX && runnerY < obstacleHeight && playerHeight > 0) {
+    endRunner();
+    return;
+  }
+  if (runnerObstacleX + runnerObstacleWidth < 0) {
+    runnerObstacleX = width + Math.random() * width * 0.35;
+    runnerObstacleWidth = Math.max(13, width * (0.055 + Math.random() * 0.04));
+    $('#runner-obstacle').style.width = `${runnerObstacleWidth}px`;
+  }
+  renderRunner();
+  runnerFrame = requestAnimationFrame(runRunner);
+}
+function startRunner() {
+  const stage = $('#runner-stage');
+  const width = stage.clientWidth;
+  if (!width) return;
+  runnerRunning = true;
+  runnerHolding = true;
+  runnerY = 0;
+  runnerVelocity = 340;
+  runnerHoldMs = 0;
+  runnerObstacleX = width + width * 0.25;
+  runnerObstacleWidth = Math.max(13, width * 0.07);
+  runnerSpeed = width * 0.46;
+  runnerScore = 0;
+  runnerLastFrame = performance.now();
+  $('#runner-obstacle').style.width = `${runnerObstacleWidth}px`;
+  $('#message').textContent = tr('짧게 탭: 점프 · 길게 누르기: 더 높이', 'Tap: jump · Hold: higher jump');
+  state = 'playing';
+  document.body.dataset.state = 'idle';
+  renderRunner();
+  runnerFrame = requestAnimationFrame(runRunner);
+}
 play.addEventListener('click', () => {
   if (!current) return;
+  if (current === 'runner') {
+    if (!runnerRunning) startRunner();
+    return;
+  }
   const now = performance.now();
   if (current === 'reaction') {
     if (state === 'waiting') {
@@ -475,6 +574,18 @@ play.addEventListener('click', () => {
     setState('playing', tr('지금 몇 초?', 'Five seconds?'), tr('5초가 되면 터치!', 'Tap at 5 seconds!'));
   }
 });
+play.addEventListener('pointerdown', event => {
+  if (current !== 'runner') return;
+  event.preventDefault();
+  if (!runnerRunning) startRunner();
+  else {
+    runnerHolding = true;
+    runnerJump();
+  }
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(type => play.addEventListener(type, () => {
+  if (current === 'runner') runnerHolding = false;
+}));
 $('#back').addEventListener('click', () => {
   location.hash = '';
 });
@@ -488,6 +599,7 @@ document.addEventListener('visibilitychange', () => {
   }
   if (document.hidden && current && state !== 'idle') {
     clearTimers();
+    stopRunner();
     setState('idle', tr('다시 시작', 'Try again'), tr('잠시 멈췄어요', 'Round paused'));
   }
 });

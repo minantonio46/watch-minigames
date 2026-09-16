@@ -11,19 +11,20 @@ let theme = readPreference('watch-theme', 'dark');
 if (!['dark', 'light', 'system', 'contrast'].includes(theme)) theme = 'dark';
 let favorites = readPreference('watch-favorites', []);
 if (!Array.isArray(favorites)) favorites = [];
-favorites = favorites.filter(id => ['reaction', 'taps', 'timing', 'blackjack'].includes(id));
+favorites = favorites.filter(id => ['reaction', 'taps', 'timing', 'runner', 'blackjack'].includes(id));
 const tr = (ko, en) => language === 'ko' ? ko : en;
-const recordKeys = ['watch-reaction-best', 'watch-taps-best', 'watch-timing-best', 'watch-blackjack-best'];
+const recordKeys = ['watch-reaction-best', 'watch-taps-best', 'watch-timing-best', 'watch-runner-best', 'watch-blackjack-best'];
 const cards = {
   reaction: { icon: 'ϟ', title: () => tr('반응속도', 'Reaction'), help: () => tr('초록색이면 터치', 'Tap when green') },
   taps: { icon: '◎', title: () => tr('10초 연타', 'Tap Rush'), help: () => tr('10초 동안 빠르게', 'Tap fast for 10 seconds') },
   timing: { icon: '◷', title: () => tr('5초 맞추기', 'Five Seconds'), help: () => tr('나만의 시간 감각', 'Feel the five-second mark') },
+  runner: { icon: '▲', title: () => tr('러너', 'Runner'), help: () => tr('짧게 점프 · 길게 더 높이', 'Tap to jump · hold higher') },
   blackjack: { icon: '♠', title: () => tr('블랙잭', 'Blackjack'), help: () => tr('21에 가깝게', 'Get close to 21') },
   settings: { icon: '⚙', title: () => tr('설정', 'Settings'), help: () => tr('언어 · 화면 테마', 'Language · Theme') }
 };
 let selected = Object.prototype.hasOwnProperty.call(cards, location.hash.slice(1)) ? location.hash.slice(1) : null;
 function orderedCards() {
-  const ids = ['reaction', 'taps', 'timing', 'blackjack'];
+  const ids = ['reaction', 'taps', 'timing', 'runner', 'blackjack'];
   return [...ids.filter(id => favorites.includes(id)), ...ids.filter(id => !favorites.includes(id)), 'settings'];
 }
 selected = selected || orderedCards()[0];
