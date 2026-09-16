@@ -4,7 +4,7 @@
 * { box-sizing:border-box; }
 [hidden] { display:none !important; }
 html { min-height:100%; }
-body { margin:0; min-height:100vh; min-height:100dvh; display:grid; place-items:center; background:var(--bg); }
+body { margin:0; min-height:100vh; min-height:100dvh; display:grid; place-items:center; overflow-x:hidden; background:var(--bg); }
 button, select { font:inherit; color:inherit; }
 button { cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 button:focus-visible, select:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
@@ -86,6 +86,11 @@ p,h1 { margin:0; }
 #back { position:fixed; z-index:2; left:50%; bottom:clamp(12px,3vmin,24px); transform:translateX(-50%); width:min(72vmin,360px); height:clamp(54px,12vmin,78px); border:0; border-top:1px solid currentColor; background:transparent; display:flex; align-items:flex-end; justify-content:center; gap:clamp(10px,2.5vmin,18px); padding:0 0 clamp(6px,1.2vmin,10px); font-size:clamp(20px,4.5vmin,30px); font-weight:700; }
 #back .menu-glyph { width:clamp(24px,5.5vmin,38px); height:clamp(18px,4vmin,28px); margin-bottom:clamp(2px,.5vmin,4px); background:linear-gradient(currentColor 0 0) 50% 0 / 100% 2px no-repeat, linear-gradient(currentColor 0 0) 50% 50% / 100% 2px no-repeat, linear-gradient(currentColor 0 0) 50% 100% / 100% 2px no-repeat; }
 #back:active { transform:translateX(-50%) scale(.94); }
+/* Wide screens have enough room for whole neighbor cards. Keep the cropped peeks for watch faces. */
+@media (min-width:760px) and (min-height:600px) {
+  .menu { --face:min(54vmin,460px); overflow:visible; }
+  #carousel.embla { overflow:visible; }
+}
 /* Signal colors stay identical in either theme, without a delayed transition. */
 body[data-state="waiting"] { background:#ffcc80; color:#2b1a04; }
 body[data-state="ready"] { background:#76efac; color:#082918; }
