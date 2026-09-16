@@ -241,7 +241,8 @@ function applyLanguage() {
   document.querySelector('#theme option[value="dark"]').textContent = tr('다크 모드', 'Dark');
   document.querySelector('#theme option[value="light"]').textContent = tr('라이트 모드', 'Light');
   document.querySelector('#theme option[value="system"]').textContent = tr('기기 설정', 'System');
-  document.querySelector('#back').textContent = tr('‹ 메뉴', '‹ Menu');
+  document.querySelector('#back-label').textContent = tr('메뉴', 'Menu');
+  document.querySelector('#back').setAttribute('aria-label', tr('메뉴로 돌아가기', 'Return to menu'));
   document.querySelector('#settings-back').textContent = tr('‹ 메뉴', '‹ Menu');
   document.querySelector('#game').setAttribute('aria-label', tr('게임', 'Game'));
   document.querySelector('#carousel').setAttribute('aria-label', tr('게임 선택', 'Choose a game'));

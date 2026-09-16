@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
-  <link rel="stylesheet" href="./style.css?v=side-icons-v4">
+  <link rel="stylesheet" href="./style.css?v=game-menu-v1">
   <script src="./vendor/embla-carousel.umd.js"></script>
-  <script src="./menu.js?v=side-icons-v4" defer></script>
-  <script src="./game.js?v=side-icons-v4" defer></script>
+  <script src="./menu.js?v=game-menu-v1" defer></script>
+  <script src="./game.js?v=game-menu-v1" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu" aria-busy="true">
@@ -74,7 +74,10 @@
       <p id="action"></p>
       <p id="best"></p>
     </div>
-    <button id="back" type="button"></button>
+    <button id="back" type="button" aria-label="메뉴로 돌아가기">
+      <span class="menu-glyph" aria-hidden="true"></span>
+      <span id="back-label"></span>
+    </button>
   </section>
 </body>
 </html>

@@ -55,7 +55,6 @@ function route() {
     $('#title').textContent = cards[current].title();
     setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!' }[current]));
     showBest();
-    play.focus({ preventScroll: true });
   }
 }
 function finishTaps() {
