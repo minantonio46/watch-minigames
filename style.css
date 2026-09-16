@@ -103,6 +103,22 @@ p,h1 { margin:0; }
     pointer-events:none;
   }
 }
+/* On non-watch screens the carousel intentionally extends beyond its own
+   viewport to show whole neighbor cards. Fade only at the physical browser
+   edges, where those cards would otherwise end abruptly. */
+@media (min-width:481px), (min-height:541px) {
+  body:has(#menu:not([hidden]))::before,
+  body:has(#menu:not([hidden]))::after {
+    content:""; position:fixed; z-index:10; top:0; bottom:0; width:min(11vw,180px);
+    pointer-events:none;
+  }
+  body:has(#menu:not([hidden]))::before {
+    left:0; background:linear-gradient(to right, var(--bg), transparent);
+  }
+  body:has(#menu:not([hidden]))::after {
+    right:0; background:linear-gradient(to left, var(--bg), transparent);
+  }
+}
 /* Signal colors stay identical in either theme, without a delayed transition. */
 body[data-state="waiting"] { background:#ffcc80; color:#2b1a04; }
 body[data-state="ready"] { background:#76efac; color:#082918; }
