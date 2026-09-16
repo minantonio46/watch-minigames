@@ -52,14 +52,17 @@ p,h1 { margin:0; }
 .embla__slide:not(.is-selected) .card-icon { font-size:calc(var(--face) * .085); }
 #next .card-icon { transform:translateX(calc(var(--face) * -0.04)); }
 #previous .card-icon { transform:translateX(calc(var(--face) * 0.04)); }
-.menu-footer { width:var(--footer-width); height:var(--bottom-bar-height); margin:0; border-top:1px solid var(--footer-border); background:var(--footer-surface); color:var(--footer-fg); display:flex; align-items:flex-end; justify-content:center; position:absolute; left:50%; bottom:var(--frame-footer-gap); transform:translateX(-50%); padding-bottom:var(--bottom-bar-inset); }
-#position { position:absolute; left:12%; bottom:calc(var(--bottom-bar-height) * .34); font-size:min(calc(var(--face) * .043), calc(var(--bottom-bar-height) * .40)); line-height:1; color:var(--muted); font-variant-numeric:tabular-nums; }
+.menu-footer { --footer-content-top:calc(var(--bottom-bar-height) * .23); width:var(--footer-width); height:var(--bottom-bar-height); margin:0; border-top:1px solid var(--footer-border); background:var(--footer-surface); color:var(--footer-fg); position:absolute; left:50%; bottom:var(--frame-footer-gap); transform:translateX(-50%); }
+#position { position:absolute; left:12%; top:var(--footer-content-top); font-size:min(calc(var(--face) * .043), calc(var(--bottom-bar-height) * .40)); line-height:1; color:var(--muted); font-variant-numeric:tabular-nums; }
 #favorite {
   width:var(--bottom-bar-height); height:var(--bottom-bar-height);
   font-size:min(calc(var(--face) * .12), calc(var(--bottom-bar-height) * .72));
-  line-height:.85; padding:0; border:0; background:none; color:var(--accent);
-  position:relative; z-index:1; top:calc(var(--bottom-bar-height) * .28);
+  line-height:1; padding:0; border:0; background:none; color:var(--accent);
+  position:absolute; z-index:1; left:50%; top:var(--footer-content-top); translate:-50% 0;
   transition:transform 0.15s cubic-bezier(0.3,1.5,0.5,1); will-change:transform;
+}
+#favorite[aria-pressed="true"] {
+  font-size:min(calc(var(--face) * .134), calc(var(--bottom-bar-height) * .81));
 }
 #favorite:active { transform:scale(0.8); }
 #favorite.pop { animation:favPop 0.35s cubic-bezier(0.3,1.5,0.5,1); }
