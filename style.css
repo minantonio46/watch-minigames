@@ -55,9 +55,10 @@ p,h1 { margin:0; }
 .menu-footer { width:var(--footer-width); height:var(--bottom-bar-height); margin:0; border-top:1px solid var(--footer-border); background:var(--footer-surface); color:var(--footer-fg); display:flex; align-items:flex-end; justify-content:center; position:absolute; left:50%; bottom:var(--frame-footer-gap); transform:translateX(-50%); padding-bottom:var(--bottom-bar-inset); }
 #position { position:absolute; left:8%; font-size:calc(var(--face) * .043); color:var(--muted); font-variant-numeric:tabular-nums; }
 #favorite {
-  width:calc(var(--face) * .19); height:calc(var(--face) * .17); font-size:calc(var(--face) * .12);
-  line-height:1; padding:0; border:0; background:none; color:var(--accent);
-  position:relative; z-index:1; top:clamp(18px,2.6vmin,30px);
+  width:var(--bottom-bar-height); height:var(--bottom-bar-height);
+  font-size:min(calc(var(--face) * .12), calc(var(--bottom-bar-height) * .72));
+  line-height:.85; padding:0; border:0; background:none; color:var(--accent);
+  position:relative; z-index:1; top:calc(var(--bottom-bar-height) * .28);
   transition:transform 0.15s cubic-bezier(0.3,1.5,0.5,1); will-change:transform;
 }
 #favorite:active { transform:scale(0.8); }
