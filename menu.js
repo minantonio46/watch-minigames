@@ -219,6 +219,22 @@ function reInitEmbla(maintainSelected = true) {
   updateStates();
 }
 
+// The menu is hidden while a game or settings view is open.  Embla can observe
+// that zero-width state on desktop, so always measure again after the menu is
+// visible and restore the logical selection to the centered snap.
+function syncVisibleMenu() {
+  if (!emblaApi || document.querySelector('#menu').hidden) return;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (document.querySelector('#menu').hidden) return;
+    const index = slides.findIndex(slide => slide.dataset.game === selected);
+    emblaApi.reInit();
+    slides = emblaApi.slideNodes();
+    if (index >= 0) emblaApi.scrollTo(index, true);
+    updateStates();
+  }));
+}
+window.syncVisibleMenu = syncVisibleMenu;
+
 window.addEventListener('resize', () => {
   if (emblaApi) applyContinuousTween();
 });

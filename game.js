@@ -48,6 +48,7 @@ function route() {
   $('#menu').hidden = current !== null || settingsOpen;
   if (current || settingsOpen) selected = id;
   renderMenu();
+  if (!current && !settingsOpen) window.syncVisibleMenu?.();
   $('#game').hidden = current === null;
   document.body.dataset.state = 'idle';
   state = 'idle';

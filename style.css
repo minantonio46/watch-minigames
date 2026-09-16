@@ -95,6 +95,12 @@ p,h1 { margin:0; }
 @media (min-width:760px) and (min-height:600px) {
   .menu { --face:min(54vmin,460px); overflow:visible; }
   #carousel.embla { overflow:visible; }
+  /* Keep the focused card and its two complete neighbors on desktop.  The
+     fourth card used to spill into view and made the carousel look scattered. */
+  .embla__slide:not(.is-selected):not(.is-prev):not(.is-next) {
+    visibility:hidden;
+    pointer-events:none;
+  }
 }
 /* Signal colors stay identical in either theme, without a delayed transition. */
 body[data-state="waiting"] { background:#ffcc80; color:#2b1a04; }
