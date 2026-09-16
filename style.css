@@ -93,6 +93,20 @@ p,h1 { margin:0; }
 #message { font-size:clamp(12px,4vmin,20px); min-height:1.5em; }
 #action { font-size:clamp(20px,7vmin,32px); font-weight:700; color:var(--accent); }
 #best { font-size:clamp(11px,3.5vmin,15px); opacity:.8; }
+.bj-table { width:100%; display:flex; flex-direction:column; align-items:center; gap:clamp(5px,1.6vmin,10px); margin:clamp(2px,0.8vmin,6px) 0; }
+.bj-hand { display:flex; align-items:center; justify-content:center; gap:clamp(6px,1.5vmin,10px); width:100%; }
+.bj-label { font-size:clamp(11px,3vmin,14px); font-weight:700; color:var(--muted); min-width:clamp(26px,6.5vmin,36px); text-align:right; }
+.bj-cards { display:flex; gap:clamp(3px,1vmin,6px); align-items:center; justify-content:center; min-height:clamp(34px,10vmin,48px); }
+.bj-card { min-width:clamp(26px,7.5vmin,38px); height:clamp(34px,10vmin,48px); padding:2px 4px; border-radius:clamp(4px,1vmin,7px); background:#f8fafc; color:#0f172a; border:1px solid rgba(0,0,0,0.2); box-shadow:0 2px 5px rgba(0,0,0,0.25); display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; font-weight:800; user-select:none; }
+.bj-card.red { color:#dc2626; }
+.bj-card.hidden { background:repeating-linear-gradient(45deg,#1e293b,#1e293b 4px,#334155 4px,#334155 8px); color:#94a3b8; border:1px solid #475569; }
+.bj-suit { font-size:clamp(10px,2.8vmin,13px); line-height:1; }
+.bj-rank { font-size:clamp(11px,3.6vmin,16px); line-height:1; margin-top:1px; }
+.bj-score { font-size:clamp(12px,3.5vmin,16px); font-weight:800; color:var(--accent); min-width:clamp(24px,6vmin,32px); text-align:left; }
+.bj-controls { display:flex; gap:clamp(8px,2vmin,14px); justify-content:center; width:100%; pointer-events:auto; margin-top:clamp(2px,0.8vmin,6px); }
+.bj-btn { flex:1; max-width:clamp(84px,26vmin,120px); height:clamp(36px,9.5vmin,46px); border-radius:9999px; border:1px solid var(--border); background:var(--card); color:var(--fg); font-size:clamp(12px,3.4vmin,16px); font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation; transition:transform 0.1s,filter 0.15s; }
+.bj-btn:active { transform:scale(0.93); }
+.bj-btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); max-width:clamp(130px,38vmin,180px); font-weight:800; }
 #play { position:fixed; inset:0; width:100%; height:100%; padding:0; border:0; border-radius:0; background:transparent; }
 #play:focus-visible { outline:3px solid currentColor; outline-offset:-6px; }
 #back { position:fixed; left:50%; bottom:calc((100dvh - var(--square)) / 2 + var(--frame-footer-gap)); transform:translateX(-50%); width:var(--footer-width); height:var(--bottom-bar-height); }
@@ -123,10 +137,18 @@ p,h1 { margin:0; }
 /* Signal colors stay identical in either theme, without a delayed transition. */
 body[data-state="waiting"] { background:#ffcc80; color:#2b1a04; }
 body[data-state="ready"] { background:#76efac; color:#082918; }
-body[data-state="waiting"] #action,body[data-state="ready"] #action { color:inherit; }
+body[data-state="waiting"] #action,body[data-state="ready"] #action,
+body[data-state="waiting"] .bj-label,body[data-state="ready"] .bj-label,
+body[data-state="waiting"] .bj-score,body[data-state="ready"] .bj-score { color:inherit; }
 @media(max-width:480px) and (max-height:540px) {
   :root { --bottom-bar-height:17vmin; --bottom-bar-inset:2vmin; }
   .watch { width:100vmin; padding:7vmin; gap:3vmin; transform:translateY(-6vmin); }
+  .watch:has(.bj-table:not([hidden])) { transform:translateY(-8vmin); gap:1.8vmin; padding:4vmin 7vmin; }
+  .watch:has(.bj-table:not([hidden])) h1 { font-size:9vmin; }
+  .watch:has(.bj-table:not([hidden])) #message { font-size:4.8vmin; min-height:1.2em; }
+  .watch:has(.bj-table:not([hidden])) #best { font-size:4.2vmin; }
+  .watch:has(.bj-table:not([hidden])) .bj-card { min-width:8.5vmin; height:11.5vmin; }
+  .watch:has(.bj-table:not([hidden])) .bj-btn { height:9.5vmin; font-size:4vmin; }
   .watch h1 { font-size:12vmin; line-height:1.15; }
   #message { font-size:6.2vmin; line-height:1.4; min-height:1.4em; }
   #action { font-size:10vmin; line-height:1.2; }

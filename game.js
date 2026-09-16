@@ -4,7 +4,8 @@ const play = $('#play');
 const games = {
   reaction: { title: '반응속도', help: '초록색이 되면 터치!', key: 'watch-reaction-best', unit: 'ms' },
   taps: { title: '10초 연타', help: '10초 동안 많이 터치!', key: 'watch-taps-best', unit: '회' },
-  timing: { title: '5초 맞추기', help: '시작 후 5초에 터치!', key: 'watch-timing-best', unit: 'ms 오차' }
+  timing: { title: '5초 맞추기', help: '시작 후 5초에 터치!', key: 'watch-timing-best', unit: 'ms 오차' },
+  blackjack: { title: '블랙잭', help: '21에 가깝게 맞춰보세요!', key: 'watch-blackjack-best', unit: '연승' }
 };
 let current = null;
 let state = 'idle';
@@ -13,6 +14,14 @@ let ticker;
 let started = 0;
 let count = 0;
 let tapsRestartLocked = false;
+
+// Blackjack state
+let bjPlayer = [];
+let bjDealer = [];
+let bjDeck = [];
+let bjStreak = 0;
+let bjState = 'idle';
+
 function clearTimers() { clearTimeout(timer); clearInterval(ticker); }
 function bestValue() {
   try {
@@ -23,12 +32,12 @@ function bestValue() {
 }
 function showBest() {
   const best = bestValue();
-  const unit = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off' }[current]);
+  const unit = tr(games[current].unit, { reaction: 'ms', taps: 'taps', timing: 'ms off', blackjack: 'wins' }[current]);
   $('#best').textContent = best === null ? tr('최고 기록 —', 'Best —') : `${tr('최고', 'Best')} ${best} ${unit}`;
 }
 function saveBest(value) {
   const old = bestValue();
-  if (old === null || (current === 'taps' ? value > old : value < old)) {
+  if (old === null || (['taps', 'blackjack'].includes(current) ? value > old : value < old)) {
     try { localStorage.setItem(games[current].key, String(value)); } catch (_) {}
   }
   showBest();
@@ -54,11 +63,215 @@ function route() {
   $('#game').hidden = current === null;
   document.body.dataset.state = 'idle';
   state = 'idle';
+
+  const isBj = current === 'blackjack';
+  $('#blackjack-table').hidden = !isBj;
+  $('#action').style.display = isBj ? 'none' : '';
+  play.style.display = isBj ? 'none' : '';
+
   if (current) {
     $('#title').textContent = cards[current].title();
-    setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!' }[current]));
+    if (isBj) {
+      $('#bj-dealer-label').textContent = tr('딜러', 'Dealer');
+      $('#bj-player-label').textContent = tr('나', 'You');
+      $('#bj-hit').textContent = tr('+ 히트', '+ Hit');
+      $('#bj-stand').textContent = tr('스탠드', 'Stand');
+      $('#bj-deal').textContent = tr('새 게임', 'Deal');
+      if (bjState === 'idle') {
+        $('#bj-dealer-cards').innerHTML = '';
+        $('#bj-dealer-score').textContent = '';
+        $('#bj-player-cards').innerHTML = '';
+        $('#bj-player-score').textContent = '';
+        $('#bj-hit').hidden = true;
+        $('#bj-stand').hidden = true;
+        $('#bj-deal').hidden = false;
+        $('#message').textContent = tr('카드를 받아 21을 노려보세요!', 'Get close to 21!');
+      }
+    } else {
+      setState('idle', tr('눌러서 시작', 'Tap to start'), tr(games[current].help, { reaction: 'Tap when green!', taps: 'Tap fast for 10 seconds!', timing: 'Tap again after 5 seconds!' }[current]));
+    }
     showBest();
   }
+}
+
+function createBjDeck() {
+  const suits = [
+    { s: '♠', red: false },
+    { s: '♥', red: true },
+    { s: '♦', red: true },
+    { s: '♣', red: false }
+  ];
+  const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  const deck = [];
+  for (const suit of suits) {
+    for (const rank of ranks) {
+      let val = parseInt(rank, 10);
+      if (rank === 'A') val = 11;
+      else if (['J', 'Q', 'K'].includes(rank)) val = 10;
+      deck.push({ suit: suit.s, rank, val, isRed: suit.red });
+    }
+  }
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function drawBjCard() {
+  if (bjDeck.length < 8) bjDeck = createBjDeck();
+  return bjDeck.pop();
+}
+
+function calcBjHand(hand) {
+  let total = 0;
+  let aces = 0;
+  for (const c of hand) {
+    total += c.val;
+    if (c.rank === 'A') aces++;
+  }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+  return total;
+}
+
+function renderBjCards(container, hand, hideSecond = false) {
+  container.innerHTML = hand.map((c, idx) => {
+    if (hideSecond && idx === 1) {
+      return `<span class="bj-card hidden" aria-label="${tr('숨김 카드', 'Hidden card')}">?</span>`;
+    }
+    const redClass = c.isRed ? 'red' : '';
+    return `<span class="bj-card ${redClass}"><span class="bj-suit">${c.suit}</span><span class="bj-rank">${c.rank}</span></span>`;
+  }).join('');
+}
+
+function updateBjUI(hideDealer = true) {
+  const dealerCards = $('#bj-dealer-cards');
+  const playerCards = $('#bj-player-cards');
+  const dealerScore = $('#bj-dealer-score');
+  const playerScore = $('#bj-player-score');
+
+  renderBjCards(dealerCards, bjDealer, hideDealer);
+  renderBjCards(playerCards, bjPlayer, false);
+
+  const pScore = calcBjHand(bjPlayer);
+  playerScore.textContent = String(pScore);
+
+  if (hideDealer) {
+    dealerScore.textContent = String(calcBjHand([bjDealer[0]]));
+  } else {
+    dealerScore.textContent = String(calcBjHand(bjDealer));
+  }
+}
+
+function startBlackjack() {
+  clearTimers();
+  bjDeck = createBjDeck();
+  bjPlayer = [drawBjCard(), drawBjCard()];
+  bjDealer = [drawBjCard(), drawBjCard()];
+  bjState = 'player';
+  document.body.dataset.state = 'idle';
+
+  $('#bj-hit').hidden = false;
+  $('#bj-stand').hidden = false;
+  $('#bj-deal').hidden = true;
+  $('#message').textContent = tr('히트 또는 스탠드', 'Hit or Stand');
+
+  updateBjUI(true);
+
+  // Check initial natural Blackjack
+  const pScore = calcBjHand(bjPlayer);
+  const dScore = calcBjHand(bjDealer);
+
+  if (pScore === 21) {
+    if (dScore === 21) {
+      endBlackjack('push');
+    } else {
+      endBlackjack('blackjack');
+    }
+  }
+}
+
+function bjHit() {
+  if (bjState !== 'player') return;
+  bjPlayer.push(drawBjCard());
+  updateBjUI(true);
+
+  const pScore = calcBjHand(bjPlayer);
+  if (pScore > 21) {
+    endBlackjack('bust');
+  } else if (pScore === 21) {
+    bjStand();
+  }
+}
+
+function bjStand() {
+  if (bjState !== 'player') return;
+  bjState = 'dealer';
+
+  while (calcBjHand(bjDealer) < 17) {
+    bjDealer.push(drawBjCard());
+  }
+
+  updateBjUI(false);
+
+  const pScore = calcBjHand(bjPlayer);
+  const dScore = calcBjHand(bjDealer);
+
+  if (dScore > 21) {
+    endBlackjack('dealer_bust');
+  } else if (pScore > dScore) {
+    endBlackjack('win');
+  } else if (pScore < dScore) {
+    endBlackjack('lose');
+  } else {
+    endBlackjack('push');
+  }
+}
+
+function endBlackjack(outcome) {
+  bjState = 'done';
+  updateBjUI(false);
+
+  $('#bj-hit').hidden = true;
+  $('#bj-stand').hidden = true;
+  $('#bj-deal').hidden = false;
+  $('#bj-deal').textContent = tr('다시 시작', 'Deal Again');
+
+  const pScore = calcBjHand(bjPlayer);
+  const dScore = calcBjHand(bjDealer);
+
+  if (outcome === 'blackjack') {
+    bjStreak++;
+    saveBest(bjStreak);
+    document.body.dataset.state = 'ready';
+    $('#message').textContent = tr(`블랙잭! 👑 승리 (${bjStreak}연승)`, `Blackjack! 👑 Win (${bjStreak} streak)`);
+  } else if (outcome === 'dealer_bust') {
+    bjStreak++;
+    saveBest(bjStreak);
+    document.body.dataset.state = 'ready';
+    $('#message').textContent = tr(`딜러 버스트(${dScore})! 🎉 (${bjStreak}연승)`, `Dealer bust(${dScore})! 🎉 (${bjStreak} streak)`);
+  } else if (outcome === 'win') {
+    bjStreak++;
+    saveBest(bjStreak);
+    document.body.dataset.state = 'ready';
+    $('#message').textContent = tr(`승리! (${pScore} vs ${dScore}) (${bjStreak}연승)`, `Won! (${pScore} vs ${dScore}) (${bjStreak} streak)`);
+  } else if (outcome === 'bust') {
+    bjStreak = 0;
+    document.body.dataset.state = 'waiting';
+    $('#message').textContent = tr(`버스트(${pScore})! 💥 패배`, `Bust(${pScore})! 💥 Loss`);
+  } else if (outcome === 'lose') {
+    bjStreak = 0;
+    document.body.dataset.state = 'waiting';
+    $('#message').textContent = tr(`패배 (${pScore} vs ${dScore})`, `Dealer won (${pScore} vs ${dScore})`);
+  } else if (outcome === 'push') {
+    document.body.dataset.state = 'idle';
+    $('#message').textContent = tr(`비겼어요 (${pScore} = ${dScore})`, `Push (${pScore} = ${dScore})`);
+  }
+
+  showBest();
 }
 function finishTaps() {
   clearTimers();
@@ -126,4 +339,7 @@ document.addEventListener('visibilitychange', () => {
     setState('idle', tr('다시 시작', 'Try again'), tr('잠시 멈췄어요', 'Round paused'));
   }
 });
+$('#bj-hit').addEventListener('click', bjHit);
+$('#bj-stand').addEventListener('click', bjStand);
+$('#bj-deal').addEventListener('click', startBlackjack);
 route();
