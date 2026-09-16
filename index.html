@@ -9,14 +9,24 @@
   <script src="./game.js" defer></script>
 </head>
 <body data-state="idle">
-  <button id="play" type="button" aria-label="화면 어디나 눌러 시작"></button>
-  <main class="watch">
-    <p class="eyebrow">WATCH MINIGAMES</p>
-    <h1>반응속도</h1>
-    <p id="message" role="status" aria-live="polite">초록색이 되면 터치!</p>
-    <p id="action">화면을 눌러 시작</p>
-    <p id="best">최고 기록 —</p>
-    <p class="hint">화면 어디나 터치</p>
+  <main id="menu" class="menu">
+    <h1>미니게임</h1>
+    <p class="menu-hint">오늘은 어떤 게임?</p>
+    <nav aria-label="게임 선택">
+      <button data-game="reaction">반응속도 <span>초록색이면 터치</span></button>
+      <button data-game="taps">10초 연타 <span>최대한 많이 터치</span></button>
+      <button data-game="timing">5초 맞추기 <span>감각으로 시간 맞추기</span></button>
+    </nav>
   </main>
+  <section id="game" hidden aria-label="게임">
+    <button id="play" type="button" aria-label="화면 어디나 눌러 시작"></button>
+    <div class="watch">
+      <h1 id="title">반응속도</h1>
+      <p id="message" role="status" aria-live="polite"></p>
+      <p id="action"></p>
+      <p id="best"></p>
+    </div>
+    <button id="back" type="button">‹ 메뉴</button>
+  </section>
 </body>
 </html>
