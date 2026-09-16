@@ -25,33 +25,59 @@ function orderedCards() {
   return [...ids.filter(id => favorites.includes(id)), ...ids.filter(id => !favorites.includes(id)), 'settings'];
 }
 selected = selected || orderedCards()[0];
-function renderMenu(direction = null) {
+let isAnimating = false;
+
+function renderMenu() {
   const ids = orderedCards();
   const index = ids.indexOf(selected);
-  const card = document.querySelector('#selected-card');
-  if (direction) {
-    card.classList.remove('slide-in-right', 'slide-in-left');
-    void card.offsetWidth;
-    card.classList.add(direction === 'right' ? 'slide-in-right' : 'slide-in-left');
+  const slotOffsets = [-2, -1, 0, 1, 2];
+  const slotCards = slotOffsets.map(offset => ids[(index + offset + ids.length * 2) % ids.length]);
+
+  const s0 = document.querySelector('.slot-0');
+  if (s0) {
+    s0.querySelector('.card-icon').textContent = cards[slotCards[0]].icon;
+    s0.querySelector('.card-title').textContent = cards[slotCards[0]].title();
+    const s0Help = s0.querySelector('.card-help');
+    if (s0Help) s0Help.textContent = cards[slotCards[0]].help();
   }
-  document.querySelector('#card-icon').textContent = cards[selected].icon;
-  document.querySelector('#card-title').textContent = cards[selected].title();
-  document.querySelector('#card-help').textContent = cards[selected].help();
-  card.setAttribute('aria-label', tr('열기: ', 'Open: ') + cards[selected].title());
-  const prevIndex = (index - 1 + ids.length) % ids.length;
-  const nextIndex = (index + 1) % ids.length;
-  const prevNeighbor = ids[prevIndex];
-  const nextNeighbor = ids[nextIndex];
+
   const prevButton = document.querySelector('#previous');
-  prevButton.disabled = false;
-  document.querySelector('#prev-icon').textContent = cards[prevNeighbor].icon;
-  document.querySelector('#prev-title').textContent = cards[prevNeighbor].title();
-  prevButton.setAttribute('aria-label', tr('이전: ', 'Previous: ') + cards[prevNeighbor].title());
+  if (prevButton) {
+    prevButton.disabled = false;
+    document.querySelector('#prev-icon').textContent = cards[slotCards[1]].icon;
+    document.querySelector('#prev-title').textContent = cards[slotCards[1]].title();
+    const prevHelp = document.querySelector('#prev-help');
+    if (prevHelp) prevHelp.textContent = cards[slotCards[1]].help();
+    prevButton.setAttribute('aria-label', tr('이전: ', 'Previous: ') + cards[slotCards[1]].title());
+  }
+
+  const card = document.querySelector('#selected-card');
+  if (card) {
+    document.querySelector('#card-icon').textContent = cards[slotCards[2]].icon;
+    document.querySelector('#card-title').textContent = cards[slotCards[2]].title();
+    const cardHelp = document.querySelector('#card-help');
+    if (cardHelp) cardHelp.textContent = cards[slotCards[2]].help();
+    card.setAttribute('aria-label', tr('열기: ', 'Open: ') + cards[slotCards[2]].title());
+  }
+
   const nextButton = document.querySelector('#next');
-  nextButton.disabled = false;
-  document.querySelector('#next-icon').textContent = cards[nextNeighbor].icon;
-  document.querySelector('#next-title').textContent = cards[nextNeighbor].title();
-  nextButton.setAttribute('aria-label', tr('다음: ', 'Next: ') + cards[nextNeighbor].title());
+  if (nextButton) {
+    nextButton.disabled = false;
+    document.querySelector('#next-icon').textContent = cards[slotCards[3]].icon;
+    document.querySelector('#next-title').textContent = cards[slotCards[3]].title();
+    const nextHelp = document.querySelector('#next-help');
+    if (nextHelp) nextHelp.textContent = cards[slotCards[3]].help();
+    nextButton.setAttribute('aria-label', tr('다음: ', 'Next: ') + cards[slotCards[3]].title());
+  }
+
+  const s4 = document.querySelector('.slot-4');
+  if (s4) {
+    s4.querySelector('.card-icon').textContent = cards[slotCards[4]].icon;
+    s4.querySelector('.card-title').textContent = cards[slotCards[4]].title();
+    const s4Help = s4.querySelector('.card-help');
+    if (s4Help) s4Help.textContent = cards[slotCards[4]].help();
+  }
+
   document.querySelector('#position').textContent = `${index + 1} / ${ids.length}`;
   const favorite = document.querySelector('#favorite');
   const active = favorites.includes(selected);
@@ -61,12 +87,34 @@ function renderMenu(direction = null) {
   favorite.setAttribute('aria-pressed', String(active));
   favorite.setAttribute('aria-label', active ? tr('즐겨찾기 해제', 'Remove favorite') : tr('즐겨찾기 추가', 'Add favorite'));
 }
-function moveCard(step, direction = null) {
+
+function moveCard(step) {
+  if (isAnimating || !step) return;
+  isAnimating = true;
+
   const ids = orderedCards();
   const currentIndex = ids.indexOf(selected);
   const nextIndex = (currentIndex + step + ids.length) % ids.length;
-  selected = ids[nextIndex];
-  renderMenu(direction || (step > 0 ? 'right' : 'left'));
+  const nextSelected = ids[nextIndex];
+
+  const shiftClass = step > 0 ? 'sliding-next' : 'sliding-prev';
+  track.classList.remove('sliding-next', 'sliding-prev');
+  track.style.transition = '';
+  track.style.transform = '';
+  void track.offsetWidth;
+  track.classList.add(shiftClass);
+
+  setTimeout(() => {
+    selected = nextSelected;
+    renderMenu();
+    track.classList.remove(shiftClass);
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0)';
+    void track.offsetWidth;
+    track.style.transition = '';
+    track.style.transform = '';
+    isAnimating = false;
+  }, 280);
 }
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
@@ -91,8 +139,8 @@ function applyLanguage() {
   document.querySelector('#carousel').setAttribute('aria-label', tr('게임 선택', 'Choose a game'));
   renderMenu();
 }
-document.querySelector('#previous').addEventListener('click', () => moveCard(-1, 'left'));
-document.querySelector('#next').addEventListener('click', () => moveCard(1, 'right'));
+document.querySelector('#previous').addEventListener('click', () => moveCard(-1));
+document.querySelector('#next').addEventListener('click', () => moveCard(1));
 document.querySelector('#selected-card').addEventListener('click', () => { location.hash = selected; });
 document.querySelector('#favorite').addEventListener('click', () => {
   if (selected === 'settings') return;
@@ -110,14 +158,16 @@ let gesture = null;
 let isDragging = false;
 let suppressClick = false;
 carousel.addEventListener('pointerdown', event => {
-  if (!event.isPrimary || event.button !== 0) return;
+  if (!event.isPrimary || event.button !== 0 || isAnimating) return;
   suppressClick = false;
   isDragging = false;
   gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, startTime: performance.now() };
-  if (track) track.style.transition = 'none';
+  if (track) {
+    track.style.transition = 'none';
+  }
 });
 window.addEventListener('pointermove', event => {
-  if (!gesture || gesture.id !== event.pointerId) return;
+  if (!gesture || gesture.id !== event.pointerId || isAnimating) return;
   const dx = event.clientX - gesture.x;
   const dy = event.clientY - gesture.y;
   if (!isDragging) {
@@ -146,23 +196,44 @@ function endGesture(event) {
     suppressClick = true;
     const threshold = 28;
     const fastSwipe = Math.abs(dx) >= 16 && dt < 280;
-    if (Math.abs(dx) >= threshold || fastSwipe) {
+    if ((Math.abs(dx) >= threshold || fastSwipe) && !isAnimating) {
       const step = dx < 0 ? 1 : -1;
-      const targetX = dx < 0 ? -carousel.clientWidth * 0.32 : carousel.clientWidth * 0.32;
-      track.style.transition = 'transform 0.15s cubic-bezier(0.2, 0.8, 0.25, 1)';
-      track.style.transform = `translateX(${targetX}px)`;
+      isAnimating = true;
+
+      const ids = orderedCards();
+      const currentIndex = ids.indexOf(selected);
+      const nextIndex = (currentIndex + step + ids.length) % ids.length;
+      const nextSelected = ids[nextIndex];
+
+      const shiftClass = step > 0 ? 'sliding-next' : 'sliding-prev';
+      track.classList.add(shiftClass);
+      track.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+      track.style.transform = step > 0 ? 'translateX(calc(var(--slot-dist) * -1))' : 'translateX(var(--slot-dist))';
+
       setTimeout(() => {
+        selected = nextSelected;
+        renderMenu();
+        track.classList.remove(shiftClass);
         track.style.transition = 'none';
         track.style.transform = 'translateX(0)';
-        moveCard(step, dx < 0 ? 'right' : 'left');
-      }, 150);
+        void track.offsetWidth;
+        track.style.transition = '';
+        track.style.transform = '';
+        isAnimating = false;
+      }, 220);
     } else {
-      track.style.transition = 'transform 0.18s cubic-bezier(0.2, 0.8, 0.25, 1)';
+      track.style.transition = 'transform 0.2s cubic-bezier(0.25, 1, 0.5, 1)';
       track.style.transform = 'translateX(0)';
+      setTimeout(() => {
+        if (track) {
+          track.style.transition = '';
+          track.style.transform = '';
+        }
+      }, 200);
     }
   } else if (track) {
-    track.style.transition = 'none';
-    track.style.transform = 'translateX(0)';
+    track.style.transition = '';
+    track.style.transform = '';
   }
 }
 window.addEventListener('pointerup', endGesture);

@@ -14,20 +14,40 @@
     <h1 id="site-title">워치 미니게임</h1>
     <div id="carousel" aria-roledescription="carousel">
       <div id="carousel-track">
-        <button id="previous" class="side-card" type="button">
-          <span class="side-card-content">
-            <span class="side-arrow" aria-hidden="true">‹</span>
-            <span class="side-icon" id="prev-icon" aria-hidden="true"></span>
-            <span class="side-title" id="prev-title"></span>
-          </span>
+        <button class="carousel-card slot-0" type="button" aria-hidden="true" tabindex="-1">
+          <div class="card-inner">
+            <span class="card-icon" aria-hidden="true"></span>
+            <strong class="card-title"></strong>
+            <span class="card-help"></span>
+          </div>
         </button>
-        <button id="selected-card" type="button"><span id="card-icon" aria-hidden="true"></span><strong id="card-title"></strong><span id="card-help"></span></button>
-        <button id="next" class="side-card" type="button">
-          <span class="side-card-content">
-            <span class="side-arrow" aria-hidden="true">›</span>
-            <span class="side-icon" id="next-icon" aria-hidden="true"></span>
-            <span class="side-title" id="next-title"></span>
-          </span>
+        <button id="previous" class="carousel-card slot-1" type="button">
+          <div class="card-inner">
+            <span id="prev-icon" class="card-icon" aria-hidden="true"></span>
+            <strong id="prev-title" class="card-title"></strong>
+            <span id="prev-help" class="card-help"></span>
+          </div>
+        </button>
+        <button id="selected-card" class="carousel-card slot-2" type="button">
+          <div class="card-inner">
+            <span id="card-icon" class="card-icon" aria-hidden="true"></span>
+            <strong id="card-title" class="card-title"></strong>
+            <span id="card-help" class="card-help"></span>
+          </div>
+        </button>
+        <button id="next" class="carousel-card slot-3" type="button">
+          <div class="card-inner">
+            <span id="next-icon" class="card-icon" aria-hidden="true"></span>
+            <strong id="next-title" class="card-title"></strong>
+            <span id="next-help" class="card-help"></span>
+          </div>
+        </button>
+        <button class="carousel-card slot-4" type="button" aria-hidden="true" tabindex="-1">
+          <div class="card-inner">
+            <span class="card-icon" aria-hidden="true"></span>
+            <strong class="card-title"></strong>
+            <span class="card-help"></span>
+          </div>
         </button>
       </div>
     </div>
