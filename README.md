@@ -3,6 +3,11 @@
 갤럭시 워치의 웹 브라우저에서 가볍게 즐기는 터치 미니게임 프로젝트.
 HTML, CSS, JavaScript만 사용하며 서버, 패키지 설치, 빌드가 필요 없습니다.
 
+- 게임: https://minantonio46.github.io/watch-minigames/
+- 저장소: https://github.com/minantonio46/watch-minigames
+- 배포 설정: `main` 브랜치의 `/(root)` (GitHub Pages)
+- 로컬 `origin`과 `main`의 upstream 연결 완료. TortoiseGit에서 Commit → Push로 업데이트합니다.
+
 ## 실행
 
 로컬에서는 `index.html`을 브라우저로 열면 됩니다.
