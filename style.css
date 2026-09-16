@@ -95,27 +95,22 @@ p,h1 { margin:0; }
 /* The square design expands only along the long horizontal axis. */
 @media (min-aspect-ratio:1001/1000) {
   .menu { overflow:visible; }
-  /* Keep the focused card and its two complete neighbors on desktop.  The
-     fourth card used to spill into view and made the carousel look scattered. */
-  .embla__slide:not(.is-selected):not(.is-prev):not(.is-next) {
-    visibility:hidden;
-    pointer-events:none;
-  }
 }
 /* On wide displays, the carousel gets a bounded centered stage. */
 @media (min-aspect-ratio:1001/1000) {
   #carousel.embla {
-    /* Keep a bounded stage in the center even on ultrawide displays.  The
-       blank area outside it is intentional; only this stage owns card fades. */
-    --carousel-stage:max(0px, calc(var(--square) * 2.2));
-    width:min(100vw, var(--carousel-stage));
+    /* The fade width stays fixed.  Extra ultrawide space is outside the
+       carousel stage and is clipped, rather than stretching the gradient. */
+    --carousel-fade:clamp(56px,10vmin,120px);
+    --carousel-extra:min(var(--carousel-fade), calc((100vw - var(--square)) / 2));
+    width:calc(var(--square) + (var(--carousel-extra) * 2));
     margin-left:50%;
     transform:translateX(-50%);
     overflow:hidden;
     /* The square stays fully visible.  Fade begins exactly at each square
        edge and continues only through the extra landscape width. */
-    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 calc((100% - var(--square)) / 2), #000 calc((100% + var(--square)) / 2), transparent 100%);
-    mask-image:linear-gradient(to right, transparent 0, #000 calc((100% - var(--square)) / 2), #000 calc((100% + var(--square)) / 2), transparent 100%);
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 var(--carousel-extra), #000 calc(100% - var(--carousel-extra)), transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0, #000 var(--carousel-extra), #000 calc(100% - var(--carousel-extra)), transparent 100%);
   }
 }
 /* Signal colors stay identical in either theme, without a delayed transition. */
