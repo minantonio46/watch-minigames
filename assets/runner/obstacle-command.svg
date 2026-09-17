@@ -1,12 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <g fill="none" stroke="#fff" stroke-width="9" stroke-linecap="butt">
-    <circle cx="26" cy="26" r="12"/>
-    <circle cx="74" cy="26" r="12"/>
-    <circle cx="26" cy="74" r="12"/>
-    <circle cx="74" cy="74" r="12"/>
-    <line x1="38" y1="26" x2="62" y2="26"/>
-    <line x1="38" y1="74" x2="62" y2="74"/>
-    <line x1="26" y1="38" x2="26" y2="62"/>
-    <line x1="74" y1="38" x2="74" y2="62"/>
-  </g>
+  <!--
+    ⌘ 심볼: 4개의 원형 링(stroke) + 4개의 연결 막대(rect)
+    링 중심: (24,24) (76,24) (24,76) (76,76)
+    링 반지름: 13  선 두께: 10  → 외경 18, 내경(홀) 8
+    막대 접선: 링 중심 ± 13 = 37 / 63
+    막대 두께: 10 → y ± 5
+  -->
+
+  <!-- 링 4개 -->
+  <circle cx="24" cy="24" r="13" fill="none" stroke="#fff" stroke-width="10"/>
+  <circle cx="76" cy="24" r="13" fill="none" stroke="#fff" stroke-width="10"/>
+  <circle cx="24" cy="76" r="13" fill="none" stroke="#fff" stroke-width="10"/>
+  <circle cx="76" cy="76" r="13" fill="none" stroke="#fff" stroke-width="10"/>
+
+  <!-- 연결 막대 4개: 링 외경 접선에서 반대 링 접선까지, 링 스트로크와 동일 두께 -->
+  <rect fill="#fff" x="37" y="19" width="26" height="10"/>
+  <rect fill="#fff" x="37" y="71" width="26" height="10"/>
+  <rect fill="#fff" x="19" y="37" width="10" height="26"/>
+  <rect fill="#fff" x="71" y="37" width="10" height="26"/>
 </svg>
