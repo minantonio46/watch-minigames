@@ -50,7 +50,7 @@
 .runner-stage:not([data-running]) .runner-obstacle { visibility:hidden; }
 .runner-player, .runner-obstacle, .runner-hitbox-debug, .runner-obstacle-unit { transition:none !important; }
 .runner-hitbox-debug { position:absolute; z-index:3; display:none; box-sizing:border-box; pointer-events:none; }
-.runner-stage[data-running][data-hitbox-ready] .runner-hitbox-debug { display:block; }
+.debug-mode .runner-stage[data-running][data-hitbox-ready] .runner-hitbox-debug { display:block; }
 .runner-hitbox-player { border:max(1px,calc(var(--square) * .002)) solid #00e5ff; background:#00e5ff20; will-change:transform; transform:translateY(0); }
 .runner-hitbox-obstacle { border:max(1px,calc(var(--square) * .002)) solid #ff4057; background:#ff405718; }
 .runner-ground { position:absolute; inset:auto 0 0; height:calc(var(--square) * .004); background:var(--border); }
