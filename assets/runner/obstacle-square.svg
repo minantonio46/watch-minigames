@@ -1,10 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- fill-rule evenodd: 홀수겹=채움, 짝수겹=투명
-       5겹 쌓인 중심 = 홀수 → 흰색으로 채워짐 -->
+  <!-- evenodd: 1겹=채움(테두리), 2겹=투명(갭), 3겹=채움(중심) -->
   <path fill="#fff" fill-rule="evenodd"
-    d="M0 0h100v100H0z
-       M10 10v80h80V10z
-       M22 22h56v56H22z
-       M32 32v36h36V32z
-       M42 42h16v16H42z"/>
+    d="M0 0h100v100H0z M14 14h72v72H14z M26 26h48v48H26z"/>
 </svg>
