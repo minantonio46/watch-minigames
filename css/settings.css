@@ -1,0 +1,56 @@
+/* Settings Screen Styles */
+.settings { --settings-gap:calc(var(--square) * .02); width:var(--content-width); height:var(--square); position:relative; text-align:center; }
+.settings-header { position:absolute; top:var(--header-top); left:50%; transform:translateX(-50%); width:var(--content-width); height:var(--header-height); display:flex; align-items:center; justify-content:center; }
+.settings h1 { margin:0; font-size:var(--header-title-size); font-weight:700; line-height:1.3; padding-bottom:calc(var(--square) * .006); white-space:nowrap; }
+.settings-content { position:absolute; top:calc(var(--header-top) + var(--header-height) + var(--settings-gap)); bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height) + var(--settings-gap)); left:0; right:0; display:grid; gap:var(--settings-gap); min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+.setting-group { display:grid; gap:calc(var(--square) * .015); text-align:left; }
+.setting-group h2 { margin:0; font-size:calc(var(--square) * .035); color:var(--muted); }
+.setting-options { display:grid; gap:calc(var(--square) * .018); }
+.setting-options.two-columns { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+.setting-choice { min-height:calc(var(--square) * .14); border:1px solid var(--border); border-radius:calc(var(--square) * .03); background:var(--card); display:grid; place-items:center; align-content:center; gap:calc(var(--square) * .008); padding:calc(var(--square) * .016); font-size:calc(var(--square) * .034); font-weight:700; }
+.setting-choice[aria-pressed="true"] { border:3px solid var(--accent); color:var(--accent); }
+.choice-icon { font-size:calc(var(--square) * .05); line-height:1; }
+#contrast-note { margin:0; font-size:calc(var(--square) * .027); line-height:1.35; color:var(--muted); text-align:center; }
+.records-setting { padding-bottom:calc(var(--square) * .008); }
+.reset-records { min-height:calc(var(--square) * .09); border:1px solid var(--border); border-radius:999px; background:var(--card); color:var(--fg); font-size:calc(var(--square) * .034); font-weight:700; }
+.reset-records:active, .reset-records-cancel:active, .reset-records-confirm-button:active { transform:scale(.96); }
+.reset-records-modal { position:fixed; inset:0; z-index:10; display:grid; place-items:center; padding:calc(var(--square) * .06); background:rgba(0,0,0,.48); }
+.reset-records-confirm { width:min(100%, calc(var(--square) * .64)); display:grid; gap:calc(var(--square) * .018); padding:calc(var(--square) * .04); border:1px solid var(--accent); border-radius:calc(var(--square) * .03); background:var(--card); box-shadow:0 calc(var(--square) * .028) calc(var(--square) * .072) #0008; text-align:center; }
+.reset-records-confirm p { font-size:calc(var(--square) * .031); line-height:1.4; }
+.reset-records-actions { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--square) * .018); }
+.reset-records-cancel, .reset-records-confirm-button { min-height:calc(var(--square) * .085); border-radius:999px; font-size:calc(var(--square) * .031); font-weight:800; }
+.reset-records-cancel { border:1px solid var(--border); background:transparent; }
+.reset-records-confirm-button { border:1px solid var(--accent); background:var(--accent); color:var(--bg); }
+.reset-records-status { min-height:1.4em; margin:0; color:var(--accent); font-size:calc(var(--square) * .029); text-align:center; }
+#settings-back {
+  z-index:2;
+  border:0;
+  border-top:1px solid var(--footer-border);
+  background:var(--footer-surface);
+  color:var(--footer-fg);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:calc(var(--square) * .025);
+  padding:calc(var(--bottom-bar-height) - var(--bottom-bar-inset) - calc(var(--square) * .068)) 0 0;
+  font-size:calc(var(--square) * .055);
+  font-weight:700;
+  width:var(--footer-width);
+  height:calc(var(--bottom-bar-height) + var(--frame-footer-gap));
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  box-sizing:border-box;
+}
+#settings-back::before {
+  content:'';
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  pointer-events:auto;
+}
+#settings-back:active { transform:translateX(-50%) scale(.96); }
+

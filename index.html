@@ -5,10 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
-  <link rel="stylesheet" href="./style.css?v=layout-policy-v1">
+  <link rel="stylesheet" href="./style.css?v=modular-v1">
+  <link rel="stylesheet" href="./css/menu.css?v=modular-v1">
+  <link rel="stylesheet" href="./css/settings.css?v=modular-v1">
+  <link rel="stylesheet" href="./css/runner.css?v=modular-v1">
+  <link rel="stylesheet" href="./css/blackjack.css?v=modular-v1">
   <script src="./vendor/embla-carousel.umd.js"></script>
-  <script src="./menu.js?v=layout-policy-v1" defer></script>
-  <script src="./game.js?v=game-polish-v2" defer></script>
+  <script src="./js/common.js?v=modular-v1" defer></script>
+  <script src="./js/settings.js?v=modular-v1" defer></script>
+  <script src="./js/menu.js?v=modular-v1" defer></script>
+  <script src="./js/games/reaction.js?v=modular-v1" defer></script>
+  <script src="./js/games/taps.js?v=modular-v1" defer></script>
+  <script src="./js/games/timing.js?v=modular-v1" defer></script>
+  <script src="./js/games/runner.js?v=modular-v1" defer></script>
+  <script src="./js/games/blackjack.js?v=modular-v1" defer></script>
+  <script src="./js/router.js?v=modular-v1" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu" aria-busy="true">
@@ -106,10 +117,14 @@
       <div id="runner-stage" class="runner-stage" hidden aria-label="러너">
         <div id="runner-best" class="runner-best"></div>
         <div id="runner-score" class="runner-score"></div>
-        <div id="runner-player" class="runner-player" aria-hidden="true">➤</div>
-        <div id="runner-obstacle" class="runner-obstacle" aria-hidden="true">▣</div>
-        <div id="runner-obstacle-next" class="runner-obstacle" aria-hidden="true">✚</div>
-        <div id="runner-obstacle-tail" class="runner-obstacle" aria-hidden="true">✖</div>
+        <div id="runner-player" class="runner-player" aria-hidden="true"></div>
+        <div id="runner-obstacle" class="runner-obstacle" aria-hidden="true"></div>
+        <div id="runner-obstacle-next" class="runner-obstacle" aria-hidden="true"></div>
+        <div id="runner-obstacle-tail" class="runner-obstacle" aria-hidden="true"></div>
+        <div id="runner-hitbox-player" class="runner-hitbox-debug runner-hitbox-player" aria-hidden="true"></div>
+        <div id="runner-hitbox-obstacle" class="runner-hitbox-debug runner-hitbox-obstacle" aria-hidden="true"></div>
+        <div id="runner-hitbox-obstacle-next" class="runner-hitbox-debug runner-hitbox-obstacle" aria-hidden="true"></div>
+        <div id="runner-hitbox-obstacle-tail" class="runner-hitbox-debug runner-hitbox-obstacle" aria-hidden="true"></div>
         <div class="runner-ground" aria-hidden="true"></div>
       </div>
       <div id="blackjack-table" class="bj-table" hidden>
@@ -150,5 +165,6 @@
       <span id="back-label"></span>
     </button>
   </section>
+  <div id="watch-round-debug" class="watch-round-debug" aria-hidden="true"></div>
 </body>
 </html>

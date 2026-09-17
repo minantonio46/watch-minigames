@@ -1,0 +1,231 @@
+/* Blackjack Game Styles */
+.bj-round-meta { font-size:calc(var(--square) * .032); font-weight:700; font-variant-numeric:tabular-nums; color:var(--muted); }
+
+/* Fixed Top Message Row in Blackjack */
+.watch:has(.bj-table:not([hidden])) #message {
+  position:absolute;
+  top:calc(var(--header-top) + var(--header-height) - var(--square) * .002);
+  left:50%;
+  transform:translateX(-50%);
+  width:var(--content-width);
+  height:calc(var(--square) * .045);
+  margin:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:calc(var(--square) * .036);
+  font-weight:700;
+  white-space:nowrap;
+  z-index:2;
+}
+
+/* Fixed Bottom Stats Row in Blackjack (attached close to bottom bar) */
+.watch:has(.bj-table:not([hidden])) .game-meta {
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:var(--content-width);
+  bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height) + var(--square) * .016);
+  height:calc(var(--square) * .035);
+  margin:0;
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  align-items:center;
+  gap:calc(var(--square) * .016);
+  z-index:2;
+}
+.watch:has(.bj-table:not([hidden])) .game-meta #best {
+  text-align:right;
+  white-space:nowrap;
+  margin-left:auto;
+  font-size:calc(var(--square) * .032);
+  font-weight:700;
+  color:var(--muted);
+}
+
+/* Middle Game Table (between Message and Stats) */
+.watch:has(.bj-table:not([hidden])) .bj-table {
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:var(--square);
+  margin:0;
+  pointer-events:none;
+}
+
+/* 1. Dealer Hand */
+#bj-dealer-area {
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  height:calc(var(--square) * .175);
+  bottom:calc(50% + var(--square) * (.0875 + .018));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* 2. Player Hand: Centered exactly at 50% vertical center of screen */
+#bj-player-area {
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  width:100%;
+  height:calc(var(--square) * .175);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.bj-hand {
+  position:relative;
+}
+
+/* 3. Action Buttons: Centered exactly between player card bottom and stats row top */
+#bj-controls {
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:var(--content-width);
+  top:calc(50% + var(--square) * .0875);
+  bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height) + var(--square) * .051);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:calc(var(--square) * .02);
+  pointer-events:auto;
+  margin:0;
+}
+
+/* 4. Betting Mode: When hands are hidden, center the betting controls in the available middle space */
+.watch:has(.bj-table:not([hidden])) .bj-table:has(.bj-hand[hidden]) #bj-controls {
+  top:calc(var(--header-top) + var(--header-height) + var(--square) * .055);
+  bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height) + var(--square) * .051);
+  flex-direction:column;
+  justify-content:center;
+  gap:calc(var(--square) * .025);
+}
+
+.bj-cards {
+  position:relative;
+  display:inline-flex;
+  gap:calc(var(--square) * .01);
+  align-items:center;
+  justify-content:center;
+  min-height:calc(var(--square) * .175);
+  margin:0;
+}
+
+/* Dynamic offset based on number of cards in hand */
+/* 1st card width (.128) + (n-1) * visible overlap (.063) = total stack width. Half-stack is total/2 */
+.bj-hand {
+  --stack-half: calc((var(--square) * .128 + (var(--cards-count, 2) - 1) * var(--square) * .063) / 2);
+}
+.bj-label {
+  position:absolute;
+  right:calc(50% + var(--stack-half) + var(--square) * .022);
+  top:50%;
+  transform:translateY(-50%);
+  font-size:calc(var(--square) * .038);
+  font-weight:700;
+  color:var(--muted);
+  text-align:right;
+  white-space:nowrap;
+  transition:right 0.2s ease;
+}
+.bj-score {
+  position:absolute;
+  left:calc(50% + var(--stack-half) + var(--square) * .022);
+  top:50%;
+  transform:translateY(-50%);
+  font-size:calc(var(--square) * .048);
+  font-weight:800;
+  color:var(--accent);
+  text-align:left;
+  white-space:nowrap;
+  transition:left 0.2s ease;
+}
+.bj-card { min-width:calc(var(--square) * .128); height:calc(var(--square) * .175); padding:calc(var(--square) * .006) calc(var(--square) * .01); border-radius:calc(var(--square) * .018); background:var(--card); color:var(--fg); border:1px solid var(--border); box-shadow:0 calc(var(--square) * .006) calc(var(--square) * .016) rgba(0,0,0,0.3); display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; font-weight:800; user-select:none; }
+.bj-card + .bj-card { margin-left:calc(var(--square) * -.065); box-shadow:calc(var(--square) * -.006) 0 calc(var(--square) * .016) rgba(0,0,0,0.2); }
+.bj-card:not(:last-child) { align-items:flex-start; padding-left:calc(var(--square) * .014); }
+.bj-card.red { color:#ef4444; }
+.bj-card.hidden { background:repeating-linear-gradient(45deg,var(--card),var(--card) 4px,var(--muted) 4px,var(--muted) 8px); color:transparent; border:1px solid var(--border); }
+.bj-suit { font-size:calc(var(--square) * .048); line-height:1; }
+.bj-rank { font-size:calc(var(--square) * .058); line-height:1; margin-top:calc(var(--square) * .004); }
+.bj-rank.two-digit { font-size:calc(var(--square) * .048); letter-spacing:-.06em; }
+.bj-bet-controls { width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(var(--square) * .022); }
+.bj-bankroll { font-size:calc(var(--square) * .042); font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; line-height:1.2; display:inline-flex; align-items:center; justify-content:center; padding:calc(var(--square) * .008) calc(var(--square) * .035); border-radius:9999px; background:color-mix(in srgb,var(--card) 75%,transparent); border:1px solid color-mix(in srgb,var(--border) 65%,transparent); }
+.bj-bet-picker { display:flex; align-items:center; justify-content:center; gap:calc(var(--square) * .024); }
+.bj-bet { min-width:calc(var(--square) * .24); text-align:center; font-size:calc(var(--square) * .046); font-weight:800; color:var(--fg); font-variant-numeric:tabular-nums; line-height:1.2; }
+.bj-btn { flex:0 0 auto; width:calc(var(--square) * .28); max-width:calc(var(--square) * .28); height:calc(var(--square) * .115); min-height:calc(var(--square) * .115); max-height:calc(var(--square) * .115); border-radius:9999px; border:1px solid var(--border); background:var(--card); color:var(--fg); font-size:var(--game-body-size); font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation; transition:transform 0.1s,filter 0.15s; }
+.bj-btn.bj-bet-step {
+  flex:0 0 auto;
+  width:calc(var(--square) * .10);
+  height:calc(var(--square) * .10);
+  min-width:calc(var(--square) * .10);
+  max-width:calc(var(--square) * .10);
+  min-height:calc(var(--square) * .10);
+  max-height:calc(var(--square) * .10);
+  border-radius:50%;
+  aspect-ratio:1 / 1;
+  padding:0;
+  position:relative;
+  font-size:0;
+  color:var(--fg);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--border);
+  background:var(--card);
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+  transition:transform 0.1s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.bj-btn.bj-bet-step::before,
+.bj-btn.bj-bet-step::after {
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  background:currentColor;
+  border-radius:999px;
+  pointer-events:none;
+}
+/* Horizontal bar for both minus and plus */
+.bj-btn.bj-bet-step::before {
+  width:calc(var(--square) * .042);
+  height:calc(var(--square) * .006);
+}
+/* Vertical bar only for plus */
+#bj-bet-up::after {
+  width:calc(var(--square) * .006);
+  height:calc(var(--square) * .042);
+}
+.bj-btn.bj-bet-step:active {
+  transform:scale(0.92);
+  border-color:var(--accent);
+  background:color-mix(in srgb,var(--card) 65%,var(--accent));
+  color:var(--accent);
+}
+.bj-btn.bj-bet-step:disabled {
+  opacity:0.35;
+  cursor:not-allowed;
+  pointer-events:none;
+}
+.bj-btn { white-space:pre-line; line-height:1.15; }
+.bj-btn:active { transform:scale(0.93); }
+.bj-btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); width:calc(var(--square) * .44); max-width:calc(var(--square) * .44); font-weight:800; height:calc(var(--square) * .115); min-height:calc(var(--square) * .115); max-height:calc(var(--square) * .115); font-size:calc(var(--square) * .044); box-shadow:0 calc(var(--square) * .006) calc(var(--square) * .018) color-mix(in srgb,var(--accent) 30%,transparent); }
+#bj-continue { width:calc(var(--square) * .38); max-width:calc(var(--square) * .38); }
+#bj-deal { flex:0 0 auto; width:calc(var(--square) * .44); max-width:calc(var(--square) * .44); height:calc(var(--square) * .115); min-height:calc(var(--square) * .115); max-height:calc(var(--square) * .115); }
+
+body[data-state="waiting"] .bj-label,body[data-state="ready"] .bj-label,
+body[data-state="waiting"] .bj-score,body[data-state="ready"] .bj-score { color:inherit; }
+
