@@ -1,8 +1,20 @@
 <svg width="75" height="52" xmlns="http://www.w3.org/2000/svg">
 
- <g>
-  <title>Layer 1</title>
-  <path id="svg_1" d="m0,0l17,0l0,5l-12,0l0,42l12,0l0,5l-17,0l0,-52zm58,0l17,0l0,52l-17,0l0,-5l12,0l0,-42l-12,0l0,-5z" fill="#fff"/>
-  <path id="svg_2" d="m34.31818,12l15,14l-15,14l-5,-5l10,-9l-10,-9l5,-5z" fill="#fff"/>
- </g>
+  <g fill="#fff">
+
+    <!-- 왼쪽 [ -->
+    <rect x="0" y="0" width="17" height="5"/>
+    <rect x="0" y="5" width="5" height="42"/>
+    <rect x="0" y="47" width="17" height="5"/>
+
+    <!-- 오른쪽 ] -->
+    <rect x="58" y="0" width="17" height="5"/>
+    <rect x="70" y="5" width="5" height="42"/>
+    <rect x="58" y="47" width="17" height="5"/>
+
+    <!-- 가운데 > : 원본과 완전히 동일 -->
+    <path d="m34.31818,12l15,14l-15,14l-5,-5l10,-9l-10,-9l5,-5z"/>
+
+  </g>
+
 </svg>
