@@ -24,6 +24,14 @@ function applyLanguage() {
   $('#language-label').textContent = tr('언어', 'Language');
   $('#theme-label').textContent = tr('화면 테마', 'Theme');
   $('#contrast-note').textContent = tr('검정 배경으로 OLED 전력을 아끼는 고대비 모드', 'High contrast with an OLED-saving black background');
+  $('#guide-label').textContent = tr('도움말', 'Guide');
+  $('#open-guide').textContent = tr('📖 게임별 가이드 & 조작법', '📖 Game Guide & Controls');
+  $('#guide-modal-title').textContent = tr('게임 가이드', 'Game Guide');
+  $('#guide-close').textContent = tr('닫기', 'Close');
+  $('#guide-summary-label').textContent = tr('게임 개요', 'Overview');
+  $('#guide-touch-label').textContent = tr('워치 터치 조작', 'Watch Touch');
+  $('#guide-keyboard-label').textContent = tr('PC 키보드 조작', 'PC Keyboard');
+  $('#guide-tips-label').textContent = tr('공략 팁 & 규칙', 'Tips & Rules');
   $('#records-label').textContent = tr('기록', 'Records');
   $('#reset-records').textContent = tr('최고 기록 초기화', 'Reset best records');
   $('#reset-records-warning').textContent = tr('모든 최고 기록을 지울까요? 이 작업은 되돌릴 수 없어요.', 'Clear all best records? This cannot be undone.');
@@ -41,6 +49,82 @@ function applyLanguage() {
   if (window.renderMenu) window.renderMenu();
   if (window.syncGameLanguage) window.syncGameLanguage();
   syncSettingChoices();
+  if (currentGuideGame) renderGuideDetails(currentGuideGame);
+}
+
+let currentGuideGame = 'reaction';
+let guideModalTrigger = null;
+
+const guideData = {
+  reaction: {
+    icon: '⚡',
+    title: () => tr('반응속도 (동체시력)', 'Reaction Time'),
+    summary: () => tr('화면이 초록색으로 바뀌는 순간 최대한 빠르게 반응하여 터치하는 순발력 게임입니다.', 'Test your reflexes by tapping as fast as possible the moment the screen turns green.'),
+    touch: () => tr('화면 아무 곳이나 가볍게 한 번 터치합니다.', 'Tap anywhere on the screen when green appears.'),
+    keyboard: () => tr('키보드의 아무 키(스페이스, 엔터, 문자키 등)나 가볍게 누릅니다.', 'Press any key (Space, Enter, letter keys, etc.).'),
+    tips: () => tr('화면이 초록색으로 바뀌기 전에 먼저 누르면 "너무 빨랐어요!" 경고와 함께 실격 처리됩니다.', 'Tapping before the screen turns green triggers a "Too soon!" penalty and cancels the round.')
+  },
+  taps: {
+    icon: '⏱️',
+    title: () => tr('10초 연타', '10s Speed Tap'),
+    summary: () => tr('10초의 제한 시간 동안 화면을 최대한 많이 연속으로 터치하는 속도전 게임입니다.', 'Tap as many times as possible within a strict 10-second time limit.'),
+    touch: () => tr('검지와 중지 두 손가락을 번갈아가며 빠르게 두드리면 훨씬 높은 점수를 얻을 수 있습니다.', 'Alternating between two fingers (index & middle) allows much faster tapping.'),
+    keyboard: () => tr('키보드의 아무 키나 빠른 리듬으로 연속 연타합니다.', 'Rapidly mash any keyboard key in a steady rhythm.'),
+    tips: () => tr('초반에 너무 힘을 주지 말고 10초 끝까지 일정한 페이스를 유지하는 것이 고득점의 비결입니다.', 'Pace yourself consistently rather than burning out in the first 3 seconds.')
+  },
+  timing: {
+    icon: '🎯',
+    title: () => tr('5초 맞추기', '5-Second Sense'),
+    summary: () => tr('타이머를 보지 않고 마음속 감각만으로 정확히 5.000초 시점에 멈추는 직관 감각 게임입니다.', 'Stop the hidden timer as close to exactly 5.000 seconds as possible using pure intuition.'),
+    touch: () => tr('화면을 터치해 시작하고, 마음속으로 5초가 되었다고 느낄 때 다시 화면을 터치합니다.', 'Tap to start, then tap again when you feel exactly 5 seconds have passed.'),
+    keyboard: () => tr('아무 키나 눌러 타이머를 시작하고, 5초 시점에 다시 아무 키나 누릅니다.', 'Press any key to start, and press any key again at 5.000s.'),
+    tips: () => tr('마음속으로 시계 초침 소리를 상상하거나 1부터 5까지 균일한 템포로 세어보세요. 오차가 0에 가까울수록 최고 기록입니다.', 'Count in a steady cadence like "one thousand one, one thousand two...". Lower error margin is better!')
+  },
+  runner: {
+    icon: '🏃',
+    title: () => tr('러너', 'Runner'),
+    summary: () => tr('오른쪽에서 쉼 없이 달려오는 지상과 공중의 다양한 장애물들을 뛰어넘으며 멀리 달리는 아케이드 게임입니다.', 'Dodge procedurally generated ground and airborne obstacles to survive as far as possible.'),
+    touch: () => tr('화면을 짧게 탭하면 낮은 점프, 손가락을 꾹 누르고 있으면 최고 높이 점프(홀드 점프)를 뜁니다.', 'Quick tap for a low jump; hold your finger down to reach maximum jump height.'),
+    keyboard: () => tr('스페이스, 엔터, 또는 아무 키나 탭하거나 길게 누릅니다.', 'Tap or hold Space, Enter, or any keyboard key.'),
+    tips: () => tr('• 지상 대형 장애물: 반드시 꾹 눌러 최고 점프를 뛰어야 넘을 수 있습니다.\n• 공중 대형 장애물: 화면 위쪽을 완전히 가로막으므로 절대 점프하지 말고 손을 떼고 가만히 걸어서 지나가세요!\n• 볼록 언덕 장애물: 가운데가 솟아오른 피라미드 장애물은 중앙 최고점을 노려 부드럽게 뛰어넘으세요.', '• Tall ground hurdles require a full-height hold jump.\n• Giant ceiling blocks cover the entire top—never jump, just walk underneath safely!\n• For pyramid hill clusters, time your peak arc over the taller center block.')
+  },
+  blackjack: {
+    icon: '🃏',
+    title: () => tr('블랙잭', 'Blackjack'),
+    summary: () => tr('카드 숫자의 합을 21에 최대한 가깝게 만들어 딜러를 꺾는 정통 카지노 카드 게임입니다.', 'Classic casino blackjack. Beat the dealer by getting as close to 21 as possible without busting.'),
+    touch: () => tr('• 판돈 조절: + / - 원형 버튼 (길게 누르면 최소/최대 판돈)\n• 시작 & 히트: 게임 시작 / 히트 버튼 탭\n• 스탠드: 스탠드 버튼 탭', '• Adjust Bet: + / - buttons (long press for min/max)\n• Start & Hit: Tap Start / Hit\n• Stand: Tap Stand'),
+    keyboard: () => tr('• 판돈 조절: ↑ / → (올리기), ↓ / ← (내리기)\n• 게임 시작 & 히트: Enter 또는 Space\n• 스탠드: S 또는 ↓ 키\n• 이어하기: Enter 또는 C 키\n• 기록 후 새로하기: N 또는 R 키', '• Bet: ↑ / → (Up), ↓ / ← (Down)\n• Deal & Hit: Enter or Space\n• Stand: S or ↓ key\n• Continue: Enter or C key\n• Cash out & Restart: N or R key'),
+    tips: () => tr('• 내추럴 블랙잭(처음 2장으로 21)은 1.5배(3:2) 배당을 받습니다.\n• 최고 기록 규칙: 게임 도중 돈을 땄더라도 자발적으로 [기록 후 새로하기]를 눌러 캐시아웃해야 최종 잔고가 공식 최고 기록으로 등록됩니다!', '• Natural blackjack (first 2 cards = 21) pays 3:2 bonus.\n• Cash-out Rule: Your bankroll is only recorded as a Best Record when you voluntarily tap [Cash out & Restart]!')
+  }
+};
+
+function renderGuideDetails(gameId) {
+  currentGuideGame = gameId;
+  const data = guideData[gameId];
+  if (!data) return;
+
+  $('#guide-game-name').textContent = `${data.icon} ${data.title()}`;
+  $('#guide-summary').textContent = data.summary();
+  $('#guide-touch').textContent = data.touch();
+  $('#guide-keyboard').textContent = data.keyboard();
+  $('#guide-tips').textContent = data.tips();
+
+  $$('.guide-tab').forEach(tab => {
+    tab.setAttribute('aria-selected', String(tab.dataset.guideGame === gameId));
+  });
+}
+
+function openGuideModal(initialGame = 'reaction') {
+  guideModalTrigger = document.activeElement;
+  renderGuideDetails(initialGame);
+  $('#guide-modal').hidden = false;
+  $('#guide-close').focus();
+}
+
+function closeGuideModal() {
+  $('#guide-modal').hidden = true;
+  guideModalTrigger?.focus();
+  guideModalTrigger = null;
 }
 
 function syncSettingChoices() {
@@ -116,6 +200,22 @@ $$('[data-theme-choice]').forEach(button => button.addEventListener('click', () 
   applyTheme();
 }));
 
+// 가이드 / 튜토리얼 이벤트 리스너
+$('#open-guide')?.addEventListener('click', () => {
+  openGuideModal('reaction');
+});
+
+$$('.guide-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const gameId = tab.dataset.guideGame;
+    if (gameId) renderGuideDetails(gameId);
+  });
+});
+
+$('#guide-close')?.addEventListener('click', () => {
+  closeGuideModal();
+});
+
 let resetRecordsStatusTimer = null;
 
 $('#reset-records').addEventListener('click', () => {
@@ -145,6 +245,28 @@ $('#reset-records-confirm-button').addEventListener('click', () => {
 
 window.addEventListener('keydown', event => {
   if (location.hash !== '#settings') return;
+
+  const guideModal = $('#guide-modal');
+  const guideOpen = guideModal && !guideModal.hidden;
+  if (guideOpen) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeGuideModal();
+      return;
+    }
+    // 가이드 모달 안에서 좌우 방향키로 5개 게임 탭 전환 지원!
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      const gameKeys = ['reaction', 'taps', 'timing', 'runner', 'blackjack'];
+      const curIdx = gameKeys.indexOf(currentGuideGame);
+      const nextIdx = event.key === 'ArrowRight'
+        ? (curIdx + 1) % gameKeys.length
+        : (curIdx - 1 + gameKeys.length) % gameKeys.length;
+      event.preventDefault();
+      renderGuideDetails(gameKeys[nextIdx]);
+      return;
+    }
+    return;
+  }
 
   const resetRecordsDialog = $('#reset-records-confirm');
   const modalOpen = resetRecordsDialog && !resetRecordsDialog.hidden;
@@ -233,21 +355,20 @@ window.addEventListener('keydown', event => {
 });
 
 // PC 마우스 드래그 스크롤 기능
-(function setupSettingsMouseDragScroll() {
-  const content = $('.settings-content');
-  if (!content) return;
+function bindMouseDragScroll(el) {
+  if (!el) return;
 
   let isDown = false;
   let startY = 0;
   let startScrollTop = 0;
   let hasDragged = false;
 
-  content.addEventListener('mousedown', (e) => {
+  el.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return; // 좌클릭만
     isDown = true;
     hasDragged = false;
     startY = e.clientY;
-    startScrollTop = content.scrollTop;
+    startScrollTop = el.scrollTop;
   });
 
   window.addEventListener('mousemove', (e) => {
@@ -255,28 +376,29 @@ window.addEventListener('keydown', event => {
     const deltaY = e.clientY - startY;
     if (Math.abs(deltaY) > 4) {
       hasDragged = true;
-      content.classList.add('is-dragging');
+      el.classList.add('is-dragging');
     }
     if (hasDragged) {
-      content.scrollTop = startScrollTop - deltaY;
+      el.scrollTop = startScrollTop - deltaY;
     }
   });
 
   window.addEventListener('mouseup', () => {
     if (!isDown) return;
     isDown = false;
-    content.classList.remove('is-dragging');
-    // 드래그 직후 발생하는 click 이벤트를 막기 위해 짧은 딜레이 후 해제
+    el.classList.remove('is-dragging');
     setTimeout(() => {
       hasDragged = false;
     }, 50);
   });
 
-  // 드래그 중 버튼이 눌리는 것 방지 (캡처 단계에서 차단)
-  content.addEventListener('click', (e) => {
+  el.addEventListener('click', (e) => {
     if (hasDragged) {
       e.stopPropagation();
       e.preventDefault();
     }
   }, true);
-})();
+}
+
+bindMouseDragScroll($('.settings-content'));
+bindMouseDragScroll($('#guide-body'));

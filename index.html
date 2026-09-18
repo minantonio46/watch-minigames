@@ -89,6 +89,10 @@
         </div>
         <p id="contrast-note"></p>
       </section>
+      <section class="setting-group guide-setting" aria-labelledby="guide-label">
+        <h2 id="guide-label"></h2>
+        <button id="open-guide" class="guide-open-button" type="button"></button>
+      </section>
       <section class="setting-group records-setting" aria-labelledby="records-label">
         <h2 id="records-label"></h2>
         <button id="reset-records" class="reset-records" type="button"></button>
@@ -101,8 +105,44 @@
         <div class="reset-records-actions">
           <button id="reset-records-cancel" class="reset-records-cancel" type="button"></button>
           <button id="reset-records-confirm-button" class="reset-records-confirm-button" type="button"></button>
+        </div>
+      </div>
+    </div>
+    <div id="guide-modal" class="guide-modal" hidden role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
+      <div class="guide-dialog">
+        <header class="guide-header">
+          <h2 id="guide-modal-title" class="guide-title"></h2>
+        </header>
+        <nav class="guide-tabs" aria-label="게임 선택">
+          <button class="guide-tab" type="button" data-guide-game="reaction">⚡</button>
+          <button class="guide-tab" type="button" data-guide-game="taps">⏱️</button>
+          <button class="guide-tab" type="button" data-guide-game="timing">🎯</button>
+          <button class="guide-tab" type="button" data-guide-game="runner">🏃</button>
+          <button class="guide-tab" type="button" data-guide-game="blackjack">🃏</button>
+        </nav>
+        <div id="guide-body" class="guide-body">
+          <h3 id="guide-game-name" class="guide-game-name"></h3>
+          <div class="guide-section">
+            <h4 id="guide-summary-label" class="guide-sec-title"></h4>
+            <p id="guide-summary" class="guide-text"></p>
+          </div>
+          <div class="guide-section">
+            <h4 id="guide-touch-label" class="guide-sec-title"></h4>
+            <p id="guide-touch" class="guide-text"></p>
+          </div>
+          <div class="guide-section">
+            <h4 id="guide-keyboard-label" class="guide-sec-title"></h4>
+            <p id="guide-keyboard" class="guide-text"></p>
+          </div>
+          <div class="guide-section">
+            <h4 id="guide-tips-label" class="guide-sec-title"></h4>
+            <p id="guide-tips" class="guide-text"></p>
           </div>
         </div>
+        <footer class="guide-footer">
+          <button id="guide-close" class="guide-close-button" type="button"></button>
+        </footer>
+      </div>
     </div>
     <button id="settings-back" class="menu-return" type="button" aria-label="메뉴로 돌아가기">
       <span class="menu-glyph" aria-hidden="true"></span>

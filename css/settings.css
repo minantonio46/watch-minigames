@@ -75,3 +75,148 @@
 }
 #settings-back:active { transform:translateX(-50%) scale(.96); }
 
+/* Guide / Tutorial Styles */
+.guide-setting { padding-bottom:calc(var(--square) * .008); }
+.guide-open-button {
+  min-height:calc(var(--square) * .09);
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:var(--card);
+  color:var(--fg);
+  font-size:calc(var(--square) * .034);
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:calc(var(--square) * .015);
+  cursor:pointer;
+  transition:transform 0.1s, border-color 0.15s;
+}
+.guide-open-button:active { transform:scale(.96); }
+.guide-open-button:focus-visible, .guide-tab:focus-visible, .guide-close-button:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.guide-modal {
+  position:fixed;
+  inset:0;
+  z-index:15;
+  display:grid;
+  place-items:center;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+.guide-dialog {
+  width:min(100%, calc(var(--square) * .88));
+  height:min(100%, calc(var(--square) * .88));
+  max-height:calc(var(--square) * .88);
+  display:flex;
+  flex-direction:column;
+  background:var(--card);
+  border:1px solid var(--accent);
+  border-radius:calc(var(--square) * .04);
+  box-shadow:0 calc(var(--square) * .028) calc(var(--square) * .072) rgba(0,0,0,.6);
+  padding:calc(var(--square) * .025);
+  box-sizing:border-box;
+  text-align:left;
+  overflow:hidden;
+}
+.guide-header {
+  flex:0 0 auto;
+  text-align:center;
+  padding-bottom:calc(var(--square) * .015);
+  border-bottom:1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.guide-title {
+  margin:0;
+  font-size:calc(var(--square) * .036);
+  font-weight:800;
+  color:var(--accent);
+}
+.guide-tabs {
+  flex:0 0 auto;
+  display:flex;
+  justify-content:center;
+  gap:calc(var(--square) * .012);
+  padding:calc(var(--square) * .015) 0;
+  border-bottom:1px solid color-mix(in srgb, var(--border) 40%, transparent);
+}
+.guide-tab {
+  flex:1;
+  max-width:calc(var(--square) * .12);
+  height:calc(var(--square) * .075);
+  border:1px solid var(--border);
+  border-radius:calc(var(--square) * .018);
+  background:transparent;
+  font-size:calc(var(--square) * .034);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:all 0.15s ease;
+}
+.guide-tab[aria-selected="true"] {
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--bg);
+  transform:scale(1.05);
+}
+.guide-body {
+  flex:1 1 auto;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:calc(var(--square) * .015) calc(var(--square) * .01);
+  display:flex;
+  flex-direction:column;
+  gap:calc(var(--square) * .018);
+  user-select:none;
+  -webkit-user-select:none;
+  cursor:grab;
+}
+.guide-body.is-dragging { cursor:grabbing; }
+.guide-game-name {
+  margin:0;
+  font-size:calc(var(--square) * .036);
+  font-weight:800;
+  color:var(--fg);
+}
+.guide-section {
+  display:flex;
+  flex-direction:column;
+  gap:calc(var(--square) * .006);
+}
+.guide-sec-title {
+  margin:0;
+  font-size:calc(var(--square) * .028);
+  font-weight:800;
+  color:var(--accent);
+}
+.guide-text {
+  margin:0;
+  font-size:calc(var(--square) * .026);
+  line-height:1.45;
+  color:var(--fg);
+  word-break:keep-all;
+}
+.guide-footer {
+  flex:0 0 auto;
+  display:flex;
+  justify-content:center;
+  padding-top:calc(var(--square) * .015);
+  border-top:1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.guide-close-button {
+  width:100%;
+  min-height:calc(var(--square) * .08);
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--fg);
+  font-size:calc(var(--square) * .032);
+  font-weight:700;
+  cursor:pointer;
+}
+.guide-close-button:active { transform:scale(.96); }
+
