@@ -27,6 +27,8 @@ function applyLanguage() {
   $('#guide-label').textContent = tr('도움말', 'Guide');
   $('#open-guide').textContent = tr('📖 게임별 가이드 & 조작법', '📖 Game Guide & Controls');
   $('#guide-modal-title').textContent = tr('게임 가이드', 'Game Guide');
+  $('#guide-prev')?.setAttribute('aria-label', tr('이전 게임', 'Previous game'));
+  $('#guide-next')?.setAttribute('aria-label', tr('다음 게임', 'Next game'));
   $('#guide-close-label').textContent = tr('설정', 'Settings');
   $('#guide-summary-label').textContent = tr('게임 개요', 'Overview');
   $('#guide-touch-label').textContent = tr('워치 터치 조작', 'Watch Touch');
@@ -55,9 +57,12 @@ function applyLanguage() {
 let currentGuideGame = 'reaction';
 let guideModalTrigger = null;
 
+const GUIDE_GAMES = ['reaction', 'taps', 'timing', 'runner', 'blackjack'];
+
 const guideData = {
   reaction: {
     icon: '⚡',
+    shortTitle: () => tr('반응속도', 'Reaction'),
     title: () => tr('반응속도 (동체시력)', 'Reaction Time'),
     summary: () => tr('화면이 초록색으로 바뀌는 순간 최대한 빠르게 반응하여 터치하는 순발력 게임입니다.', 'Test your reflexes by tapping as fast as possible the moment the screen turns green.'),
     touch: () => tr('화면 아무 곳이나 가볍게 한 번 터치합니다.', 'Tap anywhere on the screen when green appears.'),
@@ -66,6 +71,7 @@ const guideData = {
   },
   taps: {
     icon: '⏱️',
+    shortTitle: () => tr('10초 연타', '10s Tap'),
     title: () => tr('10초 연타', '10s Speed Tap'),
     summary: () => tr('10초의 제한 시간 동안 화면을 최대한 많이 연속으로 터치하는 속도전 게임입니다.', 'Tap as many times as possible within a strict 10-second time limit.'),
     touch: () => tr('검지와 중지 두 손가락을 번갈아가며 빠르게 두드리면 훨씬 높은 점수를 얻을 수 있습니다.', 'Alternating between two fingers (index & middle) allows much faster tapping.'),
@@ -74,6 +80,7 @@ const guideData = {
   },
   timing: {
     icon: '🎯',
+    shortTitle: () => tr('5초 맞추기', '5s Sense'),
     title: () => tr('5초 맞추기', '5-Second Sense'),
     summary: () => tr('타이머를 보지 않고 마음속 감각만으로 정확히 5.000초 시점에 멈추는 직관 감각 게임입니다.', 'Stop the hidden timer as close to exactly 5.000 seconds as possible using pure intuition.'),
     touch: () => tr('화면을 터치해 시작하고, 마음속으로 5초가 되었다고 느낄 때 다시 화면을 터치합니다.', 'Tap to start, then tap again when you feel exactly 5 seconds have passed.'),
@@ -82,6 +89,7 @@ const guideData = {
   },
   runner: {
     icon: '🏃',
+    shortTitle: () => tr('러너', 'Runner'),
     title: () => tr('러너', 'Runner'),
     summary: () => tr('오른쪽에서 쉼 없이 달려오는 지상과 공중의 다양한 장애물들을 뛰어넘으며 멀리 달리는 아케이드 게임입니다.', 'Dodge procedurally generated ground and airborne obstacles to survive as far as possible.'),
     touch: () => tr('화면을 짧게 탭하면 낮은 점프, 손가락을 꾹 누르고 있으면 최고 높이 점프(홀드 점프)를 뜁니다.', 'Quick tap for a low jump; hold your finger down to reach maximum jump height.'),
@@ -90,6 +98,7 @@ const guideData = {
   },
   blackjack: {
     icon: '🃏',
+    shortTitle: () => tr('블랙잭', 'Blackjack'),
     title: () => tr('블랙잭', 'Blackjack'),
     summary: () => tr('카드 숫자의 합을 21에 최대한 가깝게 만들어 딜러를 꺾는 정통 카지노 카드 게임입니다.', 'Classic casino blackjack. Beat the dealer by getting as close to 21 as possible without busting.'),
     touch: () => tr('• 판돈 조절: + / - 원형 버튼 (길게 누르면 최소/최대 판돈)\n• 시작 & 히트: 게임 시작 / 히트 버튼 탭\n• 스탠드: 스탠드 버튼 탭', '• Adjust Bet: + / - buttons (long press for min/max)\n• Start & Hit: Tap Start / Hit\n• Stand: Tap Stand'),
@@ -103,15 +112,33 @@ function renderGuideDetails(gameId) {
   const data = guideData[gameId];
   if (!data) return;
 
+  const curIdx = GUIDE_GAMES.indexOf(gameId);
+
+  const navIcon = $('#guide-nav-icon');
+  if (navIcon) navIcon.textContent = data.icon;
+  const navTitle = $('#guide-nav-title');
+  if (navTitle) navTitle.textContent = data.shortTitle();
+
   $('#guide-game-name').textContent = `${data.icon} ${data.title()}`;
   $('#guide-summary').textContent = data.summary();
   $('#guide-touch').textContent = data.touch();
   $('#guide-keyboard').textContent = data.keyboard();
   $('#guide-tips').textContent = data.tips();
 
-  $$('.guide-tab').forEach(tab => {
-    tab.setAttribute('aria-selected', String(tab.dataset.guideGame === gameId));
+  $$('.guide-dot').forEach((dot, idx) => {
+    const isActive = idx === curIdx;
+    dot.classList.toggle('active', isActive);
+    dot.setAttribute('aria-current', isActive ? 'true' : 'false');
   });
+
+  const body = $('#guide-body');
+  if (body) body.scrollTop = 0;
+}
+
+function stepGuideGame(delta) {
+  const curIdx = GUIDE_GAMES.indexOf(currentGuideGame);
+  const nextIdx = (curIdx + delta + GUIDE_GAMES.length) % GUIDE_GAMES.length;
+  renderGuideDetails(GUIDE_GAMES[nextIdx]);
 }
 
 function openGuideModal(initialGame = 'reaction') {
@@ -205,10 +232,17 @@ $('#open-guide')?.addEventListener('click', () => {
   openGuideModal('reaction');
 });
 
-$$('.guide-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const gameId = tab.dataset.guideGame;
-    if (gameId) renderGuideDetails(gameId);
+$('#guide-prev')?.addEventListener('click', () => {
+  stepGuideGame(-1);
+});
+
+$('#guide-next')?.addEventListener('click', () => {
+  stepGuideGame(1);
+});
+
+$$('.guide-dot').forEach((dot, idx) => {
+  dot.addEventListener('click', () => {
+    if (GUIDE_GAMES[idx]) renderGuideDetails(GUIDE_GAMES[idx]);
   });
 });
 
@@ -254,16 +288,51 @@ window.addEventListener('keydown', event => {
       closeGuideModal();
       return;
     }
-    // 가이드 모달 안에서 좌우 방향키로 5개 게임 탭 전환 지원!
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      const gameKeys = ['reaction', 'taps', 'timing', 'runner', 'blackjack'];
-      const curIdx = gameKeys.indexOf(currentGuideGame);
-      const nextIdx = event.key === 'ArrowRight'
-        ? (curIdx + 1) % gameKeys.length
-        : (curIdx - 1 + gameKeys.length) % gameKeys.length;
+    // 좌우 방향키 및 < / > 키로 게임 전환
+    if (event.key === 'ArrowRight' || event.key === '>' || event.key === '.') {
       event.preventDefault();
-      renderGuideDetails(gameKeys[nextIdx]);
+      stepGuideGame(1);
       return;
+    }
+    if (event.key === 'ArrowLeft' || event.key === '<' || event.key === ',') {
+      event.preventDefault();
+      stepGuideGame(-1);
+      return;
+    }
+    // 위아래 방향키 및 페이지 키로 가이드 본문 스크롤
+    const guideBody = $('#guide-body');
+    if (guideBody) {
+      const SCROLL_STEP = 55;
+      if (event.key === 'ArrowDown' || event.key === 'Down') {
+        event.preventDefault();
+        guideBody.scrollBy({ top: SCROLL_STEP, behavior: 'smooth' });
+        return;
+      }
+      if (event.key === 'ArrowUp' || event.key === 'Up') {
+        event.preventDefault();
+        guideBody.scrollBy({ top: -SCROLL_STEP, behavior: 'smooth' });
+        return;
+      }
+      if (event.key === 'PageDown') {
+        event.preventDefault();
+        guideBody.scrollBy({ top: guideBody.clientHeight * 0.75, behavior: 'smooth' });
+        return;
+      }
+      if (event.key === 'PageUp') {
+        event.preventDefault();
+        guideBody.scrollBy({ top: -guideBody.clientHeight * 0.75, behavior: 'smooth' });
+        return;
+      }
+      if (event.key === 'Home') {
+        event.preventDefault();
+        guideBody.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (event.key === 'End') {
+        event.preventDefault();
+        guideBody.scrollTo({ top: guideBody.scrollHeight, behavior: 'smooth' });
+        return;
+      }
     }
     return;
   }

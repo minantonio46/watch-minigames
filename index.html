@@ -113,12 +113,26 @@
         <header class="guide-header">
           <h2 id="guide-modal-title" class="guide-title"></h2>
         </header>
-        <nav class="guide-tabs" aria-label="게임 선택">
-          <button class="guide-tab" type="button" data-guide-game="reaction">⚡</button>
-          <button class="guide-tab" type="button" data-guide-game="taps">⏱️</button>
-          <button class="guide-tab" type="button" data-guide-game="timing">🎯</button>
-          <button class="guide-tab" type="button" data-guide-game="runner">🏃</button>
-          <button class="guide-tab" type="button" data-guide-game="blackjack">🃏</button>
+        <nav class="guide-nav" aria-label="게임 선택">
+          <button id="guide-prev" class="guide-nav-btn" type="button" aria-label="이전 게임">
+            <span class="guide-nav-arrow" aria-hidden="true">‹</span>
+          </button>
+          <div class="guide-nav-center">
+            <div class="guide-nav-label">
+              <span id="guide-nav-icon" class="guide-nav-icon">⚡</span>
+              <span id="guide-nav-title" class="guide-nav-title"></span>
+            </div>
+            <div id="guide-nav-dots" class="guide-nav-dots" aria-label="게임 인디케이터">
+              <button class="guide-dot" type="button" data-guide-dot="0" aria-label="1번 게임"></button>
+              <button class="guide-dot" type="button" data-guide-dot="1" aria-label="2번 게임"></button>
+              <button class="guide-dot" type="button" data-guide-dot="2" aria-label="3번 게임"></button>
+              <button class="guide-dot" type="button" data-guide-dot="3" aria-label="4번 게임"></button>
+              <button class="guide-dot" type="button" data-guide-dot="4" aria-label="5번 게임"></button>
+            </div>
+          </div>
+          <button id="guide-next" class="guide-nav-btn" type="button" aria-label="다음 게임">
+            <span class="guide-nav-arrow" aria-hidden="true">›</span>
+          </button>
         </nav>
         <div id="guide-body" class="guide-body">
           <h3 id="guide-game-name" class="guide-game-name"></h3>
