@@ -211,9 +211,6 @@
 }
 .bj-btn.bj-bet-step:active {
   transform:scale(0.92);
-  border-color:var(--accent);
-  background:color-mix(in srgb,var(--card) 65%,var(--accent));
-  color:var(--accent);
 }
 .bj-btn.bj-bet-step:disabled {
   opacity:0.35;

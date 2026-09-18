@@ -202,7 +202,6 @@
         isLongPress = true;
         holdTimer = null;
         setBjBetExtreme(direction);
-        navigator.vibrate?.([25, 40, 25]);
       }, 500);
     });
 
