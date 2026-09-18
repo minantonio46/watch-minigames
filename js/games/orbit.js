@@ -30,10 +30,21 @@
     return a < 0 ? a + TWO_PI : a;
   }
 
+  function getToleranceAngle() {
+    if (stageWidth <= 0 || stageHeight <= 0) return 0.15;
+    const radius = Math.min(stageWidth, stageHeight) * 0.40;
+    const trackWidth = Math.max(7, Math.round(stageWidth * 0.048));
+    const pointerRadius = trackWidth * 0.85;
+    const capRadius = (trackWidth + 2) / 2;
+    // 시각적 접촉 반경(포인터 구체 + 타겟 양끝 라운드 캡) + 사용자 체감용 널널한 보정치(trackWidth * 0.4)
+    const marginPx = pointerRadius + capRadius + trackWidth * 0.4;
+    return marginPx / radius;
+  }
+
   function isAngleInArc(angle, center, span) {
     angle = normalizeAngle(angle);
     center = normalizeAngle(center);
-    const halfSpan = span / 2;
+    const halfSpan = span / 2 + getToleranceAngle();
 
     let diff = Math.abs(angle - center);
     if (diff > Math.PI) diff = TWO_PI - diff;
