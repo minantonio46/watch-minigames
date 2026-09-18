@@ -116,7 +116,7 @@
   transition:transform 0.1s, border-color 0.15s;
 }
 .guide-open-button:active { transform:scale(.96); }
-.guide-open-button:focus-visible, .guide-nav-btn:focus-visible, .guide-close-button:focus-visible, .guide-dot:focus-visible {
+.guide-open-button:focus-visible, .guide-side-btn:focus-visible, .guide-close-button:focus-visible, .guide-dot:focus-visible {
   outline:2px solid var(--accent);
   outline-offset:2px;
 }
@@ -164,57 +164,18 @@
   padding-bottom:calc(var(--square) * .006);
   white-space:nowrap;
 }
-.guide-nav {
+.guide-nav-bar {
   position:absolute;
   top:calc(var(--header-top) + var(--header-height));
   left:50%;
   transform:translateX(-50%);
   width:var(--content-width);
-  height:calc(var(--square) * .12);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 calc(var(--square) * .006);
-  box-sizing:border-box;
-  z-index:2;
-}
-.guide-nav-btn {
-  width:calc(var(--square) * .115);
-  height:calc(var(--square) * .105);
-  border:1px solid var(--border);
-  border-radius:calc(var(--square) * .028);
-  background:var(--card);
-  color:var(--accent);
-  font-size:calc(var(--square) * .068);
-  font-weight:700;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition:transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
-  user-select:none;
-  -webkit-user-select:none;
-  line-height:1;
-  padding:0;
-}
-.guide-nav-btn:active {
-  transform:scale(.92);
-  background:color-mix(in srgb, var(--accent) 18%, var(--card));
-}
-.guide-nav-arrow {
-  display:inline-block;
-  line-height:1;
-}
-.guide-nav-center {
-  flex:1;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  min-width:0;
-  padding:0 calc(var(--square) * .01);
-  user-select:none;
-  -webkit-user-select:none;
+  gap:calc(var(--square) * .006);
+  z-index:2;
 }
 .guide-nav-label {
   display:flex;
@@ -224,11 +185,14 @@
   max-width:100%;
 }
 .guide-nav-icon {
-  font-size:calc(var(--square) * .046);
+  font-size:calc(var(--square) * .048);
+  font-weight:700;
+  color:var(--accent);
   line-height:1;
+  font-family:inherit;
 }
 .guide-nav-title {
-  font-size:calc(var(--square) * .038);
+  font-size:calc(var(--square) * .04);
   font-weight:800;
   color:var(--fg);
   white-space:nowrap;
@@ -240,7 +204,6 @@
   align-items:center;
   justify-content:center;
   gap:calc(var(--square) * .012);
-  margin-top:calc(var(--square) * .008);
 }
 .guide-dot {
   padding:0;
@@ -260,13 +223,51 @@
   border-radius:999px;
   background:var(--accent);
 }
+.guide-side-btn {
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:calc(var(--square) * .095);
+  height:calc(var(--square) * .14);
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:var(--card);
+  color:var(--accent);
+  font-size:calc(var(--square) * .07);
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+  user-select:none;
+  -webkit-user-select:none;
+  line-height:1;
+  padding:0;
+  z-index:5;
+  box-shadow:0 calc(var(--square) * .01) calc(var(--square) * .025) rgba(0,0,0,.4);
+}
+.guide-prev-btn {
+  left:calc(var(--square) * .016);
+}
+.guide-next-btn {
+  right:calc(var(--square) * .016);
+}
+.guide-side-btn:active {
+  transform:translateY(-50%) scale(.92);
+  background:color-mix(in srgb, var(--accent) 18%, var(--card));
+}
+.guide-nav-arrow {
+  display:inline-block;
+  line-height:1;
+}
 .guide-body {
   position:absolute;
-  top:calc(var(--header-top) + var(--header-height) + var(--square) * .125);
+  top:calc(var(--header-top) + var(--header-height) + var(--square) * .08);
   bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height));
   left:50%;
   transform:translateX(-50%);
-  width:var(--content-width);
+  width:calc(var(--square) * .70);
   overflow-y:auto;
   overscroll-behavior:contain;
   padding:calc(var(--square) * .01) calc(var(--square) * .015) calc(var(--square) * .03);
@@ -279,14 +280,6 @@
   box-sizing:border-box;
 }
 .guide-body.is-dragging { cursor:grabbing; }
-.guide-game-name {
-  margin:0;
-  font-size:calc(var(--square) * .044);
-  font-weight:800;
-  color:var(--fg);
-  padding-bottom:calc(var(--square) * .006);
-  border-bottom:1px solid color-mix(in srgb, var(--border) 60%, transparent);
-}
 .guide-section {
   display:flex;
   flex-direction:column;

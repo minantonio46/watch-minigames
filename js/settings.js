@@ -61,7 +61,7 @@ const GUIDE_GAMES = ['reaction', 'taps', 'timing', 'runner', 'blackjack'];
 
 const guideData = {
   reaction: {
-    icon: '⚡',
+    icon: 'ϟ',
     shortTitle: () => tr('반응속도', 'Reaction'),
     title: () => tr('반응속도 (동체시력)', 'Reaction Time'),
     summary: () => tr('화면이 초록색으로 바뀌는 순간 최대한 빠르게 반응하여 터치하는 순발력 게임입니다.', 'Test your reflexes by tapping as fast as possible the moment the screen turns green.'),
@@ -70,7 +70,7 @@ const guideData = {
     tips: () => tr('화면이 초록색으로 바뀌기 전에 먼저 누르면 "너무 빨랐어요!" 경고와 함께 실격 처리됩니다.', 'Tapping before the screen turns green triggers a "Too soon!" penalty and cancels the round.')
   },
   taps: {
-    icon: '⏱️',
+    icon: '◎',
     shortTitle: () => tr('10초 연타', '10s Tap'),
     title: () => tr('10초 연타', '10s Speed Tap'),
     summary: () => tr('10초의 제한 시간 동안 화면을 최대한 많이 연속으로 터치하는 속도전 게임입니다.', 'Tap as many times as possible within a strict 10-second time limit.'),
@@ -79,7 +79,7 @@ const guideData = {
     tips: () => tr('초반에 너무 힘을 주지 말고 10초 끝까지 일정한 페이스를 유지하는 것이 고득점의 비결입니다.', 'Pace yourself consistently rather than burning out in the first 3 seconds.')
   },
   timing: {
-    icon: '🎯',
+    icon: '◷',
     shortTitle: () => tr('5초 맞추기', '5s Sense'),
     title: () => tr('5초 맞추기', '5-Second Sense'),
     summary: () => tr('타이머를 보지 않고 마음속 감각만으로 정확히 5.000초 시점에 멈추는 직관 감각 게임입니다.', 'Stop the hidden timer as close to exactly 5.000 seconds as possible using pure intuition.'),
@@ -97,7 +97,7 @@ const guideData = {
     tips: () => tr('• 지상 대형 장애물: 반드시 꾹 눌러 최고 점프를 뛰어야 넘을 수 있습니다.\n• 공중 대형 장애물: 화면 위쪽을 완전히 가로막으므로 절대 점프하지 말고 손을 떼고 가만히 걸어서 지나가세요!\n• 볼록 언덕 장애물: 가운데가 솟아오른 피라미드 장애물은 중앙 최고점을 노려 부드럽게 뛰어넘으세요.', '• Tall ground hurdles require a full-height hold jump.\n• Giant ceiling blocks cover the entire top—never jump, just walk underneath safely!\n• For pyramid hill clusters, time your peak arc over the taller center block.')
   },
   blackjack: {
-    icon: '🃏',
+    icon: '♠',
     shortTitle: () => tr('블랙잭', 'Blackjack'),
     title: () => tr('블랙잭', 'Blackjack'),
     summary: () => tr('카드 숫자의 합을 21에 최대한 가깝게 만들어 딜러를 꺾는 정통 카지노 카드 게임입니다.', 'Classic casino blackjack. Beat the dealer by getting as close to 21 as possible without busting.'),
@@ -117,9 +117,11 @@ function renderGuideDetails(gameId) {
   const navIcon = $('#guide-nav-icon');
   if (navIcon) navIcon.textContent = data.icon;
   const navTitle = $('#guide-nav-title');
-  if (navTitle) navTitle.textContent = data.shortTitle();
+  if (navTitle) navTitle.textContent = data.title();
 
-  $('#guide-game-name').textContent = `${data.icon} ${data.title()}`;
+  const gameNameEl = $('#guide-game-name');
+  if (gameNameEl) gameNameEl.textContent = `${data.icon} ${data.title()}`;
+
   $('#guide-summary').textContent = data.summary();
   $('#guide-touch').textContent = data.touch();
   $('#guide-keyboard').textContent = data.keyboard();
