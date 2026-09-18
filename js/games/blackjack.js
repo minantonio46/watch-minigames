@@ -129,8 +129,10 @@
   function showBjSetup(resetBankroll = false) {
     if (resetBankroll) {
       // 자의적으로 '기록 후 새로하기'를 누른 시점의 최종 보유금액을 최고기록으로 남김
-      saveBest('blackjack', bjMoney);
-      showBest('blackjack');
+      if (bjMoney > 0) {
+        saveBest('blackjack', bjMoney);
+        showBest('blackjack');
+      }
       bjMoney = 1000;
       bjBet = 100;
     }
@@ -363,10 +365,6 @@
       bjMoney += bjBet;
       document.body.dataset.state = 'idle';
       msg = tr(`비겼어요 (${pScore} = ${dScore})`, `Push (${pScore} = ${dScore})`);
-    }
-
-    if (bjMoney > 0) {
-      saveBest('blackjack', bjMoney);
     }
 
     if (bjMoney <= 0) {

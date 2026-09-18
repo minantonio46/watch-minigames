@@ -4,6 +4,8 @@
   let count = 0;
   let started = 0;
   let ticker = null;
+  let tapsRestartLockoutUntil = 0;
+  const TAPS_RESTART_LOCKOUT_MS = 1000;
 
   function clearTapsTimers() {
     if (ticker !== null) { clearInterval(ticker); ticker = null; }
@@ -11,6 +13,7 @@
 
   function init() {
     clearTapsTimers();
+    tapsRestartLockoutUntil = 0;
     count = 0;
     setState('idle', tr('눌러서 시작', 'Tap to start'), tr('10초 동안 많이 터치!', 'Tap fast for 10 seconds!'));
   }
@@ -19,6 +22,7 @@
     clearTapsTimers();
     saveBest('taps', count);
     showBest('taps');
+    tapsRestartLockoutUntil = performance.now() + TAPS_RESTART_LOCKOUT_MS;
     const result = tr(`10초 동안 ${count}회!`, `${count} taps in 10s!`);
     setState('idle', tr('다시 시작', 'Try again'), result);
   }
@@ -33,6 +37,7 @@
       count++;
       $('#action').textContent = tr(`${count}회`, `${count} taps`);
     } else {
+      if (now < tapsRestartLockoutUntil) return;
       count = 0;
       started = now;
       setState('playing', tr('0회', '0 taps'), tr('남은 시간 10초', '10 seconds left'));
@@ -49,6 +54,7 @@
 
   function onCancel() {
     clearTapsTimers();
+    tapsRestartLockoutUntil = 0;
   }
 
   registerGame('taps', {
