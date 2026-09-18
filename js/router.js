@@ -45,6 +45,9 @@ function syncGameLanguage() {
   if (!current || !games[current]) return;
   $('#title').textContent = cards[current].title();
   showBest(current);
+  if (state === 'idle') {
+    gameModules[current]?.init?.();
+  }
 }
 window.syncGameLanguage = syncGameLanguage;
 

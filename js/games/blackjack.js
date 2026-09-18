@@ -365,13 +365,17 @@
       msg = tr(`비겼어요 (${pScore} = ${dScore})`, `Push (${pScore} = ${dScore})`);
     }
 
-
+    if (bjMoney > 0) {
+      saveBest('blackjack', bjMoney);
+    }
 
     if (bjMoney <= 0) {
       $('#message').textContent = msg + ' - ' + tr('파산! 💸', 'Bankrupt! 💸');
       $('#bj-continue').hidden = true;
+      $('#bj-new').textContent = tr('새로 시작', 'Start fresh');
     } else {
       $('#message').textContent = msg;
+      $('#bj-new').textContent = tr('기록 후\n새로하기', 'Record &\nrestart');
     }
 
     updateBjRoundMeta();
