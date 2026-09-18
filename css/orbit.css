@@ -1,0 +1,65 @@
+/* Orbit Catch Game Styles */
+
+.watch:has(.orbit-stage:not([hidden])) #message {
+  position: absolute;
+  top: calc(var(--header-top) + var(--header-height) - var(--square) * .002);
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--content-width);
+  height: calc(var(--square) * .045);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--square) * .034);
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.orbit-stage {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - var(--square) * .012);
+  transform: translate(-50%, -50%);
+  width: calc(var(--square) * .58);
+  height: calc(var(--square) * .58);
+  overflow: hidden;
+  contain: paint;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+#orbit-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: manipulation;
+}
+
+/* Fixed Bottom Best Record Row (centered above bottom bar, same height as Blackjack) */
+.watch:has(.orbit-stage:not([hidden])) .game-meta {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--content-width);
+  bottom: calc(var(--frame-footer-gap) + var(--bottom-bar-height) + var(--square) * .016);
+  height: calc(var(--square) * .035);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.watch:has(.orbit-stage:not([hidden])) .game-meta #best {
+  text-align: center;
+  white-space: nowrap;
+  margin: 0 auto;
+  font-size: calc(var(--square) * .032);
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}

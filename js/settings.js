@@ -57,7 +57,7 @@ function applyLanguage() {
 let currentGuideGame = 'reaction';
 let guideModalTrigger = null;
 
-const GUIDE_GAMES = ['reaction', 'taps', 'timing', 'runner', 'blackjack'];
+const GUIDE_GAMES = ['reaction', 'taps', 'timing', 'runner', 'blackjack', 'stack', 'orbit'];
 
 const guideData = {
   reaction: {
@@ -104,8 +104,44 @@ const guideData = {
     touch: () => tr('• 판돈 조절: + / - 원형 버튼 (길게 누르면 최소/최대 판돈)\n• 시작 & 히트: 게임 시작 / 히트 버튼 탭\n• 스탠드: 스탠드 버튼 탭', '• Adjust Bet: + / - buttons (long press for min/max)\n• Start & Hit: Tap Start / Hit\n• Stand: Tap Stand'),
     keyboard: () => tr('• 판돈 조절: ↑ / → (올리기), ↓ / ← (내리기)\n• 게임 시작 & 히트: Enter 또는 Space\n• 스탠드: S 또는 ↓ 키\n• 이어하기: Enter 또는 C 키\n• 기록 후 새로하기: N 또는 R 키', '• Bet: ↑ / → (Up), ↓ / ← (Down)\n• Deal & Hit: Enter or Space\n• Stand: S or ↓ key\n• Continue: Enter or C key\n• Cash out & Restart: N or R key'),
     tips: () => tr('• 내추럴 블랙잭(처음 2장으로 21)은 1.5배(3:2) 배당을 받습니다.\n• 최고 기록 규칙: 게임 도중 돈을 땄더라도 자발적으로 [기록 후 새로하기]를 눌러 캐시아웃해야 최종 잔고가 공식 최고 기록으로 등록됩니다!', '• Natural blackjack (first 2 cards = 21) pays 3:2 bonus.\n• Cash-out Rule: Your bankroll is only recorded as a Best Record when you voluntarily tap [Cash out & Restart]!')
+  },
+  stack: {
+    icon: '▤',
+    shortTitle: () => tr('스택 타워', 'Stack'),
+    title: () => tr('스택 타워', 'Stack Tower'),
+    summary: () => tr('좌우로 이동하는 블록을 아래층에 정확히 맞춰 쌓아 올리는 타이밍 타워 빌딩 게임입니다.', 'Stack moving blocks on top of each other to build a sky-high tower with rhythm and precision.'),
+    touch: () => tr('블록이 아래층 바로 위에 왔을 때 화면을 탭합니다.', 'Tap anywhere when the swaying block is aligned with the floor below.'),
+    keyboard: () => tr('스페이스, 엔터, 또는 아무 키나 가볍게 누릅니다.', 'Press Space, Enter, or any keyboard key.'),
+    tips: () => tr('• 오차가 3px 이내면 PERFECT 판정과 함께 콤보가 쌓입니다.\n• 3콤보부터 시작해 회복 시마다 요구 콤보가 1씩 늘어나며(3→4→5…), 중앙을 향해 폭이 조금씩 회복됩니다!\n• 완전히 빗나가면 탑이 무너지며 게임이 종료됩니다.', '• Aligning within 3px triggers a PERFECT combo.\n• Starting at 3 combos, requirement increases by 1 each time (3→4→5…), slightly restoring width towards center!\n• Missing completely topples the tower and ends the round.')
+  },
+  orbit: {
+    icon: '⦿',
+    shortTitle: () => tr('오빗 캐치', 'Orbit'),
+    title: () => tr('오빗 캐치', 'Orbit Catch'),
+    summary: () => tr('원형 궤도를 고속 회전하는 포인터가 타겟 구간에 들어오는 순간을 포착하는 워치 특화 게임입니다.', 'Watch-optimized circular timing game. Tap the moment the orbiting pointer enters the glowing target arc.'),
+    touch: () => tr('포인터가 빛나는 타겟 아크(호) 안에 들어왔을 때 화면 아무 곳이나 탭합니다.', 'Tap anywhere when the rotating pointer is inside the glowing target arc.'),
+    keyboard: () => tr('스페이스, 엔터, 또는 아무 키나 타이밍에 맞춰 누릅니다.', 'Press Space, Enter, or any keyboard key with precise timing.'),
+    tips: () => tr('• 성공할 때마다 속도가 빨라지거나 회전 방향이 반대로 바뀝니다.\n• 타겟 밖에서 누르거나 타겟을 그냥 지나쳐버리면 즉시 실패합니다.', '• Each hit increases rotation speed and may reverse direction.\n• Tapping outside the target arc or letting the pointer pass it results in a game over.')
   }
 };
+
+function renderGuideDots(curIdx) {
+  const dotsContainer = $('#guide-nav-dots');
+  if (!dotsContainer) return;
+  dotsContainer.innerHTML = '';
+  GUIDE_GAMES.forEach((gameId, idx) => {
+    const dot = document.createElement('button');
+    dot.className = 'guide-dot' + (idx === curIdx ? ' active' : '');
+    dot.type = 'button';
+    dot.dataset.guideDot = String(idx);
+    dot.setAttribute('aria-label', `${idx + 1}번 게임`);
+    dot.setAttribute('aria-current', idx === curIdx ? 'true' : 'false');
+    dot.addEventListener('click', () => {
+      renderGuideDetails(gameId);
+    });
+    dotsContainer.appendChild(dot);
+  });
+}
 
 function renderGuideDetails(gameId) {
   currentGuideGame = gameId;
@@ -127,11 +163,7 @@ function renderGuideDetails(gameId) {
   $('#guide-keyboard').textContent = data.keyboard();
   $('#guide-tips').textContent = data.tips();
 
-  $$('.guide-dot').forEach((dot, idx) => {
-    const isActive = idx === curIdx;
-    dot.classList.toggle('active', isActive);
-    dot.setAttribute('aria-current', isActive ? 'true' : 'false');
-  });
+  renderGuideDots(curIdx);
 
   const body = $('#guide-body');
   if (body) body.scrollTop = 0;
@@ -240,12 +272,6 @@ $('#guide-prev')?.addEventListener('click', () => {
 
 $('#guide-next')?.addEventListener('click', () => {
   stepGuideGame(1);
-});
-
-$$('.guide-dot').forEach((dot, idx) => {
-  dot.addEventListener('click', () => {
-    if (GUIDE_GAMES[idx]) renderGuideDetails(GUIDE_GAMES[idx]);
-  });
 });
 
 $('#guide-close')?.addEventListener('click', () => {

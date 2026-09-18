@@ -5,21 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
   <title>워치 미니게임</title>
-  <link rel="stylesheet" href="./style.css?v=modular-v1">
-  <link rel="stylesheet" href="./css/menu.css?v=modular-v1">
-  <link rel="stylesheet" href="./css/settings.css?v=modular-v1">
-  <link rel="stylesheet" href="./css/runner.css?v=modular-v1">
-  <link rel="stylesheet" href="./css/blackjack.css?v=modular-v1">
+  <link rel="stylesheet" href="./style.css?v=v2.0">
+  <link rel="stylesheet" href="./css/menu.css?v=v2.0">
+  <link rel="stylesheet" href="./css/settings.css?v=v2.0">
+  <link rel="stylesheet" href="./css/runner.css?v=v2.0">
+  <link rel="stylesheet" href="./css/blackjack.css?v=v2.0">
+  <link rel="stylesheet" href="./css/stack.css?v=v2.0">
+  <link rel="stylesheet" href="./css/orbit.css?v=v2.0">
   <script src="./vendor/embla-carousel.umd.js"></script>
-  <script src="./js/common.js?v=modular-v1" defer></script>
-  <script src="./js/settings.js?v=modular-v1" defer></script>
-  <script src="./js/menu.js?v=modular-v1" defer></script>
-  <script src="./js/games/reaction.js?v=modular-v1" defer></script>
-  <script src="./js/games/taps.js?v=modular-v1" defer></script>
-  <script src="./js/games/timing.js?v=modular-v1" defer></script>
-  <script src="./js/games/runner.js?v=modular-v1" defer></script>
-  <script src="./js/games/blackjack.js?v=modular-v1" defer></script>
-  <script src="./js/router.js?v=modular-v1" defer></script>
+  <script src="./js/common.js?v=v2.0" defer></script>
+  <script src="./js/settings.js?v=v2.0" defer></script>
+  <script src="./js/menu.js?v=v2.0" defer></script>
+  <script src="./js/games/reaction.js?v=v2.0" defer></script>
+  <script src="./js/games/taps.js?v=v2.0" defer></script>
+  <script src="./js/games/timing.js?v=v2.0" defer></script>
+  <script src="./js/games/runner.js?v=v2.0" defer></script>
+  <script src="./js/games/blackjack.js?v=v2.0" defer></script>
+  <script src="./js/games/stack.js?v=v2.0" defer></script>
+  <script src="./js/games/orbit.js?v=v2.0" defer></script>
+  <script src="./js/router.js?v=v2.0" defer></script>
 </head>
 <body data-state="idle">
   <main id="menu" class="menu" aria-busy="true">
@@ -124,6 +128,8 @@
             <button class="guide-dot" type="button" data-guide-dot="2" aria-label="3번 게임"></button>
             <button class="guide-dot" type="button" data-guide-dot="3" aria-label="4번 게임"></button>
             <button class="guide-dot" type="button" data-guide-dot="4" aria-label="5번 게임"></button>
+            <button class="guide-dot" type="button" data-guide-dot="5" aria-label="6번 게임"></button>
+            <button class="guide-dot" type="button" data-guide-dot="6" aria-label="7번 게임"></button>
           </div>
         </div>
         <button id="guide-prev" class="guide-side-btn guide-prev-btn" type="button" aria-label="이전 게임">
@@ -207,6 +213,12 @@
           <button id="bj-continue" class="bj-btn bj-btn-primary" type="button" hidden>이어하기</button>
           <button id="bj-new" class="bj-btn" type="button" hidden>기록 후 새로하기</button>
         </div>
+      </div>
+      <div id="stack-stage" class="stack-stage" hidden aria-label="스택 타워">
+        <canvas id="stack-canvas" class="game-canvas"></canvas>
+      </div>
+      <div id="orbit-stage" class="orbit-stage" hidden aria-label="오빗 캐치">
+        <canvas id="orbit-canvas" class="game-canvas"></canvas>
       </div>
       <p id="action"></p>
       <div id="game-meta" class="game-meta">

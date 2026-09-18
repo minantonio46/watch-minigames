@@ -25,9 +25,9 @@ function showBest(targetGame = current) {
   const best = bestValue(targetGame);
   const unitStr = tr(
     games[targetGame].unit,
-    { reaction: 'ms', taps: 'taps', timing: 'ms off', runner: 'pts', blackjack: '$' }[targetGame]
+    { reaction: 'ms', taps: 'taps', timing: 'ms off', runner: 'pts', blackjack: '$', stack: 'floors', orbit: 'pts' }[targetGame]
   );
-  const displayUnit = targetGame === 'blackjack' ? '' : ` ${unitStr}`;
+  const displayUnit = targetGame === 'blackjack' ? '' : (language === 'ko' ? `${unitStr}` : ` ${unitStr}`);
   const prefix = targetGame === 'blackjack' ? '$' : '';
   const label = targetGame === 'blackjack' ? tr('최고 기록', 'Best Record') : tr('최고', 'Best');
   const text = best === null
@@ -77,11 +77,17 @@ function route() {
 
   const isBj = current === 'blackjack';
   const isRunner = current === 'runner';
+  const isStack = current === 'stack';
+  const isOrbit = current === 'orbit';
   $('#blackjack-table').hidden = !isBj;
   $('#runner-stage').hidden = !isRunner;
+  const stackStage = $('#stack-stage');
+  if (stackStage) stackStage.hidden = !isStack;
+  const orbitStage = $('#orbit-stage');
+  if (orbitStage) orbitStage.hidden = !isOrbit;
   if (!isRunner) $('#best').hidden = false;
   if (!isBj) $('#bj-round-meta').hidden = true;
-  $('#action').style.display = (isBj || isRunner) ? 'none' : '';
+  $('#action').style.display = (isBj || isRunner || isStack || isOrbit) ? 'none' : '';
   play.style.display = isBj ? 'none' : '';
 
   if (current) {
