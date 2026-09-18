@@ -27,7 +27,7 @@ function applyLanguage() {
   $('#guide-label').textContent = tr('도움말', 'Guide');
   $('#open-guide').textContent = tr('📖 게임별 가이드 & 조작법', '📖 Game Guide & Controls');
   $('#guide-modal-title').textContent = tr('게임 가이드', 'Game Guide');
-  $('#guide-close').textContent = tr('닫기', 'Close');
+  $('#guide-close-label').textContent = tr('설정', 'Settings');
   $('#guide-summary-label').textContent = tr('게임 개요', 'Overview');
   $('#guide-touch-label').textContent = tr('워치 터치 조작', 'Watch Touch');
   $('#guide-keyboard-label').textContent = tr('PC 키보드 조작', 'PC Keyboard');

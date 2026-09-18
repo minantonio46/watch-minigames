@@ -98,125 +98,181 @@
   outline-offset:2px;
 }
 
+/* Guide / Tutorial Styles (Watch-optimized Fullscreen View) */
+.guide-setting { padding-bottom:calc(var(--square) * .008); }
+.guide-open-button {
+  min-height:calc(var(--square) * .09);
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:var(--card);
+  color:var(--fg);
+  font-size:calc(var(--square) * .034);
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:calc(var(--square) * .015);
+  cursor:pointer;
+  transition:transform 0.1s, border-color 0.15s;
+}
+.guide-open-button:active { transform:scale(.96); }
+.guide-open-button:focus-visible, .guide-tab:focus-visible, .guide-close-button:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
 .guide-modal {
-  position:fixed;
+  position:absolute;
   inset:0;
   z-index:15;
-  display:grid;
-  place-items:center;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(2px);
-}
-.guide-dialog {
-  width:min(100%, calc(var(--square) * .88));
-  height:min(100%, calc(var(--square) * .88));
-  max-height:calc(var(--square) * .88);
+  width:100%;
+  height:100%;
+  background:var(--bg);
   display:flex;
   flex-direction:column;
-  background:var(--card);
-  border:1px solid var(--accent);
-  border-radius:calc(var(--square) * .04);
-  box-shadow:0 calc(var(--square) * .028) calc(var(--square) * .072) rgba(0,0,0,.6);
-  padding:calc(var(--square) * .025);
-  box-sizing:border-box;
-  text-align:left;
+  align-items:center;
+  text-align:center;
   overflow:hidden;
 }
+.guide-dialog {
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  box-sizing:border-box;
+  text-align:left;
+  position:relative;
+}
 .guide-header {
-  flex:0 0 auto;
-  text-align:center;
-  padding-bottom:calc(var(--square) * .015);
-  border-bottom:1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  position:absolute;
+  top:var(--header-top);
+  left:50%;
+  transform:translateX(-50%);
+  width:var(--content-width);
+  height:var(--header-height);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2;
 }
 .guide-title {
   margin:0;
-  font-size:calc(var(--square) * .036);
-  font-weight:800;
-  color:var(--accent);
+  font-size:var(--header-title-size);
+  font-weight:700;
+  color:var(--fg);
+  padding-bottom:calc(var(--square) * .006);
+  white-space:nowrap;
 }
 .guide-tabs {
-  flex:0 0 auto;
+  position:absolute;
+  top:calc(var(--header-top) + var(--header-height));
+  left:50%;
+  transform:translateX(-50%);
+  width:var(--content-width);
   display:flex;
   justify-content:center;
-  gap:calc(var(--square) * .012);
-  padding:calc(var(--square) * .015) 0;
-  border-bottom:1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  gap:calc(var(--square) * .016);
+  padding:calc(var(--square) * .01) 0;
+  z-index:2;
 }
 .guide-tab {
   flex:1;
-  max-width:calc(var(--square) * .12);
-  height:calc(var(--square) * .075);
+  max-width:calc(var(--square) * .14);
+  height:calc(var(--square) * .095);
   border:1px solid var(--border);
-  border-radius:calc(var(--square) * .018);
-  background:transparent;
-  font-size:calc(var(--square) * .034);
+  border-radius:calc(var(--square) * .024);
+  background:var(--card);
+  font-size:calc(var(--square) * .046);
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
   transition:all 0.15s ease;
+  user-select:none;
+  -webkit-user-select:none;
 }
+.guide-tab:active { transform:scale(.94); }
 .guide-tab[aria-selected="true"] {
   background:var(--accent);
   border-color:var(--accent);
   color:var(--bg);
-  transform:scale(1.05);
+  transform:scale(1.06);
 }
 .guide-body {
-  flex:1 1 auto;
+  position:absolute;
+  top:calc(var(--header-top) + var(--header-height) + var(--square) * .125);
+  bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height));
+  left:50%;
+  transform:translateX(-50%);
+  width:var(--content-width);
   overflow-y:auto;
   overscroll-behavior:contain;
-  padding:calc(var(--square) * .015) calc(var(--square) * .01);
+  padding:calc(var(--square) * .01) calc(var(--square) * .015) calc(var(--square) * .03);
   display:flex;
   flex-direction:column;
-  gap:calc(var(--square) * .018);
+  gap:calc(var(--square) * .022);
   user-select:none;
   -webkit-user-select:none;
   cursor:grab;
+  box-sizing:border-box;
 }
 .guide-body.is-dragging { cursor:grabbing; }
 .guide-game-name {
   margin:0;
-  font-size:calc(var(--square) * .036);
+  font-size:calc(var(--square) * .044);
   font-weight:800;
   color:var(--fg);
+  padding-bottom:calc(var(--square) * .006);
+  border-bottom:1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 .guide-section {
   display:flex;
   flex-direction:column;
-  gap:calc(var(--square) * .006);
+  gap:calc(var(--square) * .008);
 }
 .guide-sec-title {
   margin:0;
-  font-size:calc(var(--square) * .028);
+  font-size:calc(var(--square) * .035);
   font-weight:800;
   color:var(--accent);
 }
 .guide-text {
   margin:0;
-  font-size:calc(var(--square) * .026);
+  font-size:calc(var(--square) * .032);
   line-height:1.45;
   color:var(--fg);
   word-break:keep-all;
 }
 .guide-footer {
-  flex:0 0 auto;
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:var(--footer-width);
+  height:calc(var(--bottom-bar-height) + var(--frame-footer-gap));
+  border-top:1px solid var(--footer-border);
+  background:var(--footer-surface);
   display:flex;
+  align-items:flex-start;
   justify-content:center;
-  padding-top:calc(var(--square) * .015);
-  border-top:1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  z-index:2;
+  box-sizing:border-box;
 }
 .guide-close-button {
-  width:100%;
-  min-height:calc(var(--square) * .08);
-  border-radius:999px;
-  border:1px solid var(--border);
+  border:0;
   background:transparent;
-  color:var(--fg);
-  font-size:calc(var(--square) * .032);
+  color:var(--footer-fg);
+  width:100%;
+  height:100%;
+  padding:calc(var(--bottom-bar-height) - var(--bottom-bar-inset) - calc(var(--square) * .068)) 0 0;
+  font-size:calc(var(--square) * .055);
   font-weight:700;
   cursor:pointer;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:calc(var(--square) * .02);
 }
 .guide-close-button:active { transform:scale(.96); }
 
