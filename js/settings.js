@@ -116,17 +116,91 @@ $('#reset-records-confirm-button').addEventListener('click', () => {
 });
 
 window.addEventListener('keydown', event => {
+  if (location.hash !== '#settings') return;
+
   const resetRecordsDialog = $('#reset-records-confirm');
-  if (!resetRecordsDialog.hidden && event.key === 'Tab') {
-    event.preventDefault();
-    const cancelButton = $('#reset-records-cancel');
-    const confirmButton = $('#reset-records-confirm-button');
-    (document.activeElement === cancelButton ? confirmButton : cancelButton).focus();
+  const modalOpen = resetRecordsDialog && !resetRecordsDialog.hidden;
+
+  // 1. 확인 모달 제어
+  if (modalOpen) {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      const cancelButton = $('#reset-records-cancel');
+      const confirmButton = $('#reset-records-confirm-button');
+      (document.activeElement === cancelButton ? confirmButton : cancelButton).focus();
+      return;
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeResetRecordsDialog();
+      return;
+    }
     return;
   }
-  if (event.key === 'Escape' && !resetRecordsDialog.hidden) {
+
+  // 2. Escape 키: 메뉴로 나가기
+  if (event.key === 'Escape') {
     event.preventDefault();
-    closeResetRecordsDialog();
+    location.hash = '';
+    return;
+  }
+
+  const content = $('.settings-content');
+  if (!content) return;
+
+  // 3. 방향키 및 페이지 키 스크롤 제어
+  const SCROLL_STEP = 55;
+  if (event.key === 'ArrowDown' || event.key === 'Down') {
+    // 포커스가 버튼에 있는 경우 브라우저 기본 포커스 이동을 방해하지 않되, 포커스가 컨테이너나 본문에 있을 때는 스크롤
+    if (!document.activeElement || document.activeElement === document.body || document.activeElement === content) {
+      event.preventDefault();
+      content.scrollBy({ top: SCROLL_STEP, behavior: 'smooth' });
+    }
+  } else if (event.key === 'ArrowUp' || event.key === 'Up') {
+    if (!document.activeElement || document.activeElement === document.body || document.activeElement === content) {
+      event.preventDefault();
+      content.scrollBy({ top: -SCROLL_STEP, behavior: 'smooth' });
+    }
+  } else if (event.key === 'PageDown') {
+    event.preventDefault();
+    content.scrollBy({ top: content.clientHeight * 0.75, behavior: 'smooth' });
+  } else if (event.key === 'PageUp') {
+    event.preventDefault();
+    content.scrollBy({ top: -content.clientHeight * 0.75, behavior: 'smooth' });
+  } else if (event.key === 'Home') {
+    event.preventDefault();
+    content.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (event.key === 'End') {
+    event.preventDefault();
+    content.scrollTo({ top: content.scrollHeight, behavior: 'smooth' });
+  }
+
+  // 4. 언어 및 테마 선택 버튼 그룹 내 방향키 탐색 지원
+  const active = document.activeElement;
+  if (active && active.classList.contains('setting-choice')) {
+    const parentGrid = active.closest('.setting-options');
+    if (parentGrid) {
+      const choices = Array.from(parentGrid.querySelectorAll('.setting-choice'));
+      const idx = choices.indexOf(active);
+      const cols = parentGrid.classList.contains('two-columns') ? 2 : choices.length;
+      let nextIdx = -1;
+
+      if (event.key === 'ArrowRight') {
+        if (idx < choices.length - 1) nextIdx = idx + 1;
+      } else if (event.key === 'ArrowLeft') {
+        if (idx > 0) nextIdx = idx - 1;
+      } else if (event.key === 'ArrowDown' && cols === 2) {
+        if (idx + 2 < choices.length) nextIdx = idx + 2;
+      } else if (event.key === 'ArrowUp' && cols === 2) {
+        if (idx - 2 >= 0) nextIdx = idx - 2;
+      }
+
+      if (nextIdx >= 0) {
+        event.preventDefault();
+        choices[nextIdx].focus();
+        choices[nextIdx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
   }
 });
 
