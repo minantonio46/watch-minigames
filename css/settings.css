@@ -171,7 +171,7 @@
   top:calc(var(--header-top) + var(--square) * .046);
   left:50%;
   transform:translateX(-50%);
-  width:calc(var(--square) * .72);
+  width:var(--content-width);
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -232,7 +232,7 @@
   top:0;
   bottom:0;
   height:100%;
-  width:calc(var(--square) * .18);
+  width:calc((var(--square) - var(--content-width)) / 2);
   border:0;
   background:transparent;
   display:flex;
@@ -262,7 +262,8 @@
 .guide-nav-arrow {
   position:absolute;
   top:50%;
-  transform:translateY(-50%);
+  left:50%;
+  transform:translate(-50%, -50%);
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -274,17 +275,9 @@
   pointer-events:none;
   transition:transform 0.1s ease;
 }
-.guide-prev-btn .guide-nav-arrow {
-  left:calc(var(--square) * .035);
-}
-.guide-next-btn .guide-nav-arrow {
-  right:calc(var(--square) * .035);
-}
-.guide-prev-btn:active .guide-nav-arrow {
-  transform:translateY(-50%) scale(0.9);
-}
+.guide-prev-btn:active .guide-nav-arrow,
 .guide-next-btn:active .guide-nav-arrow {
-  transform:translateY(-50%) scale(0.9);
+  transform:translate(-50%, -50%) scale(0.9);
 }
 .guide-body {
   position:absolute;
@@ -292,10 +285,10 @@
   bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height));
   left:50%;
   transform:translateX(-50%);
-  width:calc(var(--square) * .60);
+  width:var(--content-width);
   overflow-y:auto;
   overscroll-behavior:contain;
-  padding:calc(var(--square) * .01) calc(var(--square) * .01) calc(var(--square) * .03);
+  padding:calc(var(--square) * .01) 0 calc(var(--square) * .03);
   display:flex;
   flex-direction:column;
   gap:calc(var(--square) * .022);
