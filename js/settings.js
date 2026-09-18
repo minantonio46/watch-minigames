@@ -129,3 +129,52 @@ window.addEventListener('keydown', event => {
     closeResetRecordsDialog();
   }
 });
+
+// PC 마우스 드래그 스크롤 기능
+(function setupSettingsMouseDragScroll() {
+  const content = $('.settings-content');
+  if (!content) return;
+
+  let isDown = false;
+  let startY = 0;
+  let startScrollTop = 0;
+  let hasDragged = false;
+
+  content.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return; // 좌클릭만
+    isDown = true;
+    hasDragged = false;
+    startY = e.clientY;
+    startScrollTop = content.scrollTop;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    const deltaY = e.clientY - startY;
+    if (Math.abs(deltaY) > 4) {
+      hasDragged = true;
+      content.classList.add('is-dragging');
+    }
+    if (hasDragged) {
+      content.scrollTop = startScrollTop - deltaY;
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isDown) return;
+    isDown = false;
+    content.classList.remove('is-dragging');
+    // 드래그 직후 발생하는 click 이벤트를 막기 위해 짧은 딜레이 후 해제
+    setTimeout(() => {
+      hasDragged = false;
+    }, 50);
+  });
+
+  // 드래그 중 버튼이 눌리는 것 방지 (캡처 단계에서 차단)
+  content.addEventListener('click', (e) => {
+    if (hasDragged) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, true);
+})();
