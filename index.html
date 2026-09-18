@@ -114,17 +114,9 @@
           <h2 id="guide-modal-title" class="guide-title"></h2>
         </header>
         <div class="guide-nav-bar" aria-label="선택된 게임">
-          <div class="guide-nav-row">
-            <button id="guide-prev" class="guide-nav-btn" type="button" aria-label="이전 게임">
-              <span class="guide-nav-arrow" aria-hidden="true">‹</span>
-            </button>
-            <div class="guide-nav-label">
-              <span id="guide-nav-icon" class="guide-nav-icon"></span>
-              <span id="guide-nav-title" class="guide-nav-title"></span>
-            </div>
-            <button id="guide-next" class="guide-nav-btn" type="button" aria-label="다음 게임">
-              <span class="guide-nav-arrow" aria-hidden="true">›</span>
-            </button>
+          <div class="guide-nav-label">
+            <span id="guide-nav-icon" class="guide-nav-icon"></span>
+            <span id="guide-nav-title" class="guide-nav-title"></span>
           </div>
           <div id="guide-nav-dots" class="guide-nav-dots" aria-label="게임 인디케이터">
             <button class="guide-dot" type="button" data-guide-dot="0" aria-label="1번 게임"></button>
@@ -134,6 +126,12 @@
             <button class="guide-dot" type="button" data-guide-dot="4" aria-label="5번 게임"></button>
           </div>
         </div>
+        <button id="guide-prev" class="guide-side-btn guide-prev-btn" type="button" aria-label="이전 게임">
+          <span class="guide-nav-arrow" aria-hidden="true">‹</span>
+        </button>
+        <button id="guide-next" class="guide-side-btn guide-next-btn" type="button" aria-label="다음 게임">
+          <span class="guide-nav-arrow" aria-hidden="true">›</span>
+        </button>
         <div id="guide-body" class="guide-body">
           <div class="guide-section">
             <h4 id="guide-summary-label" class="guide-sec-title"></h4>
