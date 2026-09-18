@@ -72,6 +72,10 @@ function route() {
   if (!current && !settingsOpen) window.syncVisibleMenu?.();
 
   $('#game').hidden = current === null;
+  const isMenu = current === null && !settingsOpen;
+  const viewName = isMenu ? 'menu' : (current ? 'game' : 'settings');
+  document.documentElement.dataset.view = viewName;
+  document.body.dataset.view = viewName;
   document.body.dataset.state = 'idle';
   state = 'idle';
 
