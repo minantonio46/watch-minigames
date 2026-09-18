@@ -345,11 +345,12 @@
     // ==========================================
     let size = 'small';
     const sizeRoll = Math.random();
-
     if (placement === 'ground') {
+      // 초반(difficulty < 0.20, 약 100점 이하)에는 중형 확률을 낮춰 점프 감각 적응 지원
+      const mediumChance = difficulty < 0.20 ? 0.18 : (0.45 + difficulty * 0.15);
       if (difficulty > 0.25 && sizeRoll < 0.20 + difficulty * 0.15) {
         size = 'large';  // 최고 높이 점프 필수
-      } else if (sizeRoll < 0.45 + difficulty * 0.15) {
+      } else if (sizeRoll < mediumChance) {
         size = 'medium'; // 중간 점프
       } else if (sizeRoll < 0.75) {
         size = 'small';  // 일반 점프
@@ -425,14 +426,14 @@
         // 대형: 초반 1개 고정, 중후반 최대 2개 (3개 이상은 풀점 비거리 초과)
         repeats = isEarlyGame ? 1 : Math.min(repeats, 2);
       } else if (size === 'medium') {
-        // 중형: 초반 최대 2개, 중후반 최대 3개 (초반 3개는 풀점 착지점에 걸림)
-        repeats = isEarlyGame ? Math.min(repeats, 2) : Math.min(repeats, 3);
+        // 중형: 초반에는 1개 고정(2개 이상 복합으로 인한 억까 방지), 중후반부터 2~3개 허용
+        repeats = isEarlyGame ? 1 : Math.min(repeats, 3);
       } else if (size === 'small') {
-        // 소형: 초반 최대 3개, 중후반 최대 4개
-        repeats = isEarlyGame ? Math.min(repeats, 3) : repeats;
+        // 소형: 초반 최대 2개, 중후반 최대 4개
+        repeats = isEarlyGame ? Math.min(repeats, 2) : repeats;
       } else { // 'xs'
-        // 초소형: 높이가 낮아 초반/후반 모두 1~4개 자유롭게 통과 가능
-        repeats = repeats;
+        // 초소형: 높이가 낮으나 초반 안전을 위해 최대 3개로 제한
+        repeats = isEarlyGame ? Math.min(repeats, 3) : repeats;
       }
     } else {
       if (size === 'small') {
