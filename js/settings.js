@@ -23,7 +23,7 @@ function applyLanguage() {
   $('#settings-title').textContent = tr('설정', 'Settings');
   $('#language-label').textContent = tr('언어', 'Language');
   $('#theme-label').textContent = tr('화면 테마', 'Theme');
-  $('#contrast-note').textContent = tr('검정 배경으로 OLED 화면 전력 사용을 줄이는 고대비 모드', 'High contrast with a black OLED-saving background');
+  $('#contrast-note').textContent = tr('검정 배경으로 OLED 전력을 아끼는 고대비 모드', 'High contrast with an OLED-saving black background');
   $('#records-label').textContent = tr('기록', 'Records');
   $('#reset-records').textContent = tr('최고 기록 초기화', 'Reset best records');
   $('#reset-records-warning').textContent = tr('모든 최고 기록을 지울까요? 이 작업은 되돌릴 수 없어요.', 'Clear all best records? This cannot be undone.');

@@ -12,7 +12,18 @@
 .setting-choice { min-height:calc(var(--square) * .14); border:1px solid var(--border); border-radius:calc(var(--square) * .03); background:var(--card); display:grid; place-items:center; align-content:center; gap:calc(var(--square) * .008); padding:calc(var(--square) * .016); font-size:calc(var(--square) * .034); font-weight:700; }
 .setting-choice[aria-pressed="true"] { border:3px solid var(--accent); color:var(--accent); }
 .choice-icon { font-size:calc(var(--square) * .05); line-height:1; }
-#contrast-note { margin:0; font-size:calc(var(--square) * .027); line-height:1.35; color:var(--muted); text-align:center; }
+#contrast-note {
+  margin:0;
+  font-size:calc(var(--square) * .025);
+  line-height:1.4;
+  color:var(--muted);
+  text-align:center;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  text-wrap:balance;
+  letter-spacing:-0.015em;
+  padding:0 calc(var(--square) * .01);
+}
 .records-setting { padding-bottom:calc(var(--square) * .008); }
 .reset-records { min-height:calc(var(--square) * .09); border:1px solid var(--border); border-radius:999px; background:var(--card); color:var(--fg); font-size:calc(var(--square) * .034); font-weight:700; }
 .reset-records:active, .reset-records-cancel:active, .reset-records-confirm-button:active { transform:scale(.96); }
