@@ -5,7 +5,6 @@
   let bjDealer = [];
   let bjDeck = [];
   let bjMoney = 1000;
-  let maxBjMoney = 1000;
   const MIN_BJ_BET = 50;
   let bjBet = 100;
   let bjState = 'idle';
@@ -129,10 +128,10 @@
 
   function showBjSetup(resetBankroll = false) {
     if (resetBankroll) {
-      saveBest('blackjack', maxBjMoney);
+      // 자의적으로 '기록 후 새로하기'를 누른 시점의 최종 보유금액을 최고기록으로 남김
+      saveBest('blackjack', bjMoney);
       showBest('blackjack');
       bjMoney = 1000;
-      maxBjMoney = 1000;
       bjBet = 100;
     }
     bjState = 'idle';
@@ -366,8 +365,7 @@
       msg = tr(`비겼어요 (${pScore} = ${dScore})`, `Push (${pScore} = ${dScore})`);
     }
 
-    if (bjMoney > maxBjMoney) maxBjMoney = bjMoney;
-    saveBest('blackjack', maxBjMoney);
+
 
     if (bjMoney <= 0) {
       $('#message').textContent = msg + ' - ' + tr('파산! 💸', 'Bankrupt! 💸');
