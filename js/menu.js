@@ -254,10 +254,21 @@ window.addEventListener('keydown', event => {
   if (location.hash || !emblaApi) return;
   const resetRecordsDialog = $('#reset-records-confirm');
   if (resetRecordsDialog && !resetRecordsDialog.hidden) return;
+
   if (event.key === 'ArrowLeft') {
-    event.preventDefault(); emblaApi.scrollPrev();
+    event.preventDefault();
+    emblaApi.scrollPrev();
   } else if (event.key === 'ArrowRight') {
-    event.preventDefault(); emblaApi.scrollNext();
+    event.preventDefault();
+    emblaApi.scrollNext();
+  } else if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    if (selected) {
+      location.hash = selected;
+    }
+  } else if (event.key === 'f' || event.key === 'F') {
+    event.preventDefault();
+    toggleFavoriteAction();
   }
 });
 

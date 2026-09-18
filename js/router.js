@@ -114,17 +114,43 @@ play.addEventListener('pointerdown', event => {
   });
 });
 
-play.addEventListener('keydown', event => {
-  if (!current) return;
-  if (state === 'idle' && performance.now() < restartLockoutUntil && [' ', 'Enter'].includes(event.key)) {
+window.addEventListener('keydown', event => {
+  if (!current || location.hash === '#settings') return;
+
+  // Escape 키: 게임 중 메뉴로 복귀
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    location.hash = '';
+    return;
+  }
+
+  // 시스템 단축키는 브라우저 기본 동작 유지
+  if (['F5', 'F12', 'Tab', 'Alt', 'Control', 'Meta', 'Shift'].includes(event.key)) {
+    return;
+  }
+
+  // 재시작 락아웃 검사
+  if (state === 'idle' && performance.now() < restartLockoutUntil) {
     event.preventDefault();
     return;
   }
-  gameModules[current]?.onKeyDown?.(event);
+
+  const module = gameModules[current];
+  if (!module) return;
+
+  if (module.onKeyDown) {
+    module.onKeyDown(event);
+  } else if (module.onAction) {
+    // onKeyDown이 없는 간단한 탭 게임(반응속도, 연타, 5초)은 아무 키나 누르면 액션 실행
+    event.preventDefault();
+    if (!event.repeat) {
+      module.onAction(event);
+    }
+  }
 });
 
-play.addEventListener('keyup', event => {
-  if (!current) return;
+window.addEventListener('keyup', event => {
+  if (!current || location.hash === '#settings') return;
   gameModules[current]?.onKeyUp?.(event);
 });
 

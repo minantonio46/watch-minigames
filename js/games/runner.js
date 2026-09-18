@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 (function () {
   let runnerFrame = null;
@@ -641,17 +641,22 @@
   }
 
   function onKeyDown(event) {
-    if (!runnerRunning || ![' ', 'Enter'].includes(event.key)) return;
     event.preventDefault();
+    if (!runnerRunning) {
+      if (runnerRestartArmed) startRunner();
+      return;
+    }
     if (event.repeat) return;
     runnerHolding = true;
     runnerJump();
   }
 
   function onKeyUp(event) {
-    if (![' ', 'Enter'].includes(event.key)) return;
     event.preventDefault();
     runnerHolding = false;
+    if (!runnerRunning) {
+      runnerRestartArmed = true;
+    }
   }
 
   function onResize() {

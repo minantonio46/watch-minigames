@@ -409,6 +409,47 @@
     }
   }
 
+  function onKeyDown(event) {
+    // 1. 베팅 상태 (시작 전)
+    if (bjState === 'idle') {
+      if (['ArrowUp', 'ArrowRight', '+', '='].includes(event.key)) {
+        event.preventDefault();
+        adjustBjBet(1);
+      } else if (['ArrowDown', 'ArrowLeft', '-', '_'].includes(event.key)) {
+        event.preventDefault();
+        adjustBjBet(-1);
+      } else if (['Enter', ' '].includes(event.key)) {
+        event.preventDefault();
+        startBlackjack();
+      }
+      return;
+    }
+
+    // 2. 플레이어 턴 (히트 / 스탠드)
+    if (bjState === 'player') {
+      if (['Enter', ' ', 'h', 'H', 'ArrowUp', 'ArrowRight'].includes(event.key)) {
+        event.preventDefault();
+        bjHit();
+      } else if (['s', 'S', 'ArrowDown', 'ArrowLeft'].includes(event.key)) {
+        event.preventDefault();
+        bjStand();
+      }
+      return;
+    }
+
+    // 3. 라운드 종료 상태 (이어하기 / 새로하기)
+    if (bjState === 'done') {
+      if (performance.now() < bjRestartLockoutUntil) return;
+      if (['Enter', ' ', 'c', 'C', 'ArrowRight'].includes(event.key)) {
+        event.preventDefault();
+        showBjSetup();
+      } else if (['n', 'N', 'r', 'R', 'Delete', 'Backspace'].includes(event.key)) {
+        event.preventDefault();
+        showBjSetup(true);
+      }
+    }
+  }
+
   // Button Listeners
   $('#bj-hit').addEventListener('click', bjHit);
   $('#bj-stand').addEventListener('click', bjStand);
@@ -427,6 +468,7 @@
   registerGame('blackjack', {
     init,
     onCancel,
-    onVisibilityChange
+    onVisibilityChange,
+    onKeyDown
   });
 })();
