@@ -1,88 +1,48 @@
-# 워치 미니게임 (Watch Minigames)
+# Watch Minigames
 
-갤럭시 워치, 모바일, PC 웹 브라우저에서 가볍게 즐길 수 있는 터치 미니게임 모음 프로젝트.  
-HTML, CSS, JavaScript 순수 웹 표준 기술만 사용하며 별도의 서버 설치, 패키지 의존성, 빌드 과정이 필요 없습니다.
+> A lightweight collection of touch-friendly mini games for round watches, phones, and desktop browsers.
 
-- **온라인 플레이**: https://minantonio46.github.io/watch-minigames/
-- **GitHub 저장소**: https://github.com/minantonio46/watch-minigames
-- **배포 환경**: `main` 브랜치의 `/(root)` (GitHub Pages 자동 배포)
+[Play online](https://minantonio46.github.io/watch-minigames/) · [한국어 안내](README.ko.md) · [Source code](https://github.com/minantonio46/watch-minigames)
 
----
+Watch Minigames is a zero-build, static web project made with HTML, CSS, and vanilla JavaScript. It is designed around circular watch displays while remaining enjoyable on mobile and desktop.
 
-## 🎮 미니게임 구성
+## Games
 
-1. **반응속도 (Reaction)**
-   - 화면을 터치해 시작한 뒤, 화면이 초록색으로 바뀌는 순간 최대한 빠르게 화면 아무 곳이나 터치합니다.
-   - 반응 시간(ms)이 짧을수록 높은 기록입니다. 초록색이 되기 전에 터치하면 부정클릭으로 재시작됩니다.
-2. **10초 연타 (Taps)**
-   - 10초 동안 화면을 빠르게 연속 터치하여 터치 횟수를 겨룹니다.
-   - 라운드 종료 직후 관성 연타로 인한 오작동을 막기 위해 1초간 안전 대기 시간이 적용되며, 결과와 함께 즉시 재도전할 수 있습니다.
-3. **5초 맞추기 (Timing)**
-   - 시작 후 오직 감각으로만 5초를 측정하여 정확히 5초가 되는 순간 화면을 다시 터치합니다.
-   - 5.00초와의 오차(ms)가 적을수록 높은 순위가 됩니다.
-4. **러너 (Runner)**
-   - 다가오는 바닥 및 공중 장애물을 점프로 회피하는 러닝 게임입니다.
-   - 짧은 터치는 낮은 점프, 길게 꾹 누르고 있으면 최고 점프를 연속으로 뜁니다. 500점 이후에는 속도가 점진적으로 상승합니다.
-5. **블랙잭 (Blackjack)**
-   - 칩을 걸고 카드 합을 21에 가깝게 맞추는 클래식 카지노 카드 게임입니다.
-   - 판돈 조절(길게 눌러 최소/최대 판돈 설정), 히트, 스탠드를 지원하며 딜러는 17 이상에서 멈춥니다.
-   - **캐시아웃 기록 룰**: 라운드 도중 불린 자산은 사용자가 자의적으로 **'기록 후 새로하기'**를 눌렀을 때만 최고 기록으로 인정되어 저장됩니다 (중간에 욕심부려 파산하면 0원 리셋).
-6. **스택 타워 (Stack Tower)**
-   - 좌우로 왕복 이동하는 직사각형 블록을 이전 층 바로 위에 맞춰 쌓아 올리는 타이밍 타워 게임입니다.
-   - 오차가 매우 적으면(±3px) **PERFECT** 판정과 함께 콤보가 누적되며, 3콤보부터 시작해 회복 시마다 요구 콤보가 1씩 증가(3→4→5…)하며 중앙을 향해 크기가 조금씩 회복됩니다.
-   - 벗어난 부분은 물리 엔진에 의해 잘려나가 아래로 떨어지며, 완전히 빗나가면 타워가 무너집니다.
-7. **오빗 캐치 (Orbit Catch)**
-   - 스마트워치 원형 베젤을 따라 고속 회전하는 포인터가 목표 구간(원호)에 도달했을 때 터치하는 원형 디스플레이 특화 게임입니다.
-   - 적중할 때마다 회전 속도가 가속되고 회전 방향이 역전되며, 타겟 밖에서 누르거나 타겟을 지나쳐버리면 게임이 종료됩니다.
+- **Reaction Time** — tap the instant the screen turns green.
+- **10s Speed Tap** — score as many taps as possible in ten seconds.
+- **5-Second Sense** — stop the hidden timer as close to 5.000 seconds as possible.
+- **Runner** — clear ground and airborne obstacles with tap-and-hold jumps.
+- **Blackjack** — a compact blackjack table with bankroll and cash-out records.
+- **Stack Tower** — align moving blocks and build a tower.
+- **Orbit Catch** — catch a fast rotating pointer inside its target arc.
 
----
+## Highlights
 
-## 🧭 메뉴 & 조작 인터페이스
+- Korean and English interface languages
+- Dark, light, system, and OLED-friendly high-contrast themes
+- Touch, mouse, and keyboard controls
+- Local best-record storage and favourites
+- Game-specific in-app guides
+- No framework, package installation, or build step
 
-- **무한 순환형 카드 캐러셀**:
-  - 화면 중앙에 현재 선택된 게임이 크게 강조되며, 좌우 대기 카드가 실시간 투윈 모션으로 자연스럽게 축소/배치됩니다.
-  - 마우스/터치 좌우 스와이프 및 클릭으로 부드럽게 탐색할 수 있습니다.
-- **즐겨찾기(★)**:
-  - 하단의 별 아이콘을 누르면 해당 게임이 즐겨찾기로 등록되어 메뉴 최상단에 우선 정렬됩니다.
-- **PC 키보드 단축키 완벽 지원**:
-  - **메인 메뉴**: `←` / `→` 방향키로 탐색, `Enter` / `Space`로 게임 진입, `F`키로 즐겨찾기 토글.
-  - **인게임 공통**: `Space` / `Enter` 또는 아무 키나 눌러 즉시 액션/점프. 러너는 키를 길게 눌러 최고 점프.
-  - **블랙잭**: 방향키 `↑` / `↓`로 판돈 조절, `Space` / `Enter`로 시작 및 히트, `S`키로 스탠드, `C`키로 이어하기, `N`키로 기록 후 새로하기.
-  - **메뉴 복귀**: 언제 어디서나 `Escape` 키를 누르면 진행을 취소하고 메인 메뉴로 복귀합니다.
+## Play locally
 
----
+Clone or download the repository, then open `index.html` in a modern browser. A local web server is optional.
 
-## ⚙️ 설정 & 테마 시스템
+## Deployment
 
-- **다국어 지원**: 한국어 및 영어(English) 완벽 대응. 설정 화면 및 게임 내부 문구가 실시간으로 동기화됩니다.
-- **화면 테마 시스템**:
-  - **다크 (Dark)**: 딥 다크 배경(`--bg: #080c12`)과 스카이블루 하이라이트. 승리 시 딥 포레스트 그린, 패배 시 딥 와인 크림슨 피드백.
-  - **라이트 (Light)**: 부드럽고 맑은 밝은 배경(`--bg: #f3f6fb`)과 로열 블루 하이라이트. 승리 시 파스텔 민트, 패배 시 라이트 로즈 피드백.
-  - **기기 설정 (System)**: OS의 다크/라이트 모드 설정에 자동 연동.
-  - **고대비 (Contrast)**: OLED 번인을 방지하고 배터리를 극대화하는 **순수 블랙(`#000`)** 배경 기반.
-    - **네온 시안 (`#00f0ff`)**: 하이라이트, 메뉴 선택, 러너 플레이어/점수, 뱅크롤.
-    - **네온 라임 그린 (`#00ff66`)**: 승리 및 반응속도 "지금!" 터치 신호.
-    - **네온 핫 레드 (`#ff2a5f`)**: 패배, 버스트, 경고 및 카드 수트.
-- **게임 가이드 & 튜토리얼 모달**:
-  - 각 게임별 개요, 모바일 터치 및 PC 키보드 조작법, 공략 팁과 규칙을 한눈에 확인할 수 있는 전용 가이드 뷰어 제공.
-  - 화면 중앙 양옆의 직관적인 `<>` 이동 버튼 지원.
-- **최고 기록 초기화**:
-  - 팝업 확인 모달을 통해 모든 게임의 최고 기록을 안전하게 초기화할 수 있습니다 (언어, 테마, 즐겨찾기는 보존).
+The live site is served with GitHub Pages from the repository root on the `main` branch. See [deployment notes](docs/DEPLOYMENT.md) for the release checklist.
 
----
+## Project documentation
 
-## 🛠️ 개발 및 설계 기준
+- [Korean project guide](README.ko.md)
+- [Development guide](docs/DEVELOPMENT.md)
+- [Deployment guide](docs/DEPLOYMENT.md)
 
-- **원형 워치 최적화**: 화면 외곽이 잘리는 원형 디스플레이 특성을 고려하여 모든 텍스트와 터치 요소를 안전 영역(Safe Area, 70% 폭) 내부에 정렬.
-- **순수 웹 표준**: 외부 웹폰트, 프레임워크, 대형 라이브러리 없이 순수 HTML/CSS/Vanilla JS로 초경량 번들 유지.
-- **접근성(A11y)**: 고대비 WCAG AAA/AA 명도 대비 기준 충족, 키보드 포커스 링(`focus-visible`), 스크린 리더용 ARIA 속성 지원.
+## Contributing
 
----
+Small fixes and improvement suggestions are welcome. Please open an issue before starting a large change so the direction can be discussed first.
 
-## 🚀 배포 및 로컬 실행
+## License
 
-1. **로컬 실행**:
-   - 별도의 웹 서버나 설치 없이 폴더 내 `index.html`을 최신 웹 브라우저(Chrome, Edge, Safari 등)로 바로 열면 실행됩니다.
-2. **Git & GitHub Pages 배포**:
-   - `main` 브랜치에 커밋 후 Push하면 GitHub Pages를 통해 실시간 배포됩니다.
-   - TortoiseGit 및 CLI 환경 모두 동일하게 지원합니다.
+No license has been selected yet. Do not reuse the project outside the permissions granted by its copyright holder until a license is added.

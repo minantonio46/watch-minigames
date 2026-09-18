@@ -39,6 +39,9 @@ function applyLanguage() {
   $('#reset-records-warning').textContent = tr('모든 최고 기록을 지울까요? 이 작업은 되돌릴 수 없어요.', 'Clear all best records? This cannot be undone.');
   $('#reset-records-cancel').textContent = tr('취소', 'Cancel');
   $('#reset-records-confirm-button').textContent = tr('초기화', 'Reset');
+  $('#project-label').textContent = tr('프로젝트', 'Project');
+  $('#github-link').textContent = tr('GitHub에서 보기', 'View on GitHub');
+  $('#github-link').setAttribute('aria-label', tr('GitHub에서 워치 미니게임 소스 코드 보기 (새 탭)', 'View Watch Minigames source code on GitHub (opens in a new tab)'));
   $$('.choice-label').forEach(label => {
     label.textContent = label.dataset[language];
   });

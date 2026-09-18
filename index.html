@@ -4,17 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080c12">
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
   <title>워치 미니게임</title>
   <link rel="stylesheet" href="./style.css?v=v2.2">
   <link rel="stylesheet" href="./css/menu.css?v=v2.0">
-  <link rel="stylesheet" href="./css/settings.css?v=v2.0">
+  <link rel="stylesheet" href="./css/settings.css?v=v2.1">
   <link rel="stylesheet" href="./css/runner.css?v=v2.0">
   <link rel="stylesheet" href="./css/blackjack.css?v=v2.0">
   <link rel="stylesheet" href="./css/stack.css?v=v2.0">
   <link rel="stylesheet" href="./css/orbit.css?v=v2.0">
   <script src="./vendor/embla-carousel.umd.js"></script>
   <script src="./js/common.js?v=v2.0" defer></script>
-  <script src="./js/settings.js?v=v2.0" defer></script>
+  <script src="./js/settings.js?v=v2.1" defer></script>
   <script src="./js/menu.js?v=v2.0" defer></script>
   <script src="./js/games/reaction.js?v=v2.0" defer></script>
   <script src="./js/games/taps.js?v=v2.0" defer></script>
@@ -101,6 +102,10 @@
         <h2 id="records-label"></h2>
         <button id="reset-records" class="reset-records" type="button"></button>
         <p id="reset-records-status" class="reset-records-status" aria-live="polite"></p>
+      </section>
+      <section class="setting-group project-setting" aria-labelledby="project-label">
+        <h2 id="project-label"></h2>
+        <a id="github-link" class="github-link" href="https://github.com/minantonio46/watch-minigames" target="_blank" rel="noopener noreferrer"></a>
       </section>
     </div>
     <div id="reset-records-confirm" class="reset-records-modal" hidden role="dialog" aria-modal="true" aria-labelledby="reset-records-warning">
