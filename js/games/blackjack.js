@@ -181,7 +181,8 @@
   function bindBjBetStep(selector, direction) {
     const button = $(selector);
     let holdTimer = null;
-    let longPressed = false;
+    let isLongPress = false;
+    let pressStartTime = 0;
 
     function clearHold() {
       if (holdTimer) {
@@ -192,21 +193,17 @@
 
     button.addEventListener('pointerdown', (e) => {
       if (button.disabled) return;
-      longPressed = false;
+      isLongPress = false;
+      pressStartTime = performance.now();
       clearHold();
 
+      // 워치 터치 딜레이를 고려하여 500ms 이상 길게 누를 때만 롱프레스(최소/최대) 발동
       holdTimer = setTimeout(() => {
-        longPressed = true;
+        isLongPress = true;
         holdTimer = null;
-        button.classList.remove('is-pressed');
-        try {
-          if (button.hasPointerCapture && button.hasPointerCapture(e.pointerId)) {
-            button.releasePointerCapture(e.pointerId);
-          }
-        } catch (_) {}
         setBjBetExtreme(direction);
-        navigator.vibrate?.(25);
-      }, 350);
+        navigator.vibrate?.([25, 40, 25]);
+      }, 500);
     });
 
     button.addEventListener('pointerup', () => {
@@ -215,13 +212,14 @@
 
     button.addEventListener('pointercancel', () => {
       clearHold();
-      longPressed = false;
     });
 
-    button.addEventListener('click', () => {
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
       clearHold();
-      if (longPressed) {
-        longPressed = false;
+      // 롱프레스가 발동되었거나 500ms 이상 눌려있었다면 일반 탭 동작 무시
+      if (isLongPress || (pressStartTime && performance.now() - pressStartTime >= 500)) {
+        isLongPress = false;
         return;
       }
       adjustBjBet(direction);
