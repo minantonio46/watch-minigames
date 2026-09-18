@@ -35,7 +35,7 @@ const cards = {
   reaction: { icon: 'ϟ', title: () => tr('반응속도', 'Reaction'), help: () => tr('초록색이면 터치', 'Tap when green') },
   taps: { icon: '◎', title: () => tr('10초 연타', 'Tap Rush'), help: () => tr('10초 동안 빠르게', 'Tap fast for 10 seconds') },
   timing: { icon: '◷', title: () => tr('5초 맞추기', 'Five Seconds'), help: () => tr('나만의 시간 감각', 'Feel the five-second mark') },
-  runner: { icon: '[>]', title: () => tr('러너', 'Runner'), help: () => tr('짧게 점프 · 꾹 누르면 연속', 'Tap to jump · hold to repeat') },
+  runner: { icon: '[>]', title: () => tr('러너', 'Runner'), help: () => tr('끝없는 장애물 질주', 'Endless obstacle dash') },
   blackjack: { icon: '♠', title: () => tr('블랙잭', 'Blackjack'), help: () => tr('21에 가깝게', 'Get close to 21') },
   settings: { icon: '⚙', title: () => tr('설정', 'Settings'), help: () => tr('언어 · 화면 테마', 'Language · Theme') }
 };
