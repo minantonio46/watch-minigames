@@ -63,7 +63,7 @@ const guideData = {
   reaction: {
     icon: 'ϟ',
     shortTitle: () => tr('반응속도', 'Reaction'),
-    title: () => tr('반응속도 (동체시력)', 'Reaction Time'),
+    title: () => tr('반응속도', 'Reaction Time'),
     summary: () => tr('화면이 초록색으로 바뀌는 순간 최대한 빠르게 반응하여 터치하는 순발력 게임입니다.', 'Test your reflexes by tapping as fast as possible the moment the screen turns green.'),
     touch: () => tr('화면 아무 곳이나 가볍게 한 번 터치합니다.', 'Tap anywhere on the screen when green appears.'),
     keyboard: () => tr('키보드의 아무 키(스페이스, 엔터, 문자키 등)나 가볍게 누릅니다.', 'Press any key (Space, Enter, letter keys, etc.).'),
