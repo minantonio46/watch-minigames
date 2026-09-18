@@ -105,11 +105,11 @@
 
 /* 4. Betting Mode: When hands are hidden, center the betting controls in the available middle space */
 .watch:has(.bj-table:not([hidden])) .bj-table:has(.bj-hand[hidden]) #bj-controls {
-  top:calc(var(--header-top) + var(--header-height) + var(--square) * .055);
-  bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height) + var(--square) * .051);
+  top:calc(var(--header-top) + var(--header-height) + var(--square) * .045);
+  bottom:calc(var(--frame-footer-gap) + var(--bottom-bar-height) + var(--square) * .045);
   flex-direction:column;
   justify-content:center;
-  gap:calc(var(--square) * .025);
+  gap:calc(var(--square) * .036);
 }
 
 .bj-cards {
@@ -159,19 +159,19 @@
 .bj-suit { font-size:calc(var(--square) * .048); line-height:1; }
 .bj-rank { font-size:calc(var(--square) * .058); line-height:1; margin-top:calc(var(--square) * .004); }
 .bj-rank.two-digit { font-size:calc(var(--square) * .048); letter-spacing:-.06em; }
-.bj-bet-controls { width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(var(--square) * .022); }
-.bj-bankroll { font-size:calc(var(--square) * .042); font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; line-height:1.2; display:inline-flex; align-items:center; justify-content:center; padding:calc(var(--square) * .008) calc(var(--square) * .035); border-radius:9999px; background:color-mix(in srgb,var(--card) 75%,transparent); border:1px solid color-mix(in srgb,var(--border) 65%,transparent); }
-.bj-bet-picker { display:flex; align-items:center; justify-content:center; gap:calc(var(--square) * .024); }
-.bj-bet { min-width:calc(var(--square) * .24); text-align:center; font-size:calc(var(--square) * .046); font-weight:800; color:var(--fg); font-variant-numeric:tabular-nums; line-height:1.2; }
+.bj-bet-controls { width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(var(--square) * .034); }
+.bj-bankroll { font-size:calc(var(--square) * .050); font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; line-height:1.2; display:inline-flex; align-items:center; justify-content:center; padding:calc(var(--square) * .010) calc(var(--square) * .045); border-radius:9999px; background:color-mix(in srgb,var(--card) 75%,transparent); border:1px solid color-mix(in srgb,var(--border) 65%,transparent); }
+.bj-bet-picker { display:flex; align-items:center; justify-content:center; gap:calc(var(--square) * .036); }
+.bj-bet { min-width:calc(var(--square) * .28); text-align:center; font-size:calc(var(--square) * .058); font-weight:800; color:var(--fg); font-variant-numeric:tabular-nums; line-height:1.2; }
 .bj-btn { flex:0 0 auto; width:calc(var(--square) * .28); max-width:calc(var(--square) * .28); height:calc(var(--square) * .115); min-height:calc(var(--square) * .115); max-height:calc(var(--square) * .115); border-radius:9999px; border:1px solid var(--border); background:var(--card); color:var(--fg); font-size:var(--game-body-size); font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation; transition:transform 0.1s,filter 0.15s; }
 .bj-btn.bj-bet-step {
   flex:0 0 auto;
-  width:calc(var(--square) * .10);
-  height:calc(var(--square) * .10);
-  min-width:calc(var(--square) * .10);
-  max-width:calc(var(--square) * .10);
-  min-height:calc(var(--square) * .10);
-  max-height:calc(var(--square) * .10);
+  width:calc(var(--square) * .135);
+  height:calc(var(--square) * .135);
+  min-width:calc(var(--square) * .135);
+  max-width:calc(var(--square) * .135);
+  min-height:calc(var(--square) * .135);
+  max-height:calc(var(--square) * .135);
   border-radius:50%;
   aspect-ratio:1 / 1;
   padding:0;
@@ -201,13 +201,13 @@
 }
 /* Horizontal bar for both minus and plus */
 .bj-btn.bj-bet-step::before {
-  width:calc(var(--square) * .042);
-  height:calc(var(--square) * .006);
+  width:calc(var(--square) * .056);
+  height:calc(var(--square) * .008);
 }
 /* Vertical bar only for plus */
 #bj-bet-up::after {
-  width:calc(var(--square) * .006);
-  height:calc(var(--square) * .042);
+  width:calc(var(--square) * .008);
+  height:calc(var(--square) * .056);
 }
 .bj-btn.bj-bet-step:active {
   transform:scale(0.92);
@@ -222,9 +222,9 @@
 }
 .bj-btn { white-space:pre-line; line-height:1.15; }
 .bj-btn:active { transform:scale(0.93); }
-.bj-btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); width:calc(var(--square) * .44); max-width:calc(var(--square) * .44); font-weight:800; height:calc(var(--square) * .115); min-height:calc(var(--square) * .115); max-height:calc(var(--square) * .115); font-size:calc(var(--square) * .044); box-shadow:0 calc(var(--square) * .006) calc(var(--square) * .018) color-mix(in srgb,var(--accent) 30%,transparent); }
-#bj-continue { width:calc(var(--square) * .38); max-width:calc(var(--square) * .38); }
-#bj-deal { flex:0 0 auto; width:calc(var(--square) * .44); max-width:calc(var(--square) * .44); height:calc(var(--square) * .115); min-height:calc(var(--square) * .115); max-height:calc(var(--square) * .115); }
+.bj-btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); width:calc(var(--square) * .58); max-width:calc(var(--square) * .58); font-weight:800; height:calc(var(--square) * .145); min-height:calc(var(--square) * .145); max-height:calc(var(--square) * .145); font-size:calc(var(--square) * .054); box-shadow:0 calc(var(--square) * .006) calc(var(--square) * .018) color-mix(in srgb,var(--accent) 30%,transparent); }
+#bj-continue { width:calc(var(--square) * .44); max-width:calc(var(--square) * .44); height:calc(var(--square) * .13); min-height:calc(var(--square) * .13); max-height:calc(var(--square) * .13); font-size:calc(var(--square) * .048); }
+#bj-deal { flex:0 0 auto; width:calc(var(--square) * .58); max-width:calc(var(--square) * .58); height:calc(var(--square) * .145); min-height:calc(var(--square) * .145); max-height:calc(var(--square) * .145); }
 
 body[data-state="waiting"] .bj-label,body[data-state="ready"] .bj-label,
 body[data-state="waiting"] .bj-score,body[data-state="ready"] .bj-score { color:inherit; }
