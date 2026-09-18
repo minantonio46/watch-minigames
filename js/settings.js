@@ -31,7 +31,7 @@ function applyLanguage() {
   $('#guide-next')?.setAttribute('aria-label', tr('다음 게임', 'Next game'));
   $('#guide-close-label').textContent = tr('설정', 'Settings');
   $('#guide-summary-label').textContent = tr('게임 개요', 'Overview');
-  $('#guide-touch-label').textContent = tr('워치 터치 조작', 'Watch Touch');
+  $('#guide-touch-label').textContent = tr('모바일 조작', 'Mobile Controls');
   $('#guide-keyboard-label').textContent = tr('PC 키보드 조작', 'PC Keyboard');
   $('#guide-tips-label').textContent = tr('공략 팁 & 규칙', 'Tips & Rules');
   $('#records-label').textContent = tr('기록', 'Records');
