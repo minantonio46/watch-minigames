@@ -58,6 +58,15 @@ function syncSettingChoices() {
   }
 }
 
+function clearResetRecordsStatus() {
+  if (resetRecordsStatusTimer) {
+    clearTimeout(resetRecordsStatusTimer);
+    resetRecordsStatusTimer = null;
+  }
+  const statusEl = $('#reset-records-status');
+  if (statusEl) statusEl.textContent = '';
+}
+
 function closeResetRecordsDialog() {
   $('#reset-records-confirm').hidden = true;
   resetRecordsTrigger?.focus();
@@ -65,11 +74,21 @@ function closeResetRecordsDialog() {
 }
 
 // Event Listeners
-$('#settings-back').addEventListener('click', () => { location.hash = ''; });
+$('#settings-back').addEventListener('click', () => {
+  clearResetRecordsStatus();
+  location.hash = '';
+});
+
+window.addEventListener('hashchange', () => {
+  if (location.hash !== '#settings') {
+    clearResetRecordsStatus();
+  }
+});
 
 $$('[data-language-choice]').forEach(button => button.addEventListener('click', () => {
   language = button.dataset.languageChoice;
   writePreference('watch-language', language);
+  clearResetRecordsStatus();
   applyLanguage();
 }));
 
@@ -97,10 +116,12 @@ $$('[data-theme-choice]').forEach(button => button.addEventListener('click', () 
   applyTheme();
 }));
 
+let resetRecordsStatusTimer = null;
+
 $('#reset-records').addEventListener('click', () => {
   resetRecordsTrigger = document.activeElement;
   $('#reset-records-confirm').hidden = false;
-  $('#reset-records-status').textContent = '';
+  clearResetRecordsStatus();
   $('#reset-records-cancel').focus();
 });
 
@@ -111,7 +132,14 @@ $('#reset-records-cancel').addEventListener('click', () => {
 $('#reset-records-confirm-button').addEventListener('click', () => {
   try { recordKeys.forEach(key => localStorage.removeItem(key)); } catch (_) {}
   closeResetRecordsDialog();
-  $('#reset-records-status').textContent = tr('최고 기록을 초기화했어요.', 'Best records have been reset.');
+  clearResetRecordsStatus();
+  const statusEl = $('#reset-records-status');
+  if (statusEl) {
+    statusEl.textContent = tr('최고 기록을 초기화했어요.', 'Best records have been reset.');
+    resetRecordsStatusTimer = setTimeout(() => {
+      clearResetRecordsStatus();
+    }, 4000);
+  }
   if (window.updateGameBestDisplay) window.updateGameBestDisplay();
 });
 
