@@ -31,13 +31,32 @@ function buildSlides() {
 function applyContinuousTween() {
   if (!emblaApi || !carouselNode) return;
   const isLightTheme = document.documentElement.dataset.theme === 'light';
+  const selectedIndex = emblaApi.selectedScrollSnap();
   const carouselRect = carouselNode.getBoundingClientRect();
   if (!carouselRect.width) return;
   const viewportCenter = carouselRect.left + carouselRect.width / 2;
   const deadZone = 8;
   const maxDist = carouselRect.width * 0.58;
 
-  slides.forEach(slide => {
+  slides.forEach((slide, index) => {
+    const card = slide.querySelector('.carousel-card');
+    const inner = slide.querySelector('.card-inner');
+    const help = slide.querySelector('.card-help');
+
+    // The selected card is the main panel. Keep its full treatment even while
+    // Embla is settling or reinitialising and its measured centre is transient.
+    if (index === selectedIndex) {
+      if (card) {
+        card.style.transform = 'scale(1)';
+        card.style.opacity = '1';
+        card.style.zIndex = '2';
+        card.style.boxShadow = isLightTheme ? 'none' : '0 10px 32px #0004';
+      }
+      if (inner) inner.style.transform = 'translateX(0)';
+      if (help) help.style.opacity = '1';
+      return;
+    }
+
     const rect = slide.getBoundingClientRect();
     const slideCenter = rect.left + rect.width / 2;
     const offsetFromCenter = slideCenter - viewportCenter;
@@ -51,7 +70,6 @@ function applyContinuousTween() {
     const direction = dist <= deadZone ? 0 : (offsetFromCenter < 0 ? 1 : -1);
     const innerShift = direction * progress * carouselRect.width * 0.16;
 
-    const card = slide.querySelector('.carousel-card');
     if (card) {
       card.style.transform = `scale(${scale.toFixed(4)})`;
       card.style.opacity = opacity.toFixed(4);
@@ -64,12 +82,10 @@ function applyContinuousTween() {
       }
     }
 
-    const inner = slide.querySelector('.card-inner');
     if (inner) {
       inner.style.transform = `translateX(${innerShift.toFixed(2)}px)`;
     }
 
-    const help = slide.querySelector('.card-help');
     if (help) {
       help.style.opacity = helpOpacity.toFixed(4);
     }
