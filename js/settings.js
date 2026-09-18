@@ -88,7 +88,7 @@ const guideData = {
     tips: () => tr('마음속으로 시계 초침 소리를 상상하거나 1부터 5까지 균일한 템포로 세어보세요. 오차가 0에 가까울수록 최고 기록입니다.', 'Count in a steady cadence like "one thousand one, one thousand two...". Lower error margin is better!')
   },
   runner: {
-    icon: '🏃',
+    icon: '[>]',
     shortTitle: () => tr('러너', 'Runner'),
     title: () => tr('러너', 'Runner'),
     summary: () => tr('오른쪽에서 쉼 없이 달려오는 지상과 공중의 다양한 장애물들을 뛰어넘으며 멀리 달리는 아케이드 게임입니다.', 'Dodge procedurally generated ground and airborne obstacles to survive as far as possible.'),
