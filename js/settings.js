@@ -252,6 +252,31 @@ $('#guide-close')?.addEventListener('click', () => {
   closeGuideModal();
 });
 
+// 워치 터치 좌우 스와이프로 가이드 게임 넘기기
+let guideTouchStartX = 0;
+let guideTouchStartY = 0;
+const guideModalEl = $('#guide-modal');
+guideModalEl?.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    guideTouchStartX = e.touches[0].clientX;
+    guideTouchStartY = e.touches[0].clientY;
+  }
+}, { passive: true });
+
+guideModalEl?.addEventListener('touchend', (e) => {
+  if (e.changedTouches.length === 1) {
+    const deltaX = e.changedTouches[0].clientX - guideTouchStartX;
+    const deltaY = e.changedTouches[0].clientY - guideTouchStartY;
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      if (deltaX < 0) {
+        stepGuideGame(1);
+      } else {
+        stepGuideGame(-1);
+      }
+    }
+  }
+}, { passive: true });
+
 let resetRecordsStatusTimer = null;
 
 $('#reset-records').addEventListener('click', () => {
