@@ -202,6 +202,7 @@
         isLongPress = true;
         holdTimer = null;
         setBjBetExtreme(direction);
+        navigator.vibrate?.(25);
       }, 500);
     });
 
