@@ -97,7 +97,7 @@
   display:flex;
   align-items:center;
   justify-content:center;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
   gap:calc(var(--square) * .02);
   pointer-events:auto;
   margin:0;
@@ -223,7 +223,36 @@
 .bj-btn { white-space:pre-line; line-height:1.15; }
 .bj-btn:active { transform:scale(0.93); }
 .bj-btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); width:calc(var(--square) * .58); max-width:calc(var(--square) * .58); font-weight:800; height:calc(var(--square) * .145); min-height:calc(var(--square) * .145); max-height:calc(var(--square) * .145); font-size:calc(var(--square) * .054); box-shadow:0 calc(var(--square) * .006) calc(var(--square) * .018) color-mix(in srgb,var(--accent) 30%,transparent); }
-#bj-continue { width:calc(var(--square) * .44); max-width:calc(var(--square) * .44); height:calc(var(--square) * .13); min-height:calc(var(--square) * .13); max-height:calc(var(--square) * .13); font-size:calc(var(--square) * .048); }
+
+#bj-hit, #bj-stand, #bj-continue, #bj-new {
+  flex:0 0 auto;
+  width:calc((var(--content-width) - var(--square) * .02) / 2);
+  max-width:calc((var(--content-width) - var(--square) * .02) / 2);
+  height:calc(var(--square) * .115);
+  min-height:calc(var(--square) * .115);
+  max-height:calc(var(--square) * .115);
+  font-size:calc(var(--square) * .035);
+  padding:0 calc(var(--square) * .01);
+}
+#bj-continue {
+  font-size:calc(var(--square) * .038);
+}
+#bj-new {
+  font-size:calc(var(--square) * .030);
+  line-height:1.18;
+}
+#bj-continue[hidden] ~ #bj-new {
+  width:calc(var(--square) * .58);
+  max-width:calc(var(--square) * .58);
+  height:calc(var(--square) * .135);
+  min-height:calc(var(--square) * .135);
+  max-height:calc(var(--square) * .135);
+  font-size:calc(var(--square) * .042);
+  background:var(--accent);
+  color:var(--bg);
+  border-color:var(--accent);
+  font-weight:800;
+}
 #bj-deal { flex:0 0 auto; width:calc(var(--square) * .58); max-width:calc(var(--square) * .58); height:calc(var(--square) * .145); min-height:calc(var(--square) * .145); max-height:calc(var(--square) * .145); }
 
 body[data-state="waiting"] .bj-label,body[data-state="ready"] .bj-label,

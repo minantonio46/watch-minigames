@@ -294,15 +294,15 @@
 
   function continueBjDealerTurn() {
     if (current !== 'blackjack' || bjState !== 'dealer') return;
-    const playerScore = calcBjHand(bjPlayer);
     const dealerScore = calcBjHand(bjDealer);
 
-    // If dealer's current hand is already strictly greater than player's hand, stand immediately to win
-    if (dealerScore > playerScore) {
-      endBlackjack('lose');
+    // If dealer busted, player wins immediately
+    if (dealerScore > 21) {
+      endBlackjack('dealer_bust');
       return;
     }
 
+    // Dealer must hit on 16 and below
     if (dealerScore < 17) {
       bjDealer.push(drawBjCard());
       updateBjUI(false);
@@ -310,10 +310,10 @@
       return;
     }
 
-    const finalDealerScore = calcBjHand(bjDealer);
-    if (finalDealerScore > 21) endBlackjack('dealer_bust');
-    else if (playerScore > finalDealerScore) endBlackjack('win');
-    else if (playerScore < finalDealerScore) endBlackjack('lose');
+    // Dealer stands on 17-21; compare with player score
+    const playerScore = calcBjHand(bjPlayer);
+    if (playerScore > dealerScore) endBlackjack('win');
+    else if (playerScore < dealerScore) endBlackjack('lose');
     else endBlackjack('push');
   }
 
@@ -385,7 +385,7 @@
     $('#bj-stand').textContent = tr('스탠드', 'Stand');
     $('#bj-deal').textContent = tr('게임 시작', 'Start game');
     $('#bj-continue').textContent = tr('이어하기', 'Continue');
-    $('#bj-new').textContent = tr('기록 후\n새로하기', 'Record & restart');
+    $('#bj-new').textContent = tr('기록 후\n새로하기', 'Record &\nrestart');
     $('#bj-bet-down').setAttribute('aria-label', tr('판돈 줄이기, 길게 눌러 최소 판돈', 'Lower bet; hold for minimum'));
     $('#bj-bet-up').setAttribute('aria-label', tr('판돈 늘리기, 길게 눌러 최대 판돈', 'Raise bet; hold for maximum'));
     if (bjState === 'idle') {
