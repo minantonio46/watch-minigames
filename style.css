@@ -1,10 +1,9 @@
-/* Common Base & Layout Styles */
-:root { color-scheme: dark; --bg:#080c12; --fg:#f1f5fc; --card:#162232; --border:#344457; --muted:#adc4dc; --accent:#8ac7ff; --win:#4ade80; --lose:#f87171; --square:min(100vw,100dvh); --frame-footer-gap:calc(var(--square) * .05); --header-top:calc(var(--frame-footer-gap) + var(--square) * .022); --header-height:calc(var(--square) * .08); --header-title-size:calc(var(--square) * .058); --footer-width:calc(var(--square) * .70); --content-width:var(--footer-width); --footer-surface:var(--bg); --footer-fg:var(--fg); --footer-border:var(--border); font-family:system-ui,sans-serif; background:var(--bg); color:var(--fg); }
+:root { color-scheme: dark; --bg:#080c12; --fg:#f1f5fc; --card:#162232; --border:#344457; --muted:#adc4dc; --accent:#8ac7ff; --win:#34d399; --lose:#fb7185; --square:min(100vw,100dvh); --frame-footer-gap:calc(var(--square) * .05); --header-top:calc(var(--frame-footer-gap) + var(--square) * .022); --header-height:calc(var(--square) * .08); --header-title-size:calc(var(--square) * .058); --footer-width:calc(var(--square) * .70); --content-width:var(--footer-width); --footer-surface:var(--bg); --footer-fg:var(--fg); --footer-border:var(--border); font-family:system-ui,sans-serif; background:var(--bg); color:var(--fg); }
 :root {
   --bottom-bar-height:calc(var(--square) * .135);
   --bottom-bar-inset:calc(var(--square) * .016);
 }
-:root[data-theme="light"] { color-scheme:light; --bg:#f3f6fb; --fg:#12243a; --card:#fff; --border:#c3d1e2; --muted:#50647d; --accent:#1765b6; --win:#15803d; --lose:#b91c1c; }
+:root[data-theme="light"] { color-scheme:light; --bg:#f3f6fb; --fg:#12243a; --card:#fff; --border:#c3d1e2; --muted:#50647d; --accent:#1765b6; --win:#15803d; --lose:#dc2626; }
 :root[data-theme="contrast"] { color-scheme:dark; --bg:#000; --fg:#fff; --card:#000; --border:#fff; --muted:#fff; --accent:#00f0ff; --win:#00ff66; --lose:#ff2a5f; }
 * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 [hidden] { display:none !important; }
@@ -59,11 +58,11 @@ p,h1 { margin:0; }
 .menu-glyph { width:calc(var(--square) * .068); height:calc(var(--square) * .05); margin-top:calc(var(--square) * .006); background:linear-gradient(currentColor 0 0) 50% 0 / 100% 3px no-repeat, linear-gradient(currentColor 0 0) 50% 50% / 100% 3px no-repeat, linear-gradient(currentColor 0 0) 50% 100% / 100% 3px no-repeat; }
 #back:active { transform:translateX(-50%) scale(.96); }
 
-/* Full-screen game signals use theme-specific palettes. */
-body[data-state="waiting"] { background:#4a3511; color:#ffe6a3; --footer-surface:transparent; --footer-fg:#ffe6a3; --footer-border:#8c6928; }
-body[data-state="ready"] { background:#104325; color:#d1ffe1; --footer-surface:transparent; --footer-fg:#d1ffe1; --footer-border:#3e9c63; }
-:root[data-theme="light"] body[data-state="waiting"] { background:#fff0cf; color:#5b3c00; --footer-surface:transparent; --footer-fg:#5b3c00; --footer-border:#c58f24; }
-:root[data-theme="light"] body[data-state="ready"] { background:#dff8e8; color:#0b4b25; --footer-surface:transparent; --footer-fg:#0b4b25; --footer-border:#4b9c67; }
+/* Full-screen game signals use theme-specific palettes (Ready/Win = Green, Waiting/Lose = Red). */
+body[data-state="waiting"] { background:#2a0e17; color:#fecdd3; --footer-surface:transparent; --footer-fg:#fecdd3; --footer-border:#f43f5e; }
+body[data-state="ready"] { background:#08291b; color:#a7f3d0; --footer-surface:transparent; --footer-fg:#a7f3d0; --footer-border:#10b981; }
+:root[data-theme="light"] body[data-state="waiting"] { background:#ffe4e6; color:#9f1239; --footer-surface:transparent; --footer-fg:#9f1239; --footer-border:#f43f5e; }
+:root[data-theme="light"] body[data-state="ready"] { background:#dcfce7; color:#14532d; --footer-surface:transparent; --footer-fg:#14532d; --footer-border:#22c55e; }
 :root[data-theme="contrast"] body[data-state="waiting"] { background:#000; color:var(--lose); --footer-surface:transparent; --footer-fg:var(--lose); --footer-border:var(--lose); }
 :root[data-theme="contrast"] body[data-state="ready"] { background:#000; color:var(--win); --footer-surface:transparent; --footer-fg:var(--win); --footer-border:var(--win); }
 body[data-state="waiting"] #action,body[data-state="ready"] #action { color:inherit; }
